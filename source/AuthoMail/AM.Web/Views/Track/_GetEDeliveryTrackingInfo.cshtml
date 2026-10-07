@@ -1,0 +1,38 @@
+﻿@model IEnumerable<AM.Entities.EDeliveryStatusInfoModel>
+
+@if (Model.Count() > 0)
+{
+    <table class="table table-responsive">
+        <thead>
+            <tr>
+                <th>Activity Name</th>
+                <th>Activity TimeStamp (UTC)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.OrderByDescending(s => s.StepProcessingTimeStamp))
+            {
+                <tr>
+                    <td>@item.StepName</td>
+                    @if (item.StepName.Contains("On"))
+                    {
+                        <td>@item.StepProcessingTimeStamp</td>
+                    }
+                    else
+                    {
+                        <td>@item.StepTimeStamp</td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-yellow">
+        <h2 class="text-white">Not found</h2>
+        <span class="sbold">
+            This e-Delivery status cannot be found.
+        </span>
+    </div>
+}

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Duplicate Record Received In Batch <br />"<%BatchName%>" on <%yyyymmdd%> EST</h2>
+
+    <table>
+        <tr>
+            <th><%BusinessIdentifierIdName%></th>
+            <th>Recipient Name</th>
+            <th>Document Type</th>
+            <th>File Name</th>
+            <th>Address Street</th>
+            <th>City</th>
+            <th>State</th>
+            <th>Zip</th>
+        </tr>
+        <%DuplicateData%>
+        <tr>
+            <td colspan="2" style="width:6.65in;border:solid windowtext 1.0pt;border-top:none;padding:0in 5.4pt 0in 5.4pt" valign="top" width="638">
+                <p style="text-align:center" align="center"><span style="font-size:9.0pt">For more details regarding batch, you can login into <a href="https://authomail.corelogic.com/">AuthoMail</a>. <u></u><u></u></span></p>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+

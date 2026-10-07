@@ -1,0 +1,3 @@
+﻿CREATE SCHEMA [Profile]
+    AUTHORIZATION [dbo];
+

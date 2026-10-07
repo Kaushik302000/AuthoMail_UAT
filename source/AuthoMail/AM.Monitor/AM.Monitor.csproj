@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{E475E6E1-1E7F-4E0E-8590-832D9119E14A}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>AM.Monitor</RootNamespace>
+    <AssemblyName>AM.Monitor</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="configs\DEV_Config\Monitor\AM.Console.exe.config" />
+    <None Include="configs\DEV_Config\Monitor\log4net.config" />
+    <None Include="configs\DRG_Config\Monitor\AM.Console.exe.config" />
+    <None Include="configs\DRG_Config\Monitor\log4net.config" />
+    <None Include="configs\REG_Config\Monitor\AM.Console.exe.config" />
+    <None Include="configs\REG_Config\Monitor\log4net.config" />
+    <None Include="configs\UAT_Config\Monitor\AM.Console.exe.config" />
+    <None Include="configs\UAT_Config\Monitor\log4net.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="HTMLTemplates\MonitorEmailSubmitTemp.html" />
+    <Content Include="HTMLTemplates\MonitorEmailReportedBackTemp.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AM.Lib\AM.Lib.csproj">
+      <Project>{75996573-6449-4675-a5ff-f1c39c84d685}</Project>
+      <Name>AM.Lib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AM.Services\AM.Services.csproj">
+      <Project>{a60d6e77-74fc-419c-bf13-a7684012d0a5}</Project>
+      <Name>AM.Services</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

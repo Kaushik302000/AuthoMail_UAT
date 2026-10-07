@@ -1,0 +1,147 @@
+﻿@model AM.Services.DocTypePageRange
+
+@{
+    string bgcolor = ViewBag.isFallBack ? "background-color:#F4F2F2" : "";
+    string EnvelopeIdName = string.Format("DocTypes.DocTypePageRangeList[{0}].EnvelopeId", ViewBag.index);
+    string BREEnvelopeIdName = string.Format("DocTypes.DocTypePageRangeList[{0}].BREEnvelopeId", ViewBag.index);
+    bool isFallBackChecked = !(Model.DocTypesId == 0);
+    bool fallBackVal = Model.DocTypesId != 0 ? true : Model.IsFallBack;
+    string chkhide = isFallBackChecked ? "none" : "block";
+}
+<div class="rw" id="pagerangediv@(ViewBag.index)" style="@(bgcolor)">
+    <input type="hidden" name="DocTypes.DocTypePageRangeList[@ViewBag.index].DocTypesId" value="@Model.DocTypesId" />
+    @if (ViewBag.isFallBack)
+    {
+        string shippingCarrier = "USPS";
+        string isChecked = string.IsNullOrWhiteSpace(Model.ShippingCarrier) ? "" : "checked";
+        <input type="hidden" name="DocTypes.DocTypePageRangeList[@ViewBag.index].From" value="1" />
+        <input type="hidden" name="DocTypes.DocTypePageRangeList[@ViewBag.index].To" value="999" />
+        <div class="col-md-2 colmd">
+            <div class="col-md-2" style="padding-left:0px;">
+                <input class="colmda cl-check chkbx" type="checkbox" @isChecked name="DocTypes.DocTypePageRangeList[@ViewBag.index].IsFallBack" id="DocTypes.DocTypePageRangeList[@ViewBag.index].IsFallBack" value="@fallBackVal" style="display:@chkhide" />
+                <label for="DocTypes.DocTypePageRangeList[@ViewBag.index].IsFallBack" style="display:@chkhide"></label>
+                @if (isFallBackChecked)
+                {
+                    <span style="font-size:18px;"><i class="fa fa-check-square"></i></span>
+                }
+            </div>
+            <div class="col-md-5 colmd">
+                <label class="form-control frm-control" title="From">1</label>
+            </div>
+            <div class="col-md-5" style="padding-left:5px;padding-right:0px;">
+                <label class="form-control frm-control" title="To">999</label>
+            </div>
+        </div>
+        <div class="col-md-2 colmd">
+            <label class="form-control frm-control">@shippingCarrier</label>
+            <input type="hidden" name="DocTypes.DocTypePageRangeList[@ViewBag.index].ShippingCarrier" value="@shippingCarrier" />
+        </div>
+        <div class="col-md-2 colmd">
+            <label class="form-control frm-control">@ViewBag.shippingServiceType</label>
+            <input type="hidden" name="DocTypes.DocTypePageRangeList[@ViewBag.index].ShippingServiceType" value="@ViewBag.shippingServiceType" />
+        </div>
+    }
+    else
+    {
+        string shippingCarrierName = string.Format("DocTypes.DocTypePageRangeList[{0}].ShippingCarrier", ViewBag.index);
+        string shippingServiceTypeName = string.Format("DocTypes.DocTypePageRangeList[{0}].ShippingServiceType", ViewBag.index);
+        <div class="col-md-2 colmd">
+            <div class="col-md-2" style="padding-left:0px;">
+                @if (Model.DocTypesId == 0 && ViewBag.index != 2)
+                {
+                    <a href="#" class="colmda deletedoctype" data-id="@Model.DocTypesId" data-index="@(ViewBag.index)" title="Delete"><i class="fa fa-trash"></i></a>
+                }
+            </div>
+            <div class="col-md-5 colmd">
+                <input class="form-control frm-control" placeholder="From" type="number" min="1" title="From" value="@Model.From" name="DocTypes.DocTypePageRangeList[@ViewBag.index].From" id="From@(ViewBag.index)" />
+            </div>
+            <div class="col-md-5" style="padding-left:5px;padding-right:0px;">
+                <input class="form-control frm-control" placeholder="To" type="number" min="1" max="999" pattern="" title="To field value must be between 1 to 999." value="@Model.To" name="DocTypes.DocTypePageRangeList[@ViewBag.index].To" id="To@(ViewBag.index)" />
+            </div>
+        </div>
+        <div class="col-md-2 colmd">
+
+            @Html.DropDownList(shippingCarrierName,
+           (IEnumerable<SelectListItem>)ViewBag.ShippingCarrierdropDown, htmlAttributes: new
+            {
+                @class = " form-control selectpicker frm-control",
+                @data_live_search = "true",
+                @data_live_search_placeholder = "Search Shipping Carrier",
+                @data_title = "Shipping Carrier"
+            })
+        </div>
+        <div class="col-md-2 colmd">
+            @Html.DropDownList(shippingServiceTypeName,
+           (IEnumerable<SelectListItem>)ViewBag.ShippingServiceTypedropDown, htmlAttributes: new
+           {
+                    @class = " form-control selectpicker",
+               @data_live_search = "true",
+               @data_live_search_placeholder = "Search Shipping Service Type",
+               @data_title = "Shipping Service Type"
+                })
+        </div>
+    }
+    <div class="col-md-2 colmd">
+        <select data-live-search="true" data-live-search-placeholder="Select Shipping Special Service" class="form-control selectpicker" multiple="multiple" name="DocTypes.DocTypePageRangeList[@ViewBag.index].ShippingSpecialServiceList" title="Shipping Special Service">
+            @foreach (var item in ViewBag.ShippingSpecialService as List<SelectListItem>)
+            {
+                var lst = Model.ShippingSpecialService == null ? new List<string>() : Model.ShippingSpecialService.Split(',').ToList();
+                string sel = lst.Any(l => l == item.Value) ? "selected" : "";
+                <option value="@item.Value" @sel>@item.Text</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2 colmd">
+        @Html.DropDownList(EnvelopeIdName,
+       (IEnumerable<SelectListItem>)ViewBag.EnvelopedropDown,
+       htmlAttributes: new
+            {
+           @class = " form-control selectpicker",
+                @data_live_search = "true",
+                @data_live_search_placeholder = "Search Envelope",
+                @data_title = "Envelope"
+            })
+    </div>
+    <div class="col-md-2 colmd" style="border-right:none;">
+        @Html.DropDownList(BREEnvelopeIdName,
+       (IEnumerable<SelectListItem>)ViewBag.BREEnvelopedropDown, htmlAttributes: new
+            {
+           @class = " form-control selectpicker",
+                @data_live_search = "true",
+                @data_live_search_placeholder = "Search BRE Envelope",
+                @data_title = "BRE Envelope"
+            })
+    </div>
+    <div class="clearfix"></div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        window.clui.selectInit();
+        $('.chkbx').change(function (e) {
+            e.preventDefault();
+            $(this).val(this.checked);
+        });
+        var DeleteDocType = function () {
+            $('.deletedoctype').unbind('click');
+            $('.deletedoctype').bind('click', function (e) {
+                console.log($(this).attr("data-id"), $(this).data("id"));
+                var isConfirm = confirm("Are you sure to delete this DocType?");
+                if (isConfirm) {
+                    console.log($(this));
+                    var id = $(this).attr("data-id");
+                    var index = $(this).attr("data-index");
+                    if (id == 0) {
+                        $('input[name="DocTypes.DocTypePageRangeList[' + index + '].DocTypesId"]').val(-Math.floor((Math.random() * 100) + 1));
+                        $('input[name="DocTypes.DocTypePageRangeList[' + index + '].From"]').val($('input[name="DocTypes.DocTypePageRangeList[' + (index - 1) + '].From"]').val());
+                        $('input[name="DocTypes.DocTypePageRangeList[' + index + '].To"]').val($('input[name="DocTypes.DocTypePageRangeList[' + (index - 1) + '].To"]').val());
+                        $('#pagerangediv' + index).hide();
+                    }
+                    else {
+                        alertMessage("yellow", "DocType can't be delete.");
+                    }
+                }
+            });
+        }
+        DeleteDocType();
+    });
+</script>

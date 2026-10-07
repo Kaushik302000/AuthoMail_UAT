@@ -1,0 +1,496 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A37B4EB1-00EF-4185-8808-5864A32B0068}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>AM.Core</RootNamespace>
+    <AssemblyName>AM.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="itextsharp, Version=5.5.13.0, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\iTextSharp.5.5.13\lib\itextsharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PCI.Lib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Dlls\PCI.Lib.dll</HintPath>
+    </Reference>
+    <Reference Include="Renci.SshNet, Version=2016.1.0.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106, processorArchitecture=MSIL">
+      <HintPath>..\packages\SSH.NET.2016.1.0\lib\net40\Renci.SshNet.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AMCore.cs" />
+    <Compile Include="AMCoreService.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="AMCoreService.Designer.cs">
+      <DependentUpon>AMCoreService.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CreateFedExAPILabel.cs" />
+    <Compile Include="CreateFedExLabel.cs" />
+    <Compile Include="FedExEnum.cs" />
+    <Compile Include="FedExRequestResponse.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Service References\ShipWebServiceRef\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\USPSIMService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="SmartDocs.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="configs\DEV_Config\Core\AM.Core.exe.config" />
+    <None Include="configs\DEV_Config\Core\log4net.config" />
+    <None Include="configs\DRG_Config\Core\AM.Core.exe.config" />
+    <None Include="configs\DRG_Config\Core\log4net.config" />
+    <None Include="configs\REG_Config\Core\AM.Core.exe.config" />
+    <None Include="configs\REG_Config\Core\log4net.config" />
+    <None Include="configs\UAT_Config\Core\AM.Core.exe.config" />
+    <None Include="configs\UAT_Config\Core\log4net.config" />
+    <None Include="CoverTemplates\TDBANK\TDBANK_USPS_10_6X95.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\TDBANK\TDBANK_USPS_9X12_Tyvek.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\CSSINVOICES\CSSINVOICES_USPS_10_6X95.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\CSSINVOICES\CSSINVOICES_USPS_9X12_Tyvek.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\BECU\BECU_USPS_#10_6X95.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\BlankPage.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\BOTW\BOTW_USPS_#10_6X95.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\CAPONE\CAPONE_USPS_#10_6X95.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\CREDCO\CREDCO_USPS_10_6X95.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\CREDCO\CREDCO_USPS_9X12_Tyvek.pdf" />
+    <None Include="CoverTemplates\DELFUS\9X12.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\DELFUS\Chase.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\DELFUS\DW.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\DELFUS\HUNTINGTON.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\DELFUS\JPMor.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\DELFUS\OpenDisplay.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\DELFUS\PHL_OpenDisplay.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\ELLIEMAE\ELLIEMAE_USPS_10_6X95.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\ELLIEMAE\ELLIEMAE_USPS_9X12_Tyvek.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\ALASKA\ALASKA_USPS_10_6X95.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\ALASKA\ALASKA_USPS_9X12_Tyvek.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\ALASKA\ALASKA_USPS_Generic_1.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\BECU\BECU_USPS_9X12_Tyvek.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\BECU\BECU_USPS_Generic_1.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\BECU\BECU_USPS_EndPage_1.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\BECU_FrontBarcode.pdf" />
+    <None Include="CoverTemplates\BECU__IMBWith_A_Barcode.pdf" />
+    <None Include="CoverTemplates\BOTW\BOTW_USPS_10_FrontBarcoded_1.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\BOTW\BOTW_USPS_9X12_Tyvek.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\BOTW\BOTW_USPS_Generic_1.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\BarcodedFrontPageTemplate.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\BOTW\BOTW_USPS_Generic_FrontBarcoded_1.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\BOTW\BOTW_USPS_EndPage_1.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\FedExBarcodedEndPageTemplate.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\Generic_Template95X12.pdf" />
+    <None Include="CoverTemplates\HOMEPOINTFLOOD\HOMEPOINTFLOOD_USPS_#10_6X95.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\HSBC\HSBC_#10CustomEnvelope.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\HSBC\HSBC_USPS_#10_6X95.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\HSBC\HSBC_USPS_10_1.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\HSBC\HSBC_USPS_9X12_Tyvek.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\HSBC\HSBC_USPS_Generic_1.pdf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\HSBC\HSBC_USPS_EndPage_1.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\HSBC_FrontBarcode.pdf" />
+    <None Include="CoverTemplates\HSBC_IMBWith_A_Barcode.pdf" />
+    <None Include="CoverTemplates\MTBANK\MTBANK_USPS_#10_6X95.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\PENFED\PENFED_USPS_#10_6X95.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\PENFED\PENFED_USPS_9X12_Tyvek.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\PENFED\PenFed_FedEx_EndPage_1.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\PENFED\PenFed_USPS_EndPage_1.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\S3\S3_USPS_#10_6X95.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\S3\S3_USPS_9X12_Tyvek.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\S3\S3_USPS_EndPage_1.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\S3\S3_USPS_Generic_1.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\TPV\TPV_9X12.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\UNIFYFCU\UNIFYFCU_USPS_#10_6X95.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\UNIFYFCU\UNIFYFCU_USPS_9X12_Tyvek.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\USAA\USAA_USPS_Generic_1.pdf" />
+    <None Include="CoverTemplates\USAA\USAA_USPS_95X12_Tyvek.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\USAA\USAA_USPS_#10_6X95.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\USAA\USAA_USPS_Generic_FrontBarcode_1.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\USAA\USAA_FedEx_EndPage_1.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\USAA\USAA_USPSExpressMailing_Generic_1.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\USAA\USAA_USPS_Generic_1_PCIOLD.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\USAA\USAA_USPS_EndPage_1.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CoverTemplates\USAA_Template.pdf" />
+    <None Include="CoverTemplates\USPSBarcodedEndPageTemplate.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="log4net.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="packages.config" />
+    <None Include="Service References\ShipWebServiceRef\AM.Core.ShipWebServiceRef.deleteTagResponse1.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ShipWebServiceRef\AM.Core.ShipWebServiceRef.ProcessShipmentReply.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ShipWebServiceRef\AM.Core.ShipWebServiceRef.processShipmentResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ShipWebServiceRef\AM.Core.ShipWebServiceRef.ProcessTagReply.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ShipWebServiceRef\AM.Core.ShipWebServiceRef.processTagResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ShipWebServiceRef\AM.Core.ShipWebServiceRef.ShipmentReply.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ShipWebServiceRef\ShipServiceDefinitions.wsdl" />
+    <None Include="Service References\USPSIMService\AM.Core.USPSIMService.IMBarcodeInfo.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\USPSIMService\AM.Core.USPSIMService.USPSTrackingInfo.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\USPSIMService\USPSIM.wsdl" />
+    <None Include="Service References\USPSIMService\USPSIM.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\USPSIMService\USPSIM1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\USPSIMService\USPSIM2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AM.Entities\AM.Entities.csproj">
+      <Project>{f25362e2-a823-430e-8187-3bca3fd4c891}</Project>
+      <Name>AM.Entities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AM.Lib\AM.Lib.csproj">
+      <Project>{75996573-6449-4675-a5ff-f1c39c84d685}</Project>
+      <Name>AM.Lib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AM.Services\AM.Services.csproj">
+      <Project>{a60d6e77-74fc-419c-bf13-a7684012d0a5}</Project>
+      <Name>AM.Services</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AM.USPSLib\AM.USPSLib.csproj">
+      <Project>{c221d27e-c501-4838-b58f-d06c97e07923}</Project>
+      <Name>AM.USPSLib</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Base64\DELFUS_0005851.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0005937.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0008247.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0010014.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0010081.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0010081B&amp;W.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0010185.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0010230.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0010247.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0010247B&amp;W.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0010286.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0010286B&amp;W.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0010397.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0010397B&amp;W.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0010473.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0010498.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0010989.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0011085.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0011086.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0011883.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0012240.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0012322mrc.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0012322usa.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0012322usn.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0012322uwm.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0012322vul.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0029976.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0030994.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0041604.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0048320.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0048321.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0054608.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0058055.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0070999.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0077777.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0086076.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Base64\DELFUS_0087126.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Dlls\PCI.Lib.dll" />
+    <None Include="Service References\ShipWebServiceRef\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Service References\ShipWebServiceRef\configuration.svcinfo" />
+    <None Include="Service References\ShipWebServiceRef\configuration91.svcinfo" />
+    <None Include="Service References\USPSIMService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Service References\USPSIMService\configuration.svcinfo" />
+    <None Include="Service References\USPSIMService\configuration91.svcinfo" />
+    <None Include="Service References\USPSIMService\USPSIM.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\ShipWebServiceRef\" />
+    <WCFMetadataStorage Include="Service References\USPSIMService\" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

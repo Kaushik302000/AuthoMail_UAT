@@ -1,0 +1,1018 @@
+﻿@{
+    ViewBag.Title = "Report Wizard";
+}
+
+<link href="~/clui/dist/css/datatablecustom.css" rel="stylesheet" />
+<style>
+    .col-md-1, .col-md-2, .col-md-3 {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    #businessIddiv .bootstrap-select {
+        width: 165px !important;
+    }
+
+    .popover-content {
+        word-wrap: break-word;
+        color: red;
+    }
+
+    .tooltip-inner {
+        /*max-width: 453px !important;*/
+        word-wrap: break-word !important;
+    }
+
+    .show-calendar {
+        width: 484px !important;
+    }
+
+    hr {
+        margin-top: 20px;
+        margin-bottom: 4px;
+    }
+
+    .margin-bottom-2 {
+        margin-bottom: 2px !important;
+    }
+</style>
+<div class="panel-group">
+    <div class="panel panel-default">
+        <div class="panel-heading" id="headingOne">
+            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
+                <div class="panel-title">
+
+                    Report Wizard
+                    <div class="collapsed-icon pull-right">
+                        <i class="fa fa-caret-left"></i>
+                    </div>
+                    <div class="expanded-icon pull-right">
+                        <i class="fa fa-caret-down"></i>
+                    </div>
+
+                </div>
+            </a>
+
+        </div>
+        <div id="collapseThree" class="panel-collapse collapse in">
+            <div class="panel-body">
+                <form action="#" id="searchform">
+                    <div class="row">
+                        <div class="col-md-@(ViewBag.BusinessId.Count > 1?"4":"3")" id="businessIddiv">
+                            @if (ViewBag.BusinessId.Count == 1)
+                            {
+                                <label for="BusinessFriendlyIdValue">@ViewBag.BusinessId[0]</label>
+                                <div class="input-group">
+                                    <i class="fa fa-search left-icon"></i>
+                                    <input class="form-control" name="BusinessFriendlyIdValue" value="@ViewBag.BusinessFriendlyIdValue" placeholder="@ViewBag.BusinessId[0]" id="BusinessFriendlyIdValue">
+                                    <input type="hidden" value="@ViewBag.BusinessId[0]" name="BusinessFriendlyIdName" id="BusinessFriendlyIdName" />
+                                </div>
+                                <div class="text-red pull-left" style="display:none" id="BusinessFriendlyIdValueError">This field is required.</div>
+                            }
+                            else if (ViewBag.BusinessId.Count > 1)
+                            {
+                                <label for="BusinessFriendlyIdName">Select Business ID</label>
+                                <div class="input-group">
+
+                                    <select id="BusinessFriendlyIdName" class="selectpicker" data-live-search="true" data-live-search-placeholder="Search Business ID">
+                                        <option value="">Select BusinessId</option>
+                                        @foreach (var item in ViewBag.BusinessId)
+                                        {
+                                            <option value="@item.ToString()">@item.ToString()</option>
+                                        }
+                                    </select>
+                                    <input class="form-control" name="BusinessFriendlyIdValue" placeholder="" id="BusinessFriendlyIdValue">
+
+                                </div>
+                            }
+                            else
+                            {
+                                <br />
+                                <div class='alert alert-yellow'><div>No business friendly id found!</div></div>
+                            }
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="DocType">Document Type</label>
+                                @Html.DropDownList("DocType", ViewBag.DocType as SelectList, htmlAttributes: new { @class = "selectpicker", @multiple = "multiple", @data_live_search = "true", @data_live_search_placeholder = "Search Document Type" })
+                            </div>
+
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label for="Status">Status</label>
+                                <select class="selectpicker" id="Status" data-live-search="true" data-live-search-placeholder="Search Status">
+                                    <option value="">
+                                        Select Status
+                                    </option>
+                                    <option value="InProgress">In Progress</option>
+                                    <option value="PulledBack">Pulledback</option>
+                                    <option value="Error">Error</option>
+                                    <option value="Shipped">Shipped</option>
+                                    <option value="eDelivered">eDelivered</option>
+                                    <option value="eSigned">eSigned</option>
+                                </select>
+                            </div>
+
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label for="Channel">Channel</label>
+                                @Html.Action("_Channel", "Common")
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="receivedOn">Received  On (EST)</label>
+                                <div class="input-group " id="datepicker4">
+                                    <input type="text" class="form-control" autocomplete="off" placeholder="Select Date" id="receivedOn">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="TrackingNumber">Tracking Number</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="TrackingNumber" placeholder="Tracking Number" id="TrackingNumber">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="BatchId">Shipping Method</label>
+                                <select class="selectpicker" id="ShippingMethod" multiple="multiple">
+                                    <option value="USPS-IMB">USPS-IMB</option>
+                                    <option value="USPS-PRIORITY">USPS-PRIORITY</option>
+                                    <option value="USPS-PRIORITY_EXPRESS">USPS-PRIORITY_EXPRESS</option>
+                                    <option value="FedEx-PRIORITY_OVERNIGHT">FedEx-PRIORITY_OVERNIGHT</option>
+                                </select>
+                            </div>
+                        </div>
+                        @if (User.IsInRole(AM.Entities.AMRoles.Admin) || User.IsInRole(AM.Entities.AMRoles.BA) || User.IsInRole(AM.Entities.AMRoles.BAOffShore))
+                        {
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="ClientId">Clients</label>
+                                    @Html.DropDownList("ClientId", ViewBag.ClientId as IEnumerable<SelectListItem>, htmlAttributes: new { @class = "selectpicker", @multiple = "multiple", @data_live_search = "true", @data_live_search_placeholder = "Search Client" })
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <input type="hidden" name="ClientId" id="ClientId" value="@ViewBag.ClientId" />
+                        }
+                        <div class="col-md-10">
+                            &nbsp;
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group ">
+                                <label for="filterData">  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                                <button type="button" id="filterData" class="btn btn-primary" style=" padding-top: 6%;">
+                                    <span class="sr-only">Filter</span>
+                                    <i class="fa fa-download"></i> Download Report
+                                </button>
+                            </div>
+                        </div>
+                        @*<div class="col-md-1" style=" margin-left: -2%;">
+                                <div class="form-group ">
+                                    <label for="filterData"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                                    <button type="button" id="resetFilter" title="Reset" class="btn btn-transparent-blue">
+                                        <i class="fa fa-undo"></i>
+                                    </button>
+                                </div>
+                            </div>*@
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+@*<div class="panel panel-default">
+        <div class='alert alert-blue text-center' id="loading" style="display:none"><span> Loading... </span></div>
+        <div class="panel-heading" id="searchHeader">
+            <div class="panel-title">
+                Report Wizard : <span class="normaltext" id="headerdate"></span>
+
+            </div>
+        </div>
+        <div class="panel-body" id="searchMailPieceList"></div>
+    </div>*@
+<!--Search table html template code -->
+<div id="SearchTableContent" style="display:none">
+    <table class="table table-responsive" style="overflow-x:scroll">
+        <thead>
+            <tr>
+                <th>Batch Id</th>
+                <th>Mailpiece Id</th>
+                <th>Channel</th>
+                <th>Document Type</th>
+                <th>Delivery Type</th>
+                <th>@Html.Action("GetHeadingForBusinessId", "Common")</th>
+                <th class="TrackingNoHide">Tracking Number</th>
+                <th class="TrackingNo">Tracking Number</th>
+                <th>Date Received<span class="fontcapitalize">(Local)</span></th>
+                <th>Date Printed<span class="fontcapitalize">(Local)</span></th>
+                <th>Date Mailed<span class="fontcapitalize">(Local)</span></th>
+                <th>Shiping Status</th>
+                <th>File Name</th>
+                <th>Client Code</th>
+                <th>Shipping Method</th>
+                <th>Name</th>
+                <th>Recipient Street Address</th>
+                <th>Recipient City</th>
+                <th>Print Location</th>
+                <th>Pages Shipped</th>
+                @*<th class="ErrorCode">Error Code</th>
+                    <th class="ErrorText">Error Text</th>*@
+            </tr>
+        </thead>
+        <tbody id="SearchbodyContent"></tbody>
+    </table>
+</div>
+<div style="display:none">
+    <table>
+        <tbody id="SearchBody">
+            <tr class="row-small">
+                <td><span>{BatchId}</span></td>
+                <td><span>{Id}</span></td>
+                <td><span>{Channel}</span></td>
+                <td><span>{DocumentOrPackageType}</span></td>
+                <td><span>{IsEDeliveryRequested}</span></td>
+                <td data-businessidvalue="{BusinessIdValue}"><span>{View}</span></td>
+                <td><span>{TrackingNo}</span></td>
+                <td><span>{TrackingNoFormatted}</span></td>
+                <td><span>{ReceivedOnFormatted}</span></td>
+                <td><span>{PrintedOnDateFormatted}</span></td>
+                <td><span>{ShippedOnFormatted}</span></td>
+                <td><span>{ShippingStatusFormatted}</span></td>
+                <td><span>{FileName}</span></td>
+                <td><span>{ClientCode}</span></td>
+                <td><span>{ShippingMethod}</span></td>
+                <td><span>{RcptNameFormatted}</span></td>
+                <td><span>{RcptAddressStreet}</span></td>
+                <td><span>{CityFormatted}</span></td>
+                <td><span>{PrintLocation}</span></td>
+                <td><span>{PagesShipped}</span></td>
+                @*<td>{ErrorCode}</td>
+                    <td>{ErrorDesc}</td>*@
+            </tr>
+        </tbody>
+    </table>
+</div>
+<!-- end table template code -->
+<!-- Modal -->
+<div class="modal fade" id="TrackingInfo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg col-md-10" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header">
+                <h1 id="myModalLabel">Tracking Details</h1>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                @*<button type="button" class="btn btn-primary">View All</button>*@
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ViewInfo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg col-md-12" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header">
+                <h1 id="myModalLabel">MailPiece Details</h1>
+                <hr />
+            </div>
+            <div class="modal-body">
+                <div id="showerror" style="display:none"></div>
+                <div class='alert alert-blue text-center' id="loadingModal" style="display:none"><span> Loading... </span></div>
+                <div class="row" id="databind">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <hr />
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="templatemodal" style="display:none">
+    <div class="col-md-12">
+        <div class="col-md-4">
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Batch Name:&nbsp; </label>
+                    <span class="form-control-static" data-toggle="tooltip" data-container="body" data-placement="bottom" title='{BatchName}'>{ShortBatchName}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">MailPiece Id:&nbsp; </label>
+                    <span class="form-control-static">{UniqueId}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Client Code:&nbsp; </label>
+                    <span class="form-control-static">{AppCode}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">{BusinessFriendlyIdName}:&nbsp; </label>
+                    <span class="form-control-static">{BusinessFriendlyIdValue}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">File Name:&nbsp; </label>
+                    <span class="form-control-static" data-toggle="tooltip" data-container="body" data-placement="bottom" title='{FileName}'>{ShortFileName}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Document Or Package Type:&nbsp; </label>
+                    <span class="form-control-static">{DocumentOrPackageType}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">SLA Days:&nbsp; </label>
+                    <span class="form-control-static">{SLADays}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Due Date:&nbsp; </label>
+                    <span class="form-control-static">{DueDateFormatted}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Shipping Status:&nbsp; </label>
+                    <span class="form-control-static">{ShippingStatus}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Printed On:&nbsp; </label>
+                    <span class="form-control-static">{PrintedOnFormatted}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Shipped On:&nbsp; </label>
+                    <span class="form-control-static">{ShippedOnFormatted}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Shipping Cost:&nbsp; </label>
+                    <span class="form-control-static">{ShippingCost}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Printed:&nbsp; </label>
+                    <span class="form-control-static">{IsPrinted}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">ReceivedOn:&nbsp; </label>
+                    <span class="form-control-static">{ReceivedOnFormatted}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">SFT Channel:&nbsp; </label>
+                    <span class="form-control-static">{SFTChannels}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Shipped:&nbsp; </label>
+                    <span class="form-control-static">{IsShipped}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Weight:&nbsp; </label>
+                    <span class="form-control-static">{Weight}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">QC Requested:&nbsp; </label>
+                    <span class="form-control-static">{IsQCRequested}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">QC Performed:&nbsp; </label>
+                    <span class="form-control-static">{IsQCPerformed}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Document Type Code:&nbsp; </label>
+                    <span class="form-control-static">{DocTypes.DocTypeCode}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">PullBack Requested:&nbsp; </label>
+                    <span class="form-control-static">{IsPullBackRequested}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">PullBack RequestedOn:&nbsp; </label>
+                    <span class="form-control-static">{PullBackRequestedOnFormatted}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">PulledBack:&nbsp; </label>
+                    <span class="form-control-static">{IsPulledBack}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">PulledBackOn:&nbsp; </label>
+                    <span class="form-control-static">{PulledBackOnFormatted}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">PulledBack Requested By:&nbsp; </label>
+                    <span class="form-control-static">{PulledBackRequestedBy}</span>
+                </div>
+            </div>
+
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Total Sheets:&nbsp; </label>
+                    <span class="form-control-static">{TotalSheets}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Error Code:&nbsp; </label>
+                    <span class="form-control-static">{ErrorDescPopover}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Total Pages:&nbsp; </label>
+                    <span class="form-control-static">{TotalPages}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Recipient Info Specified:&nbsp; </label>
+                    <span class="form-control-static">{IsRcptInfoSpecified}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Recipient Name:&nbsp; </label>
+                    <span class="form-control-static">{RcptName}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Recipient Address:&nbsp; </label>
+                    <span class="form-control-static">{RcptAddress}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="PrintLocation">Print File Name:&nbsp; </label>
+                    <span class="form-control-static" data-toggle="tooltip" data-container="body" data-placement="bottom" title='{PrintFileName}'>{ShortPrintFileName}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="PrintLocation">Print Location:&nbsp; </label>
+                    <span class="form-control-static">{PrintLocation}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Recipient Phone:&nbsp; </label>
+                    <span class="form-control-static">{RcptPhone}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Recipient Organization:&nbsp; </label>
+                    <span class="form-control-static">{RcptOrganization}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Co-Recipient Name:&nbsp; </label>
+                    <span class="form-control-static">{CoRcptName}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Co-Recipient Phone:&nbsp; </label>
+                    <span class="form-control-static">{CoRcptPhone}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Co-Recipient Organization:&nbsp; </label>
+                    <span class="form-control-static">{CoRcptOrganization}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Tracking Number:&nbsp; </label>
+                    <span class="form-control-static">{TrackingNoFormatted}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Return Recipient Name:&nbsp; </label>
+                    <span class="form-control-static">{RetRcptName}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Return Recipient Address:&nbsp; </label>
+                    <span class="form-control-static">{ReturnRcptAddress}</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section Scripts{
+    @Styles.Render("~/bundles/datatablescss")
+    @Scripts.Render("~/bundles/datatables")
+
+<script type="text/javascript">
+        $(document).ready(function () {
+            //window.clui.dateTimePickerInit();
+            var dateTemplate = '<div class="daterangepicker dropdown-menu">' + '<div class="calendar left">' + '<div class="calendar-table"></div>' + '</div>' + '<div class="calendar right">' + '<div class="calendar-table"></div>' + '</div>' + '<div class="ranges">' + '<div class="range_inputs">' + '<button class="applyBtn" disabled="disabled" type="button"></button> ' + '<button class="cancelBtn" type="button"></button>' + '</div>' + '</div>' + '</div>';
+            $("#receivedOn").daterangepicker({
+                autoApply: true,
+                template: dateTemplate,
+                showCustomRangeLabel: false,
+                autoUpdateInput: false
+            });
+
+            $('#receivedOn').on('apply.daterangepicker', function (ev, picker) {
+                $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+            });
+
+            //FilterData();
+            $('#searchform').validate({ // initialize the plugin
+                errorElement: "span",
+                rules: {
+                    BatchId: {
+                        number: true,
+                        min: 1,
+                        maxlength: 8
+                    }
+                }
+            });
+            // JSON.useDateParser(false);
+        });
+
+
+        function ViewDetails(obj) {
+            //alert("call");
+            var mailPieceId = $(obj).data("mailpieceid");
+            //console.log(mailPieceId);
+            $("#databind").html("");
+            $("#ViewInfo").modal("show");
+            $("#loadingModal").show();
+            $.ajax({
+                type: "GET",
+                url: baseUrl + "Home/GetMailPieceByUniqueId",
+                data: {
+                    mailPieceId: mailPieceId
+                },
+                //contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    //console.log(response);
+                    if (response.Success) {
+                        if (response.Object != null) {
+                            if (response.Object.model != null) {
+                                $("#loadingModal").hide();
+                                var data = FormatMailPieceObject(response.Object.model);
+                                var bodyHtml = $("#templatemodal").html();
+                                $("#databind").html("");
+                                bodyHtml = bodyHtml.supplant(data);
+                                $("#databind").html(bodyHtml);
+                                $('[data-toggle="popover"]').popover({
+                                    'trigger': 'hover',
+                                    'placement': 'auto left',
+                                    'container': 'body'
+                                });
+                                window.clui.tooltipInit();
+                            }
+                            else {
+                                $("#loadingModal").hide();
+                                $("#databind").html("");
+                                $("#showerror").show();
+                                $("#showerror").html(" <div style='margin-bottom:10px;' class='alert alert-yellow'><span class='sbold'>@AM.Services.Config.Web_Msg_NoRecordFound</span></div>");
+
+                            }
+                        }
+                    } else {
+                        $("#loadingModal").hide();
+                        $("#databind").html("");
+                        $("#showerror").show();
+                        $("#searchMailPieceList").show();
+                        $("#showerror").html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + response.ErrorMessage + "</span></div>");
+                        // $("#ViewInfo").modal("show");
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    $("#showerror").show();
+                    $("#loadingModal").hide();
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    $("#showerror").html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + msg + "</span></div>");
+                    $("#ViewInfo").modal("show");
+                }
+
+            });
+            //$("#ViewInfo").find(".modal-body").text(mailPieceId);
+
+        }
+        function shortName(str) {
+            //console.log(str);
+            if (typeof str != 'undefined' && str != null && str != "")
+                return str.length > 31 ? str.substring(0, 31) + '...' : str;
+        }
+        function MakeYesNoLabel(isbool) {
+            var val = (isbool == true || isbool == 1) ? '<span  class="label medium label-yellow">Yes</span>' : '<span class="label medium label-success">No</span>';
+            return val;
+        }
+        function FormatMailPieceObject(Model) {
+
+            $(Model).each(function () {
+                //console.log(Model)
+                this.ReceivedOnFormatted = moment(this.ReceivedOn).format("MM/DD/YY HH:mm:ss");
+                this.IsPrinted = MakeYesNoLabel(this.IsPrinted);
+                this.IsShipped = MakeYesNoLabel(this.IsShipped);
+                this.IsQCRequested = MakeYesNoLabel(this.IsQCRequested);
+                this.IsQCPerformed = MakeYesNoLabel(this.IsQCPerformed);
+                this.IsPullBackRequested = MakeYesNoLabel(this.IsPullBackRequested);
+                this.IsPulledBack = MakeYesNoLabel(this.IsPulledBack);
+                this.IsRcptInfoSpecified = MakeYesNoLabel(this.IsRcptInfoSpecified);
+                this.SLADays = parseInt(this.SLADays / 86400);
+                this.ShortBatchName = shortName(this.BatchName);
+                this.ShortFileName = shortName(this.FileName);
+                this.ShortPrintFileName = shortName(this.PrintFileName);
+                this.ShippedOnFormatted = this.ShippedOn == null ? "--" : moment(this.ShippedOn).format("MM/DD/YY HH:mm:ss");
+                this.PrintedOnFormatted = this.PrintedOn == null ? "--" : moment(this.PrintedOn).format("MM/DD/YY HH:mm:ss");
+                this.DueDateFormatted = this.DueDate == null ? "--" : moment(this.DueDate).format("MM/DD/YY HH:mm:ss");
+                this.PulledBackOnFormatted = this.PulledBackOn == null ? "--" : moment(this.PulledBackOn).format("MM/DD/YY HH:mm:ss");
+                //this.RcptName = this.RcptFirstName + " " + this.RcptMiddleName + " " + this.RcptLastName;
+                this.RcptName = this.RcptName == null ? "" : this.RcptName.trim();
+                //this.RcptAddress = this.RcptAddrOptionalLine1AboveStreet + " " + this.RcptAddrOptionalLine2AboveStreet + " " + this.RcptAddressStreet + " " + this.RcptAddressAptOrSuiteOrOther + " " + this.RcptAddrOptionalLine1BelowStreet + " " + this.RcptAddrOptionalLine2BelowStreet + " " + this.RcptAddressCity + " " + this.RcptAddressState + " " + this.RcptAddressZIP;
+                var cityStateZip = this.RcptAddressCity + " " + this.RcptAddressState + " " + this.RcptAddressZIP;
+                this.RcptAddress = this.RcptAddress == null ? "" : this.RcptAddress.trim() + (cityStateZip != "" ? ", " + cityStateZip : "");
+                //this.CoRcptName = this.CoRcptPrefix + " " + this.CoRcptFirstName + " " + this.CoRcptMiddleName + " " + this.CoRcptLastName + " " + this.CoRcptSuffix;
+                //this.CoRcptName = this.CoRcptName.replace(/null/g, "").trim();
+                //this.CoRcptName = this.CoRcptName == "" ? "--" : this.CoRcptName;
+                //this.ReturnRcptName = this.RetRcptPrefix + " " + this.RetRcptFirstName + " " + this.RetRcptMiddleName + " " + this.RetRcptLastName + " " + this.RetRcptSuffix
+                var returnCityStateZip = this.RetRcptAddressCity + " " + this.RetRcptAddressState + " " + this.RetRcptAddressZIP;
+                this.RetRcptName = this.RetRcptName == null ? "" : this.RetRcptName.replace(/null/g, "").trim() + (returnCityStateZip != "" ? ", " + returnCityStateZip : "");
+                //this.ReturnRcptAddress = this.RetRcptAddrOptionalLine1AboveStreet + " " + this.RetRcptAddrOptionalLine2AboveStreet + " " + this.RetRcptAddressStreet + " " + this.RetRcptAddressAptOrSuiteOrOther + " " + this.RetRcptAddrOptionalLine1BelowStreet + " " + this.RetRcptAddrOptionalLine2BelowStreet + " " + this.RetRcptAddressCity + " " + this.RetRcptAddressState + " " + this.RetRcptAddressZIP;
+                this.RetRcptAddress = this.RetRcptAddress == null ? "" : this.RetRcptAddress.replace(/null/g, "").trim();
+                switch (this.ShippingStatus) {
+
+                    case "PulledBack":
+                        status = '<span class="label medium label-yellow">' + this.ShippingStatus + '</span>';
+
+                        break;
+                    case "Error":
+                        status = '<span class="label medium label-red">' + this.ShippingStatus + '</span>';
+                        //status = '<span class="label medium label-red" data-toggle="popover" data-original-title="Error Code: ' + this.ErrorCode + '" data-html="true" data-content="' + this.ErrorDesc + '" data-placement="left">' + this.Status + '</span>';
+                        break;
+                    case "Shipped":
+                        status = '<span class="label medium label-success">' + this.ShippingStatus + '</span>';
+                        break;
+                    case "InProgress":
+                        status = '<span class="label medium label-blue">' + this.ShippingStatus + '</span>';
+                        break;
+
+                }
+                this.ShippingStatus = status;
+                var trackingNo = "";
+                if (this.TrackingNo == null || this.TrackingNo == "") {
+
+                    trackingNo = "--";
+                }
+                else {
+                    trackingNo = '<a id="' + this.TrackingNo + '" style="width:185px;" class="btn btn-transparent-blue btn-sm" href="/track/' + this.TrackingNo + '" target="_blank"><i class="fa faspinner"></i> ' + this.TrackingNo + '</a>';
+
+                    //if (this.DocTypes.ShippingServiceType == "USPS") {
+                    //if (this.ShippingMethod == "USPS") {
+                    //    if (this.TrackingNo.indexOf("00310901599685") == -1) {
+                    //        trackingNo = '<a id="' + this.TrackingNo + '" style="width:185px;" class="btn btn-transparent-blue btn-sm" href="https://m.usps.com/m/TrackConfirmAction_detail?tLabels=' + this.TrackingNo + '" target="_blank"><i class="fa faspinner"></i> ' + this.TrackingNo + '</a>';
+                    //    } else {
+                    //        trackingNo = '<button id="' + this.TrackingNo + '" style="width:185px;" class="btn btn-transparent-blue btn-sm" onclick="GetTrackingInfo(\'' + this.TrackingNo + '\',\'' + this.ShippingMethod + '\')"><i class="fa faspinner"></i> ' + this.TrackingNo + '</button>';
+                    //    }
+                    //    //trackingNo = '<button id="' + this.TrackingNo + '" style="width:185px;" class="btn btn-transparent-blue btn-sm" onclick="GetTrackingInfo(\'' + this.TrackingNo + '\',\'' + this.DocTypes.ShippingServiceType + '\')"><i class="fa faspinner"></i> ' + this.TrackingNo + '</button>';
+                    //}
+                    //else {
+                    //    trackingNo = '<a id="' + this.TrackingNo + '" style="width:185px;" class="btn btn-transparent-blue btn-sm" href="http://www.fedex.com/Tracking?cntry_code=us&action=1&track=y&tracknumbers=' + this.TrackingNo + '" target="_blank"><i class="fa faspinner"></i> ' + this.TrackingNo + '</a>';
+                    //}
+                }
+                this.TrackingNoFormatted = trackingNo;
+                var eddDesc = '<span id="popoverError" data-toggle="popover" data-original-title="Error Code: <ErrorCode>" data-html="true" data-content="<dataContent>" data-placement="left"><a> <ErrorCode> </a></span>'.replace(/<ErrorCode>/g, this.ErrorCode).replace("<dataContent>", this.ErrorDesc == null ? "--" : this.ErrorDesc);
+                this.ErrorDescPopover = this.ErrorCode == "No_Error" ? '<span>' + this.ErrorCode + '</span>' : eddDesc;
+            });
+            //console.log(Model);
+            return Model;
+        }
+        function FormatObject(Model) {
+            //console.log(Model);
+            $(Model).each(function () {
+                //this.ReceivedOnFormatted = moment(this.MailBatches.ReceivedOn).format("MM/DD/YY HH:mm:ss");
+                this.ReceivedOnFormatted = moment(this.ReceivedOn).format("MM/DD/YY HH:mm:ss");
+                this.ShippedOnFormatted = this.ShippedOn == null ? "--" : moment(this.ShippedOn).format("MM/DD/YY HH:mm:ss");
+                //this.DueDateFormatted = this.DueDate == null ? "--" : moment(this.DueDate).format("MM/DD/YY HH:mm:ss");
+                this.RcptNameFormatted = this.FirstName + " " + this.LastName;
+                this.CityFormatted = this.City + " " + this.State + " " + this.ZIP;
+                var status = "";
+                this.View =(this.BusinessIdValue != null ? this.BusinessIdValue : "--");
+                this.ErrorDesc = this.ErrorDesc != null ? this.ErrorDesc.replace(/"/g, '\'') : "";
+                switch (this.Status) {
+
+                    case "PulledBack":
+                        status = '<span class="label medium label-yellow">' + this.Status + '</span>';
+
+                        break;
+                    case "Error":
+                        status = '<span class="label medium label-red" data-toggle="popover" data-original-title="Error Code: ' + this.ErrorCode + '" data-html="true" data-content="' + this.ErrorDesc + '" data-placement="left">' + this.Status + '</span>';
+                        break;
+                    case "Shipped":
+                        status = '<span class="label medium label-success">' + this.Status + '</span>';
+                        break;
+                    case "InProgress":
+                        status = '<span class="label medium label-blue">' + this.Status + '</span>';
+                        break;
+                }
+                this.ShippingStatusFormatted = status;
+                var trackingNo = "";
+                //console.log(this.TrackingNo + ":trackingNo");
+                if (this.TrackingNo == null || this.TrackingNo == "") {
+
+                    trackingNo = "--";
+                }
+                else {
+                    //trackingNo = '<a id="' + this.TrackingNo + '" style="width:185px;" class="btn btn-transparent-blue btn-sm" href="/Track/' + this.TrackingNo + '" target="_blank"><i class="fa faspinner"></i> ' + this.TrackingNo + '</a>';
+                    trackingNo = '<a id="' + this.TrackingNo + '" data-toggle="tooltip" data-container="body" data-placement="top" title="' + this.TrackingNo + '" class="btn btn-transparent-blue btn-sm" href="/track/' + this.TrackingNo + '" target="_blank"><i style="margin-top: 2px;" class="fa fa-map-marker fa-2x"></i> </a>';
+
+                }
+                this.TrackingNoFormatted = trackingNo;
+                //this.TrackingNo == null ? "--" : '<button id="' + this.TrackingNo + '" class="btn btn-transparent-blue btn-sm" onclick="GetTrackingInfo(\'' + this.TrackingNo + '\',\'' + this.ShippingMethod + '\')"><i class="fa faspinner"></i> ' + this.TrackingNo + '</button>';
+                this.IsEDeliveryRequested = this.IsEDeliveryRequested && !this.IsESignRequested ? '<span class="label medium label-success">E-Delivery</span>' : this.IsEDeliveryRequested && this.IsESignRequested ? '<span class="label medium label-success">E-Sign</span>' : '<span class="label medium label-blue">P&S</span>';
+            });
+            return Model;
+        }
+        function applyDataTable() {
+            $('[data-toggle="popover"]').popover({
+                'trigger': 'hover',
+                'placement': 'auto right',
+                'container': 'body'
+            });
+            var table = $('#sample_2');
+            var filename = "Search";
+            var title = "Search";
+            var oTable = table.dataTable({
+
+                "language": {
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    },
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "No entries found",
+                    "infoFiltered": "(filtered1 from _MAX_ total entries)",
+                    "lengthMenu": "_MENU_ entries",
+                    "search": "<b>Search:</b>",
+                    "zeroRecords": "No matching records found"
+                },
+                "columnDefs": [
+                       {
+                           "targets": ["TrackingNoHide", "ErrorCode", "ErrorText", "BatchId"],
+                           "visible": false,
+                           "searchable": true
+                       },
+                ],
+                buttons: [
+                  {
+                      extend: 'csv',
+                      text: '<i class="fa fa-file-excel-o fa-2x"></i>',
+                      className: 'btn btn-primary',
+                      filename: filename,
+                      title: title,
+                      exportOptions: {
+                          columns: ["thead th:not(.TrackingNo)", ".TrackingNoHide", ".ErrorCode", ".ErrorText"],
+                      }
+
+                  }
+
+                ],
+
+                "scrollX": true,
+
+                "order": [
+                    [1, 'asc']
+                ],
+                "lengthMenu": [
+                    [5, 10, 25, 50, 100, -1],
+                    [5, 10, 25, 50, 100, "All"] // change per page values here
+                ],
+                // set the initial value
+                "pageLength": 5,
+
+                "dom": "<'row' <'col-md-12'B>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
+
+
+            });
+
+
+        }
+        function FilterData() {
+            $("#searchHeader").hide();
+            $("#searchMailPieceList").hide();
+            var el = $('#searchMailPieceList');
+            var startDate = "";
+            var endDate = "";
+            if ($("#receivedOn").val() != "") {
+                var selectedData = $("#receivedOn").val().split('-');
+                startDate = moment(selectedData[0].trim()).format("MM/DD/YY");
+                endDate = moment(selectedData[1].trim()).format("MM/DD/YY");
+
+                $("#headerdate").html(startDate + " to " + endDate + " EST");
+            } else {
+                $("#receivedOn").val("");
+                $("#headerdate").empty();
+                startDate = "";
+                endDate = "";
+            }
+            $("#loading").show($("#ClientId").val());
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "Report/_ReportWizard",
+                data: JSON.stringify({
+                    businessFriendlyIdName: $("#BusinessFriendlyIdName").val(),
+                    businessFriendlyIdValue: $("#BusinessFriendlyIdValue").val(),
+                    DocType: $("#DocType").val(),
+                    status: $("#Status").val(),
+                    channel: $("#Channel").val(),
+                    startDate: startDate,
+                    endDate: endDate,
+                    trackingNo: $("#TrackingNumber").val(),
+                    shippingMethod: $('#ShippingMethod').val(),
+                    ClientId: $("#ClientId").val()
+                }),
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    if (response.Success) {
+                        $("#loading").hide();
+                        $("#searchHeader").show();
+                        $("#searchMailPieceList").show();
+                        if (response.Object != null) {
+                            //console.log(response.Object.model.length);
+                            if (response.Object.model.length > 0) {
+                                $("#searchMailPieceList").html("");
+                                var data = FormatObject(response.Object.model);
+                                BindTemplate(data, "#SearchBody", "#SearchbodyContent", "#SearchTableContent", "#searchMailPieceList");
+                                window.clui.tooltipInit();
+                            }
+                            else {
+                                $("#searchMailPieceList").html(" <div style='margin-bottom:10px;' class='alert alert-yellow'><span class='sbold'>@AM.Services.Config.Web_Msg_NoRecordFound</span></div>")
+                            }
+                        }
+                    } else {
+                        $("#loading").hide();
+                        $("#searchHeader").show();
+                        $("#searchMailPieceList").show();
+                        $("#searchMailPieceList").html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + response.ErrorMessage + "</span></div>");
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    $("#loading").hide();
+                    $("#searchHeader").show();
+                    $("#searchMailPieceList").show();
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    $("#searchMailPieceList").html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + msg + "</span></div>");
+                }
+
+            });
+        }
+
+        $("#filterData").click(function () {
+            var startDate = "";
+            var endDate = "";
+            if ($("#receivedOn").val() != "") {
+                var selectedData = $("#receivedOn").val().split('-');
+                startDate = moment(selectedData[0].trim()).format("MM/DD/YY");
+                endDate = moment(selectedData[1].trim()).format("MM/DD/YY");
+
+                $("#headerdate").html(startDate + " to " + endDate + " EST");
+            } else {
+                $("#receivedOn").val("");
+                $("#headerdate").empty();
+                startDate = "";
+                endDate = "";
+            }
+
+            var shippingMethod = $('#ShippingMethod').val() == null ? [] : $('#ShippingMethod').val();
+            var clientId = $("#ClientId").val();
+
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "Report/_DownloadReportWizard",
+                data: JSON.stringify({
+                    clientId:$("#ClientId").val(),
+                    businessFriendlyIdName: $("#BusinessFriendlyIdName").val(),
+                    businessFriendlyIdValue: $("#BusinessFriendlyIdValue").val(),
+                    startDate: startDate,
+                    endDate: endDate,
+                    docType: $("#DocType").val(),
+                    status: $("#Status").val(),
+                    channel: $("#Channel").val(),
+                    shippingMethod: $('#ShippingMethod').val(),
+                    trackingNo: $("#TrackingNumber").val(),
+                    timezoneOffset: new Date().getTimezoneOffset()
+                }),
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    if (response.Success) {
+                        window.clui.globalAlert({
+                            message: "Report generated and emailed successfully.",
+                            alertType: 'green',
+                            timeout: 5000
+                        });
+                    }  
+                    else {
+                        window.clui.globalAlert({
+                                message: response.ErrorMessage,
+                                alertType: 'red',
+                                timeout: 5000
+                            });
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                   window.clui.globalAlert({
+                        message: "@AM.Services.Config.Web_Msg_Ajax_CommonError",
+                        alertType: 'red',
+                        timeout: 5000
+                    });
+
+                }
+
+            });
+
+        });
+        $("#resetFilter").click(function () {
+            $("#Status").val("");
+            $("#DocType").val("");
+            $("#ClientId").val("")
+            $('#ShippingMethod').val("");
+            $("#Channel").val("");
+            $("#BusinessFriendlyIdValue").val("");
+            $("#TrackingNumber").val("");
+            $('.selectpicker').selectpicker('refresh');
+            $("#receivedOn").val("");
+        });
+</script>
+}
+
+

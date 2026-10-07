@@ -1,0 +1,148 @@
+Due Date Logic
+
+Holiday Table Defination
+Id, Date,Description
+
+
+Algorithm - 
+1) At the time of due date calculation
+	-First take cut off time as per doc type and for FedEx on Saturday cut off time will be 12PM EST
+	-take batch receivedon UTC datetime and convert to EST
+	-Generate batch cut off time  (estReceivedOnDate + estSLACutOffTime)
+	- If(batchReceivedonEST > batchCutOffTime) Then DocType DueDate=SLADays+1 else DueDate=Same Day
+	- After getting possible DueDate check for below conditions
+		bool isHoliday=true;
+		while (isHoliday)
+		{
+			if(holidayList.Contains(dueDate))
+			{
+				dueDate=dueDate.AddDays(1);
+			}
+			else if(dueDate.DayOfWeek.ToString()=="Sunday")
+			{
+				dueDate=dueDate.AddDays(1);
+			}
+			else
+				isHoliday=false;
+		}
+	- On getting isHoliday=false exit loop with final Due Date
+	
+===================
+Result Expectation
+===================
+SLADays=0
+ShippingCarrier='USPS'
+
+Batch ReceivedOn - "6/23/2018 11:00:53 PM EST" - "6/24/2018 03:00:53.143 UTC" 
+Batch Cut Off Time - "6/23/2018 8:00:00 PM EST"
+DueDate - "6/23/2018 11:00:53 PM EST" > "6/23/2018 8:00:00 PM EST" = true So DueDate+1
+Final DueDate = 6/24/2018 (Now on this we will process holiday logic)
+
+
+Holiday List - 25/6,27/6,29/6
+
+As Per Logic of Holiday
+DueDate will be 6/26/2018 11:59:59 PM (Because when we add 1 in DueDate, getting Sunday So again adding 1 day in dueDate, but we are getting Monday as a Holiday so again adding 1 day in duedate which will be Final DueDate)
+===================================================================================
+	
+Program - 
+
+void Main()
+{
+	var utcReceivedOn= Convert.ToDateTime("2018-06-24 03:00:53.143");
+	var slaDays=0;
+	var estSLACutOffTime=new TimeSpan(20,00,00);
+	var shippingCarrier="USPS";
+	var d = GetDueDate(slaDays,estSLACutOffTime,utcReceivedOn,shippingCarrier);
+	"Final DueDate UTC".Dump();
+	d.Dump();
+}
+
+// Define other methods and classes here
+private DateTime GetDueDate(int slaDays, TimeSpan estSLACutOffTime, DateTime utcReceivedOn, string shippingCarrier)
+{
+
+	//ReceivedOn Time of Batch
+	var estReceivedOn = utcReceivedOn.UtcToEst();
+	estReceivedOn.Dump();
+	"==ReceivedOnDate EST==".Dump();
+	var estReceivedOnDate = estReceivedOn.Date;
+	
+	//logic for FedEx Saturday Cut off timings
+	if (estReceivedOnDate.DayOfWeek.ToString() == "Saturday" && shippingCarrier == "FedEx")
+	{
+		estSLACutOffTime = new TimeSpan(12,00,00);
+	}
+
+	//Should be in cut off Date time
+	var estSLACutOffDateTime = (estReceivedOnDate + estSLACutOffTime);
+	
+	estSLACutOffDateTime.Dump();
+	"==Batch CutOffTime EST==".Dump();
+	
+	if (estReceivedOn > estSLACutOffDateTime)
+	{
+		//Here we have actual SLA days for DocType and added 1 because batch received after cut off time.
+		slaDays += 1;
+	}
+	
+	//Sample Holiday List
+	List<DateTime> holidayList=new List<DateTime>();
+	holidayList.Add(Convert.ToDateTime("6/25/2018 00:00:00 AM"));
+	//holidayList.Add(Convert.ToDateTime("6/26/2018 00:00:00 AM"));
+	holidayList.Add(Convert.ToDateTime("6/27/2018 00:00:00 AM"));
+	holidayList.Add(Convert.ToDateTime("6/29/2018 00:00:00 AM"));
+	
+	//Here we just add actual SLA days because batch received before cut off time
+	var dueDate = estReceivedOnDate.AddDays(slaDays);
+	dueDate.Dump();
+	"==Actual Due Date EST==".Dump();
+	bool isHoliday=true;
+	while (isHoliday)
+	{
+		if(holidayList.Contains(dueDate))
+		{
+			dueDate=dueDate.AddDays(1);
+		}
+		else if(dueDate.DayOfWeek.ToString()=="Sunday")
+		{
+			dueDate=dueDate.AddDays(1);
+		}
+		else
+			isHoliday=false;
+	}
+	"Final DueDate EST".Dump();
+	(dueDate + new TimeSpan(23, 59, 59)).Dump();
+	return (dueDate + new TimeSpan(23, 59, 59)).EstToUtc();
+}
+
+public static class DateExtentions
+{
+		public static DateTime AnyTimeZoneConvert(this DateTime dt, string fromTimeZone, string toTimeZone)
+        {
+            dt = DateTime.SpecifyKind(dt, DateTimeKind.Unspecified);
+            return TimeZoneInfo.ConvertTime(dt, TimeZoneInfo.FindSystemTimeZoneById(fromTimeZone), TimeZoneInfo.FindSystemTimeZoneById(toTimeZone));
+        }
+		
+		public static DateTime UtcToClientTimeZone(this DateTime dt, string clientTimeZone)
+        {
+            dt = DateTime.SpecifyKind(dt, DateTimeKind.Unspecified);
+            return TimeZoneInfo.ConvertTime(dt, TimeZoneInfo.FindSystemTimeZoneById("UTC"), TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
+        }
+
+        public static DateTime ClientTimeZoneToUtc(this DateTime dt, string clientTimeZone)
+        {
+            dt = DateTime.SpecifyKind(dt, DateTimeKind.Unspecified);
+            return TimeZoneInfo.ConvertTime(dt, TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone), TimeZoneInfo.FindSystemTimeZoneById("UTC"));
+        }
+
+        public static DateTime UtcToEst(this DateTime dt)
+        {
+            return dt.UtcToClientTimeZone("Eastern Standard Time");
+        }
+
+        public static DateTime EstToUtc(this DateTime dt)
+        {
+            return dt.ClientTimeZoneToUtc("Eastern Standard Time");
+        }
+}

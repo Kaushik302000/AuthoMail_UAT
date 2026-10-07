@@ -1,0 +1,31 @@
+﻿@model AM.Entities.PrintTrail
+
+<h2 id="myModalLabel">@(Model.Id == 0 ? Html.Raw("Add Print Trail Details") : Html.Raw("Edit Print Trail Details"))</h2>
+
+<hr />
+<form id="printTrailform" action="#" method="post">
+    <input type="hidden" name="Id" id="Id" value="@Model.Id" />
+    <div class="row">
+
+        <div class="form-group">
+            <label for="Value">Trail Name</label>
+            <div class="input-group">
+                <input type="text" name="TrailName" value="@Model.TrailName" placeholder="Trail Name" class="form-control" id="TrailName" maxlength="255" />
+            </div>
+
+        </div>
+
+        <div class="form-group">
+            <label for="Description">Print Vendors</label>
+            <div class="input-group">
+                @Html.DropDownListFor(model => model.PrintVendorId, ViewBag.PrintVendors as SelectList, "Select Print Vendors", new { @class = " form-control selectpicker", @data_live_search = "true", @data_live_search_placeholder = "Search Print Vendors" })
+            </div>
+            <span for="PrintVendorId" class="error" style="display:none;">This field is required.</span>
+        </div>
+
+    </div>
+
+    <hr />
+    <button type="submit" class="btn btn-primary" id="Save"><i class="fa fa-save"></i> Save</button>
+    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Cancel</button>
+</form>

@@ -1,0 +1,8 @@
+﻿====================================================
+Deployement Date - 07/06/2018
+====================================================
+1) USAA Update, Going live on 11th June
+	- Report Format Csv
+2) Alaska No Change
+3) Bug Fixes of path and errors
+4) log4net change for separating log files argumentwise

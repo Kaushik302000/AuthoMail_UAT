@@ -1,0 +1,57 @@
+﻿@using AM.Scanner.Models
+@model LoginViewModel
+@{
+    ViewBag.Title = "Log in";
+}
+<link href="../Content/module.admin.page.login.min.css" rel="stylesheet" />
+@using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { role = "form" }))
+{
+    <div class="loginWrapper">
+        <div id="content">
+            <div class="login spacing-x2">
+                <div class="placeholder text-center"><i class="fa fa-lock"></i></div>
+                <div class="col-sm-6 col-sm-offset-3">
+
+                    <div class="panel panel-default">
+                        <div class="panel-body innerAll">
+                            <h4 class="alert alert-info">Use your CoreLogic credentials.</h4>
+
+                            @Html.AntiForgeryToken()
+                            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Username, new { @class = "col-md-2 control-label" })
+                                
+                                    @Html.TextBoxFor(m => m.Username, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-danger" })
+                                
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Password, new { @class = "col-md-2 control-label" })
+                                
+                                    @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+                                
+                            </div>
+                            
+                            <div class="form-group">
+                                
+                                <input type="submit" value="Log in" class="btn btn-login btn-block" />
+                               
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<div class="clearfix"></div>
+
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

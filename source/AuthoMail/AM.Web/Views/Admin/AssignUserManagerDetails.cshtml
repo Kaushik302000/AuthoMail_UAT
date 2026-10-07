@@ -1,0 +1,356 @@
+﻿@{
+    ViewBag.Title = "User Manager Info";
+}
+<link href="~/clui/dist/css/datatablecustom.css" rel="stylesheet" />
+<style>
+    #dateFilter .bootstrap-select {
+        width: 100% !important;
+    }
+
+
+    .dataTables_wrapper {
+        margin-top: -1.5% !important;
+    }
+
+    .popover-content {
+        word-wrap: break-word;
+        color: red;
+    }
+</style>
+<div class="row">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="panel-title">
+                <i class="fa fa-users"></i> User Manager List <span class="pull-right">
+                    <button type="button" class="btn btn-primary" data-target="#AssignRoleModal" data-toggle="modal"><i class="fa fa-plus"></i> Assign Role</button>
+                </span>
+            </div>
+        </div>
+        <div class="panel-body panel-gray" style="padding:2% 2% 2% 2% !important;min-height: 107px;">
+            <div class='alert alert-blue text-center' id="loading" style="display:none"><span> Loading... </span></div>
+            <div id="UserManagerList"></div>
+
+        </div>
+    </div>
+
+</div>
+
+<div id="UserManagerTableContent" style="display:none">
+    <table class="table table-responsive" style="overflow-x:scroll">
+        <thead>
+            <tr>
+                <th>Action</th>
+                <th>Email</th>
+                <th>Allowed Domain</th>
+            </tr>
+        </thead>
+        <tbody id="UserManagerBodyContent"></tbody>
+    </table>
+</div>
+<div style="display:none">
+    <table>
+        <tbody id="UserManagerBody">
+            <tr class="row-small">
+                <td>{Action}</td>
+                <td><span>{Email}</span></td>
+                <td><span>{AllowedDomain}</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="AddEditModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header" style="margin-top:2%;margin-bottom:2%;">
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="AssignRoleModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <form id="assignform" action="#">
+                <div class="modal-header" style="margin-top:2%;margin-bottom:2%;">
+                    <h3>Assign User Manager Role</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="Description">Email</label>
+                        <div class="input-group">
+                            <input type="email" id="assignemail" name="assignemail" class="form-control" placeholder="Email" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="SaveAssignRoleBtn">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header">
+                <h1 id="myModalLabel">User Manager Assign Details</h1>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header" style="margin-top:2%;margin-bottom:2%;">
+                <h2 id="myModalLabel"> Are you sure you want to delete this assign role?</h2>
+                <hr />
+                <input type="hidden" id="userId" />
+                <input type="hidden" id="roleId" />
+                <button type="button" class="btn btn-default" id="yesDelete"><i class="fa fa-check"></i> Yes</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal"><i class="fa fa-close"></i> No</button>
+            </div>
+            @*<div class="modal-body">
+                    Are you sure you want do pullback?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                    <button type="button" class="btn btn-primary" id="yesPullback">Yes</button>
+                </div>*@
+        </div>
+    </div>
+</div>
+@section Scripts{
+    @Styles.Render("~/bundles/datatablescss")
+    @Scripts.Render("~/bundles/datatables")
+    <script type="text/javascript">
+    $(document).ready(function () {
+        $('#assignform').validate({ // initialize the plugin
+            errorElement: "span",
+            rules: {
+                assignemail: {
+                    required: true,
+                    email: true,
+
+                }
+            }
+        });
+        
+
+        
+            GetData();
+    });
+    function FormatObject(Model) {
+        $(Model).each(function () {
+            this.Action = '<span style="cursor: pointer;font-size:1.2em;" onclick="RemoveAssigeRole(this)" data-roleid="' + this.RoleId + '"  data-userid="' + this.UserId + '" ><i class="padding-left-15 fa fa-trash text-blue" aria-hidden="true" title="Delete"><span class="sr-only">Delete</span></i></span>';
+        });
+        return Model;
+    }
+    $('#assignemail').on("keypress", function (e) {
+        if (e.keyCode == 13) {
+            e.preventDefault();
+            $('#SaveAssignRoleBtn').click(); // prevent the button click from happening
+        }
+    });
+    function GetData() {
+        $("#UserManagerList").hide();
+        var el = $('#UserManagerList');
+        $("#loading").show();
+        $.ajax({
+            type: "GET",
+            url: baseUrl + "Admin/GetUserManagerList",
+            contentType: "application/json; charset=utf-8",
+            success: function (response) {
+                //console.log(response);
+                $("#loading").hide();
+                if (response.Success) {
+                    $("#UserManagerList").show();
+                    if (response.Object != null) {
+                        if (response.Object.length > 0) {
+                            $("#UserManagerList").html("");
+                            var data = FormatObject(response.Object);
+                            BindTemplate(data, "#UserManagerBody", "#UserManagerBodyContent", "#UserManagerTableContent", "#UserManagerList");
+                        }
+                        else {
+                            $("#UserManagerList").html(" <div style='margin-bottom:10px;' class='alert alert-yellow'><span class='sbold'>@AM.Services.Config.Web_Msg_NoRecordFound</span></div>")
+                        }
+                    }
+                } else {
+
+                    $("#UserManagerList").show();
+                    $("#UserManagerList").html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + response.ErrorMessage + "</span></div>");
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $("#UserManagerList").show();
+                $("#loading").hide();
+                var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                $("#UserManagerList").html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + msg + "</span></div>");
+            }
+
+        });
+
+    }
+        function applyDataTable() {
+
+            $('[data-toggle="popover"]').popover({
+                'trigger': 'hover',
+                'placement': 'auto left',
+                'container': 'body'
+            });
+            var table = $('#sample_2');
+            var filename = "Domain";
+            var title = "Domain Details";
+            var oTable = table.dataTable({
+
+                "language": {
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    },
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "No entries found",
+                    "infoFiltered": "(filtered1 from _MAX_ total entries)",
+                    "lengthMenu": "_MENU_ entries",
+                    "search": "<b>Search:</b>",
+                    "zeroRecords": "No matching records found"
+                },
+                //"columnDefs": [
+                //        {
+                //            "targets": ["ErrorText", "BatchId"],
+                //            "visible": false,
+                //            "searchable": true
+
+                //        },
+                //],
+                //"scrollX": true,
+                buttons: [
+                    //{
+                    //    extend: 'colvis',
+                    //    text: 'Select Fields',
+                    //    className: 'btn purple pull-left',
+                    //    columns: ':not(.noVis)'
+                    //},
+                //{
+                //    extend: 'excel',
+                //    text: '<i class="fa fa-file-excel-o fa-2x"></i>',
+                //    className: 'btn btn-primary',
+                //    filename: filename,
+                //    title: title,
+                //    exportOptions: {
+                //        columns: ["thead th:not(.BatchId)", ".ErrorCode", ".ErrorText"],//0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 23]
+                //    }
+
+                //}
+
+
+
+                ],
+
+                //"order": [
+                //    [3, 'asc'],
+                //    [4, 'asc']
+                //],
+                "lengthMenu": [
+                    [5, 10, 25, 50, 100, -1],
+                    [5, 10, 25, 50, 100, "All"] // change per page values here
+                ],
+                // set the initial value
+                "pageLength": 5,
+
+                "dom": "<'row' <'col-md-12'B>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
+
+
+            });
+
+        }
+
+        function RemoveAssigeRole(obj) {
+
+            $("#userId").val($(obj).data("userid"));
+            $("#roleId").val($(obj).data("roleid"));
+            //alert("test");
+            $("#confirmModal").modal("show");
+
+        }
+        $("#yesDelete").click(function () {
+            $("#confirmModal").modal("hide");
+            var el = $("#myModal").find(".modal-body");
+            el.empty();
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "Admin/RemoveUserManagerRole",
+                data: { userId: $("#userId").val(), roleId: $("#roleId").val() },
+                dataType: "json",
+                success: function (response) {
+                    if (response.Success) {
+                        el.html("<div class='alert alert-green'>" + response.Object + "</div>");
+                        //alert(response.Object);
+                        GetData();
+                    }
+                    else {
+                        el.html("<div class='alert alert-red'>" + response.ErrorMessage + "</div>");
+                        //alert(response.ErrorMessage);
+                    }
+                    $("#myModal").modal("show");
+                    $('#assignemail').val("")
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    el.html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + msg + "</span></div>");
+                    $("#myModal").modal("show");
+                    $('#assignemail').val("")
+                }
+            });
+        });
+        $('#SaveAssignRoleBtn').click(function (e) {
+            e.preventDefault();
+            var email = $('#assignemail').val();
+
+            var el = $("#myModal").find(".modal-body");
+            el.empty();
+            if (!$('#assignform').valid()) {
+                return false;
+            }
+            $("#AssignRoleModal").modal("hide");
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "Admin/AssignUserManagerRole",
+                data: { email: email },
+                dataType: "json",
+                success: function (response) {
+                    if (response.Success) {
+                        el.html("<div class='alert alert-green'>" + response.Object + "</div>");
+                        //alert(response.Object);
+                        GetData();
+                    }
+                    else {
+                        el.html("<div class='alert alert-red'>" + response.ErrorMessage + "</div>");
+                        //alert(response.ErrorMessage);
+                    }
+                    $("#myModal").modal("show");
+                    $('#assignemail').val("")
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                el.html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + msg + "</span></div>");
+                $("#myModal").modal("show");
+                $('#assignemail').val("")
+            }
+        });
+    });
+
+
+    </script>
+}

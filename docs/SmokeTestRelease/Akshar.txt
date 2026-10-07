@@ -1,0 +1,57 @@
+
+*** 20 sept 2018 ***
+- Remove [dbo].[uspalert_GetPendingBatchesToSubmit] SP.
+-[dbo].[uspalert_GetDelayedBatchesToSubmit] SP change.
+-Common.MonitorBatches table column name change.
+-ufn_GetPCIBundleSweepTimings function added.
+- Monitor app update.
+	- check value of <add key="Alert_CutOffMinutes" value="30"/> in config.
+	- remove bundle setting from config.
+	- email template update
+- Website alert api added.
+
+
+*** 25 Oct 2018 ***
+- Alert api & PullBack query changes:
+	Service.dll changes
+- PullBack template update
+
+
+***3 Nov 2018 ***
+AM.Core.cs
+	-ProcessPnSResponses() method PulledBack count condition added.
+	-ReportPreppedProcess() medhod PulledBack Report Upload code added.
+	-GenerateFinalReports() method get list of MPs where PulledBack and PrintBatchId == null
+	
+	
+*** 19 Nov 2018 ***	
+
+Production Task Scheduler:
+Import:
+PnSService 5 jobs from UAT
+
+Task Scheduler arguments for PnSService
+\\slxqn1vdappsr01.infosolco.net\FAGOSFTP\ADE_PnS\Test\PnSService
+***Bundling***
+PCIJob Bundle ALASKA-GENERIC,USAA-GENERIC,USAA-GENSAME,HSBC-GENERIC,CITIVM-GENERIC,DALLAS-90days-CERT,DALLAS-GENERIC,DALLAS-Statements,RPS-GENERIC
+
+***Continuous***
+PCIJob USAA-GENERIC-FEDEX,USAA-GENERIC-PRI
+
+DownloadPrinterReport
+
+Tasks To Be Remove
+-AM_Core_Bundle 
+-AM_Monitor_HSBC
+-AM_ReportedBack_HSBC
+
+Tasks To Be Rename:
+- AM_Reporting_HSBC to AM_Reporting_HSBCConsolidatedReport
+- AM_TaskManager to AM_TaskManager_Disable
+
+To Be Deploy:
+- PnS_RPS new release
+- make weekly 6:00 AM PST
+- CITIVM new release(vijaybhai), change PrintTrailId as per production
+- DALLAS app release(akshar), change PrintTrailId as per production
+	

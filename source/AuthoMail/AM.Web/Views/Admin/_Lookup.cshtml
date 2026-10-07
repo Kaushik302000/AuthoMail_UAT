@@ -1,0 +1,6 @@
+﻿@model AM.Web.Models.LookupViewModel
+@foreach (var item in Model.LookupList)
+{
+    string sel = String.IsNullOrWhiteSpace(Model.Value) ? "" : item == "Other" && !Model.LookupList.Any(f => f == Model.Value) ? "selected" : item == Model.Value ? "selected" : "";
+    <option value="@item" @sel>@item</option>
+}

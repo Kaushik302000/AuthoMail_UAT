@@ -1,0 +1,241 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Operations Version="1.0" xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+  <Operation Name="Rename Refactor" Key="523bcac7-f791-4638-86b3-f23cb100f3d0" ChangeDateTime="03/18/2020 06:20:13">
+    <Property Name="ElementName" Value="[dbo].[CustomTemplates].[Id]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[CustomTemplates]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ClientCode" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="bb352769-ec04-4e1e-b786-10d0e92ed553" ChangeDateTime="03/18/2020 06:20:48">
+    <Property Name="ElementName" Value="[dbo].[CustomTemplates].[ClientCode]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[CustomTemplates]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ClientId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="9b298b72-4bbf-4e0b-9c7b-58896c069fcf" ChangeDateTime="07/02/2020 08:44:50">
+    <Property Name="ElementName" Value="[Delfus].[Templates].[UploadedById]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Delfus].[Templates]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ModifiedById" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="7cf6f58e-2c00-4bbe-b3aa-b3210d7c1eac" ChangeDateTime="07/02/2020 08:44:59">
+    <Property Name="ElementName" Value="[Delfus].[Templates].[UploadedOn]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Delfus].[Templates]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ModifiedOn" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="3e359b05-55d2-47d0-b3c5-a2d8c2fa949c" ChangeDateTime="07/29/2020 05:16:33">
+    <Property Name="ElementName" Value="[AM].[DocTypes].[IsInsertsOnly]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[AM].[DocTypes]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="AllowInsertsOnly" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="3c7473f2-f116-41c6-9e37-e8bd5b92c9fa" ChangeDateTime="08/21/2020 11:47:50">
+    <Property Name="ElementName" Value="[Common].[EnvelopeStock].[Id]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Common].[EnvelopeStock]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="EnvelopeId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="fc9685a7-30be-4c35-ad75-f1b308e43c3f" ChangeDateTime="08/21/2020 12:17:02">
+    <Property Name="ElementName" Value="[Common].[EnvelopeInventory].[ShippedId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Common].[EnvelopeInventory]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ShipperId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="8fdfa103-809d-4a07-9cf7-36ea68be982b" ChangeDateTime="08/04/2020 05:39:19">
+    <Property Name="ElementName" Value="[dbo].[ClientsUsersMapping].[Id]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[ClientsUsersMapping]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ClientId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="2f55eef2-f813-4060-a9f1-93159b3799e0" ChangeDateTime="08/27/2020 11:42:33">
+    <Property Name="ElementName" Value="[Common].[EnvelopeStock].[ShippedId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Common].[EnvelopeStock]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ShipperId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="c1dec0f2-bfc2-4355-b63b-9ca0775c2747" ChangeDateTime="09/08/2020 07:45:45">
+    <Property Name="ElementName" Value="[Common].[SFTChannels].[APIHeaders]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Common].[SFTChannels]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="APIGrantType" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="3fc1c29e-e7d8-47a1-8f2c-e977bdb5e39a" ChangeDateTime="09/08/2020 07:49:47">
+    <Property Name="ElementName" Value="[Common].[SFTChannels].[APIGrantType]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Common].[SFTChannels]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="APITokenHeaders" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="1b138684-532e-4907-bfcd-e9f9551e3867" ChangeDateTime="09/16/2020 10:25:44">
+    <Property Name="ElementName" Value="[Common].[Clients].[ValidateBlankPages]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Common].[Clients]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="CheckBlankPages" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="cdf2fb69-6033-499f-8944-5381a2ed0cf0" ChangeDateTime="09/16/2020 10:26:46">
+    <Property Name="ElementName" Value="[Common].[Clients].[CheckBlankPages]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Common].[Clients]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="IsReqBlankPageValidation" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="f713976f-4727-46a8-9360-c73f6ad154f3" ChangeDateTime="09/23/2020 14:03:47">
+    <Property Name="ElementName" Value="[dbo].[PerfomanceLogs].[Id]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[PerfomanceLogs]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="PackageId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="57ab5e66-5be3-46ef-ad4a-87d71b96c265" ChangeDateTime="09/23/2020 14:10:15">
+    <Property Name="ElementName" Value="[API].[AMRequestLogs].[IsSelected]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[API].[AMRequestLogs]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="IsPrimaryRequest" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="73d376db-55d5-4be3-84ac-352293ab1308" ChangeDateTime="09/24/2020 07:33:36">
+    <Property Name="ElementName" Value="[API].[AMRequestLogs].[SizeCheck]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[API].[AMRequestLogs]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="SizeChecks" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="cac0fb23-59d5-4c2f-ad27-356c11274fdb" ChangeDateTime="09/24/2020 07:33:42">
+    <Property Name="ElementName" Value="[API].[AMRequestLogs].[SizeChecks]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[API].[AMRequestLogs]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="InitialChecks" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="7f9883ea-c42a-4b13-ae85-ae4ff797a989" ChangeDateTime="09/24/2020 10:35:04">
+    <Property Name="ElementName" Value="[API].[AMRequestLogs].[PackageId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[API].[AMRequestLogs]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="MailPieceId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="0bb336af-a83b-414e-a256-6af081b41747" ChangeDateTime="09/24/2020 10:44:38">
+    <Property Name="ElementName" Value="[API].[AMRequestLogs].[IX_AMRequestLogs_PackageId]" />
+    <Property Name="ElementType" Value="SqlIndex" />
+    <Property Name="ParentElementName" Value="[API].[AMRequestLogs]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[IX_AMRequestLogs_MailPieceId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="fd352845-a5dc-4300-8244-cae804938805" ChangeDateTime="09/24/2020 13:40:44">
+    <Property Name="ElementName" Value="[API].[AMRequestLogs].[HTTPStatus]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[API].[AMRequestLogs]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="HTTPStatusCode" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="9590eb8c-442b-4ca1-b6b0-b8ebf3557e20" ChangeDateTime="09/24/2020 13:45:39">
+    <Property Name="ElementName" Value="[API].[AMRequestLogs].[IsPrimaryRequest]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[API].[AMRequestLogs]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="IsPrimary" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="c07285da-19c7-4ec6-bb3f-037660ad0b68" ChangeDateTime="11/27/2020 10:55:13">
+    <Property Name="ElementName" Value="[dbo].[FloodClientMapping].[Id]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[FloodClientMapping]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ClientId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="34a23747-774f-430d-8a70-0865822643e7" ChangeDateTime="12/09/2020 10:02:30">
+    <Property Name="ElementName" Value="[Common].[EnvelopeStock].[IX_EnvelopeStock_Column]" />
+    <Property Name="ElementType" Value="SqlIndex" />
+    <Property Name="ParentElementName" Value="[Common].[EnvelopeStock]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[IX_EnvelopeStock_ShipperId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="a6d08f68-4c6e-43d2-9464-c8a26241534f" ChangeDateTime="05/29/2021 09:58:43">
+    <Property Name="ElementName" Value="[Common].[Envelopes].[IsTrackingNotRequired]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Common].[Envelopes]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="IsTrackingRequired" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="b68e2f02-d6e2-4858-bad4-fa323f78eace" ChangeDateTime="06/22/2021 10:13:28">
+    <Property Name="ElementName" Value="[AM].[FloodClientMapping].[IX_ClientId_ClientName]" />
+    <Property Name="ElementType" Value="SqlIndex" />
+    <Property Name="ParentElementName" Value="[AM].[FloodClientMapping]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[IX_Unique_ClientId_ClientName]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="bd9d8d88-7664-44bb-9597-5ef2418b0173" ChangeDateTime="08/02/2021 12:40:06">
+    <Property Name="ElementName" Value="[Common].[DallasBatchTimings].[IsWeekEnd]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Common].[DallasBatchTimings]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="IsSaturday" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="ff5e4c47-4cc1-4e5b-84b7-066d120eb5f4" ChangeDateTime="05/31/2021 06:48:57">
+    <Property Name="ElementName" Value="[Common].[DallasPostages].[InsertOne]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Common].[DallasPostages]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="InsertOneWeight" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="f44fd353-ef88-49e4-a256-67f8b972ab23" ChangeDateTime="05/31/2021 06:49:27">
+    <Property Name="ElementName" Value="[Common].[DallasPostages].[InsertOneCost]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Common].[DallasPostages]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="InsertOnePostageCost" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="4d377d80-2b29-4bb8-95a1-7af5f6fea415" ChangeDateTime="02/08/2022 06:49:13">
+    <Property Name="ElementName" Value="[AM].[DocTypes].[ReturnShippingMethod]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[AM].[DocTypes]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ReturnShippingServiceType" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="f7a647b2-6ec9-4395-9357-d61cbbe00578" ChangeDateTime="02/18/2022 06:59:28">
+    <Property Name="ElementName" Value="[Common].[Clients].[IsAddressValidationRequired]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Common].[Clients]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="IsHardAddrValidationRequired" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="d8c02ff8-faa3-4371-99b2-4e21d746d90c" ChangeDateTime="08/22/2022 06:58:34">
+    <Property Name="ElementName" Value="[AM].[PackagesHoldInfo].[ReceivedOn]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[AM].[PackagesHoldInfo]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="HoldOn" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="ad1e2950-058f-4154-90b9-1e10cc981531" ChangeDateTime="08/22/2022 06:58:44">
+    <Property Name="ElementName" Value="[AM].[PackagesHoldInfo].[DownloadedOn]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[AM].[PackagesHoldInfo]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ProcessOn" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="52bbd841-7a5a-4164-b479-5b8c6b35cb52" ChangeDateTime="09/21/2022 12:22:09">
+    <Property Name="ElementName" Value="[AM].[MailPieces].[EnvelopeId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[AM].[MailPieces]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="UsedEnvelopeId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="0bde899a-df63-49cf-bcc8-d98f1cffde90" ChangeDateTime="10/19/2022 06:10:05">
+    <Property Name="ElementName" Value="[Common].[Clients].[IsRejectDuplicateRecord]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Common].[Clients]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="IsRejectDupRecord" />
+  </Operation>
+</Operations>

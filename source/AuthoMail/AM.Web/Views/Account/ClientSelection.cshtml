@@ -1,0 +1,84 @@
+﻿@{
+    ViewBag.Title = "Email confirmed";
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+}
+<style>
+    .parent {
+        width: 80vw;
+        height: 50vh;
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+    }
+
+    .child {
+        width: 45vw;
+    }
+</style>
+<div style="margin-top:2%">
+
+</div>
+@if (ViewBag.Success)
+{
+    <div id="Message"></div>
+    <div class="parent">
+        <div class="panel panel-primary child">
+            <div class="panel-heading">
+                <h3>Please select an Appcode(s) to confirm an email.</h3>
+            </div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <label class="control-label">AppCode</label>
+                    <select class="form-control selectpicker" multiple="multiple" id="appcode" data-live-search="true" data-live-search-placeholder="Search AppCode">
+                        @foreach (var appcode in ViewBag.clientDomains as List<AM.Services.ClientIdNameVM>)
+                        {
+                            <option value="@(appcode.Id)">@appcode.NameAppCode</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="panel-footer text-right">
+                <button type="button" id="confirmemail" class="btn btn-success">Confirm Email</button>
+            </div>
+        </div>
+    </div>
+    @section Scripts {
+        @Scripts.Render("~/bundles/jqueryval")
+        <script type="text/javascript">
+            $(document).ready(function () {
+                var userId = '@(ViewBag.userId)';
+                $('#confirmemail').click(function (e) {
+                    e.preventDefault();
+                    var clientIds = $('#appcode').val();
+                    if (clientIds == null || clientIds == '') {
+                        alertMessage("red", "Please select AppCode.");
+                        return false;
+                    }
+                    $.ajax({
+                        type: "POST",
+                        url: baseUrl + "Account/ClientSelection",
+                        data: { userId: userId, clientIds: clientIds },
+                        dataType: "json",
+                        success: function (response) {
+                            if (response.Success) {
+                                $('.panel-body').html('<div class="alert alert-green text-center">' + response.Object + '</div>');
+                                $('#confirmemail').remove();
+                                $('.panel-heading').remove();
+                            } else {
+                                alertMessage("red", response.ErrorMessage);
+                            }
+                        }
+                    });
+                });
+            });
+        </script>
+    }
+}
+else
+{
+
+    <div class="alert alert-red text-center">
+        <div>@Html.Raw(ViewBag.Message)</div>
+    </div>
+
+}

@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Style-Type" content="text/css">
+    <title><%AppCode%> Data</title>
+    <style>
+        body {
+            max-width: 700px;
+            font-family: Arial,sans-serif;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 5px;
+            font-size: 10px;
+            border: solid 1px;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .styled-table {
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        }
+
+            .styled-table thead tr {
+                background-color: #009879;
+                color: #ffffff;
+            }
+
+            .styled-table th, .styled-table td {
+                text-align: center !important;
+                font-size: 9px;
+                border: solid 1px;
+                font-weight: bold;
+            }
+
+        p {
+            font-family: sans-serif;
+            font-size: 10px;
+        }
+
+        .trProduct {
+            font-weight: bold;
+            background-color: #80808024;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <p>
+            Hi All,
+            <br />
+            <br />
+            Please find attached <%AppCode%> Status Report. Below is the product wise delivery details for your reference.
+        </p>
+    </div>
+    <div style="width:100%">
+        <div style="width:40%; display:inline-block;">
+            <table cellpadding="0" cellspacing="0" style="display: inline-block;vertical-align: top;margin-right:2px;">
+                <thead>
+                    <tr>
+                        <th>Product Code</th>
+                        <th colspan="4">Ongoing Status</th>
+                        <th colspan="4">Return Status</th>
+                    </tr>
+                    <tr>
+                        <th scope="col" style="padding: 5px; font-family: Arial,sans-serif; font-size: 10px;">Product Wise Status Details</th>
+                        <th scope="col" style="padding:5px; font-family: Arial,sans-serif; font-size: 10px;">FedEx</th>
+                        <th scope="col" style="padding:5px; font-family: Arial,sans-serif; font-size: 10px;">USPS Priority</th>
+                        <th scope="col" style="padding:5px; font-family: Arial,sans-serif; font-size: 10px;">USPS IMB</th>
+                        <th scope="col" style="padding:5px; font-family: Arial,sans-serif; font-size: 10px;">Grand Total</th>
+                        <th scope="col" style="padding:5px; font-family: Arial,sans-serif; font-size: 10px;">FedEx</th>
+                        <th scope="col" style="padding:5px; font-family: Arial,sans-serif; font-size: 10px;">USPS Priority</th>
+                        <th scope="col" style="padding:5px; font-family: Arial,sans-serif; font-size: 10px;">USPS IMB</th>
+                        <th scope="col" style="padding:5px; font-family: Arial,sans-serif; font-size: 10px;">Grand Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {OngoingData}
+                </tbody>
+                <tfoot>
+                    {OngoingGrandTotal}
+                </tfoot>
+            </table>
+        </div>        
+    </div>
+    <br />
+    <br />
+    <p>
+        <b>Thanks & Regards,</b><br />
+        <span style="font-size: 10px;">Team CoreLogic</span>
+    </p>
+    <p style="font-size: 10px;"><b>Note : Please do not reply on this system generated email.</b></p>
+</body>
+</html>

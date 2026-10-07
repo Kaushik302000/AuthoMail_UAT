@@ -1,0 +1,21 @@
+﻿CREATE TABLE [API].[FedEx]
+(
+	[Id] INT NOT NULL IDENTITY ,
+	[APIName] [nvarchar](255) NOT NULL,
+	[UserId] [nvarchar](255) NULL,
+	[IsAPIError] [bit] NOT NULL,
+	[IsFedExError] [bit] NOT NULL,
+	[APIRequest] [nvarchar](max) NOT NULL,
+	[APIRequestedOn] [datetime] NOT NULL,
+	[FedExRequest] [nvarchar](max) NULL,
+	[FedExRequestedOn] [datetime] NULL,
+	[FedExResponse] [nvarchar](max) NULL,
+	[FedExResponseOn] [datetime] NULL,
+	[APIResponse] [nvarchar](max) NULL,
+	[APIResponseOn] [datetime] NULL,
+	[BarcodeNumber] [nvarchar](255) NULL,
+	[Postage] [dbo].[Amount] NOT NULL,
+	[CommitmentName] [nvarchar](255) NULL,
+	[ScheduledDeliveryDate] [date] NULL, 
+    CONSTRAINT [PK_FedEx] PRIMARY KEY ([Id]),
+)

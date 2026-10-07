@@ -1,0 +1,25 @@
+﻿INSERT INTO AM.CustomTemplates
+(DocTypeId, CustomTemplatePath, CommunityCode)
+VALUES
+(278, '2844365_MA.docx', 'MA'),
+(278, '2844365_NY.docx', 'NY'),
+(279, '2845769_MA.docx', 'MA'),
+(279, '2845769_NY.docx', 'NY'),
+(280, '2845768_MA.docx', 'MA'),
+(280, '2845768_NY.docx', 'NY'),
+(281, '2813735_MA.docx', 'MA'),
+(281, '2813735_NY.docx', 'NY'),
+(457, '2846893_MA.docx', 'MA'),
+(457, '2846893_NY.docx', 'NY'),
+(458, '2837209_MA.docx', 'MA'),
+(458, '2837209_NY.docx', 'NY'),
+(481, '2842249_MA.docx', 'MA'),
+(481, '2842249_NY.docx', 'NY'),
+(486, '2798205_MA.docx', 'MA'),
+(486, '2798205_NY.docx', 'NY'),
+(507, '2821087_MA.docx', 'MA'),
+(507, '2821087_NY.docx', 'NY'),
+(681, '2851413_MA.docx', 'MA'),
+(681, '2851413_NY.docx', 'NY'),
+(773, '2794014_MA.docx', 'MA'),
+(773, '2794014_NY.docx', 'NY')

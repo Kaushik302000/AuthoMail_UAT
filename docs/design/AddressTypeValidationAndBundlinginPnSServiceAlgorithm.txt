@@ -1,0 +1,39 @@
+Algorithm for AddressTypes validation
+- Just like DueDate and PrintLocation, we can implement addresstypes validation also for all clients
+- We just need to remove addresstypes validation code from Validation stage and keep that after validation status to verify.
+- currently, we are doing twice xml read operation. So we do this thing after getting valid data for processing then it will be quick operation for validating addresstypes.
+- create separate generic method for address validation for and return type as doctype if actualdoctype class which contains 3 properties DocType,HasError,ErrorDesc
+- after that we can proceeed for duedate calculation and printlocation logic for valid mail piece
+- further flow will be same
+
+Algorithm for removing Bundle sweep from AuthoMail and include it in PnS Service
+Requirement : Bundle all the clients based on Client-PackageType
+Table Afftected :
+	- new table will be added Common.PrintDocTypes :  Columns : Id,PrintDocType,PackageType
+	- AM.DocTypes : new columns needs to be added IsBRE, PrintDocTypeId(FK : Common.PrintDocTypes)
+	- PnS.MRDFRequest : new column will be added PrintBundleId
+	- new table will be added PnS.PrintBundleBatches : columns : Id,BatchStatus,StatusDesc,AppCode,PrintBundleName,SubmittedOn,MRDFReceivedOn
+-Advantage : 
+	- Bundling functionality will be independent from AM and work for all clients even for those which are not coming through AM.
+-Disadvantage: 
+	- Number of records will get increase in AM.PrintBatches and PnS.BatchSummary (specifically when we will receive single mail piece per batch). 
+		- Solution : we can take all the batches which are in prepped state and based on that we can try to generate batches for that just like bundling. from this implementation we can decrease number of batches in PnS.BatchSummary
+Flow :-
+- In AM
+	- Remove Bundle code from Core
+	- Submit batches as continues flow and generate batches for PnS	
+- In PnS Service
+	- Download process will be same 
+	- Prepped process will be same but just one change will be for MRDF file., System will generate MRDF at bundle time only. and make an entry in PnS.PrintBundleBatches table and reflact that same Id in MRDFRequest table
+	- After Prepped Status, Bundle will work based on Task Schedular and parameters (we will keep to allow multiple clients argument process for same timings)
+	- at bundling process, folder structure will be created like Client -->PrintBundle --> PrintBundleId --> PCIRequest / PCIResponse
+		- In PCIRequest --> MRDF file and Zip file will exist and In PCIResponse --> only MRDF response will be there.
+	- Based on that MRDFResponse mail piece status will get updated. if we receive response of all mailpieces for that batch then we will mark that as MRDFResponse
+	- After marking MRDFResponseReceived, further work flow will not be changed.
+
+Algorithm for Client wise Print Location
+Requirement : Client wise print location, HSBC production to San Diago location (*A* requirements & unique key on label, in response text file from printing team)
+- In PnS Service
+Table Afftected : 
+	- Common.PrintLocations : Id,SFTChannelId, UploadType (Values : PDFs,PCIZip,),BizDayTimeSlots,SatDayTimeSlots,SunDayTimeSlots
+	- AM.DocTypes : add new column PrintLocationId

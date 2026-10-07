@@ -1,0 +1,31 @@
+Return PDF Download Module :
+
+Need to create code for archiving batches : 
+JIRA Ticket Open : Opened
+Period of Retation for all clients : for now 60 days
+Need to ask about for all clients you are going to take or not? - Brijesh bhai will inform
+How you are going to put return PDFs zip file on SFTP? - In Different folder
+Please upload zip with file format - Informed to Doug
+
+Questions To Doug :
+1) How you are going to put return PDFs zip file on SFTP?
+2) Is it possible if we tell you to put trigger file along with Zip to consider that file is ready to pic by our system?
+
+
+Questions To Ravi Sir :
+1) Can we suggest Doug to give return PDFs along with return MRDF? 
+	- If it is possible than we can handle whole process through our PnS Service and we don't need to create separate application.
+2) If we are creating separate application to download return PDFs zip file then where we will put that PDFs? in PnS Folder structure or in AM folder structure?
+	- Because if we first put that PDFs in both folder structure it may possible that we need more storage space for same documents.
+
+	
+Challenges :
+1) How we are going show that PDFs in AuthoMail?
+2) 
+
+Flow for Separate Application :
+
+Application will check for Return PDFs every 15 min / 30 min. whatever is feasible
+
+1) Download only MRDF ResponseReceived status 
+2) IsPDFReceived bit Default value 0 

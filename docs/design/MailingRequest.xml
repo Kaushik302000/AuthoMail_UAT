@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MailBatch xmlns="http://schemas.corelogic.com/ade/authomail/v1.18.0" Id ="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" BusinessFriendlyIdName ="" BusinessFriendlyIdValue="" DueDate="" Priority="High|Medium|Low" DocumentOrPackageType="">
+
+  <ShippingInfo Carrier="" ServiceType ="USPS|FedEx|UPS" AccountCode="ADE"/>
+    
+  <MailPiece Id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" BusinessFriendlyIdName ="{LoanNumber}" BusinessFriendlyIdValue="LoanNumber" DocumentOrPackageType="">
+    <File Name="" Pattern=""/>
+    
+    <RecipientInfo>
+      <Recipient Prefix="" FirstName="" MiddleName="" LastName="" Suffix="" Phone="" Organization=""/>
+      <Corecipient Prefix="" GivenName="" Surname="" Suffix="" Phone=""/>
+      <Address OptionalLine1AboveStreet="" OptionalLine2AboveStreet="" Street="" AptOrSuiteOrOther ="" OptionalLine1BelowStreet="" OptionalLine2BelowStreet="" City="" State="" Zip=""/>
+    </RecipientInfo>
+
+    <ReturnInfo>
+      <Recipient Prefix="" FirstName="" MiddleName="" LastName="" Suffix="" Phone="" Organization=""/>
+      <Address OptionalLine1AboveStreet="" OptionalLine2AboveStreet="" Street="" AptOrSuiteOrOther ="" OptionalLine1BelowStreet="" OptionalLine2BelowStreet="" City="" State="" Zip=""/>
+    </ReturnInfo>
+    
+  <ShippingInfo Carrier="" ServiceType ="USPS|FedEx|UPS" AccountCode="ADE"/>
+    
+    <CustomInfo>
+      <Metadata Key="" Value=""/>
+      <Metadata Key="" Value=""/>
+      <Metadata Key="" Value=""/>
+    </CustomInfo>
+  
+  </MailPiece>
+
+  <MailPiece></MailPiece>
+  <MailPiece></MailPiece>
+  
+  <ReturnInfo>
+    <Recipient Prefix="" FirstName="" MiddleName="" LastName="" Suffix="" Phone="" Organization=""/>
+    <Address OptionalLine1AboveStreet="" OptionalLine2AboveStreet="" Street="" AptOrSuiteOrOther ="" OptionalLine1BelowStreet="" OptionalLine2BelowStreet="" City="" State="" Zip=""/>
+  </ReturnInfo>
+  
+  <CustomInfo>
+    <Metadata Key="" Value=""/>
+    <Metadata Key="" Value=""/>
+    <Metadata Key="" Value=""/>
+  </CustomInfo>
+
+  </MailBatch>

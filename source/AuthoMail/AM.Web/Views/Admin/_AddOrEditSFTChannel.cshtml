@@ -1,0 +1,87 @@
+﻿@model AM.Services.SFTChannels
+
+<h2 id="myModalLabel">@(Model.Id == 0 ? Html.Raw("Add SFT Channel Details") : Html.Raw("Edit SFT Channel Details"))</h2>
+<hr />
+<form id="sftchannelform" action="#">
+    <input type="hidden" name="Id" id="Id" value="@Model.Id" />
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="Code">Code</label>
+                <div class="input-group">
+                    <input type="text" name="Code" value="@Model.Code" placeholder="Code" class="form-control" id="Code" />
+                </div>
+
+            </div>
+            <div class="form-group">
+                <label for="Title">Title</label>
+                <div class="input-group">
+                    <input type="text" name="Title" value="@Model.Title" placeholder="Title" class="form-control" id="Title" />
+                </div>
+
+            </div>
+            
+            <div class="form-group">
+                <label for="Protocol">Protocol</label>
+                @Html.DropDownListFor(model => model.Protocol, (IEnumerable<SelectListItem>)ViewBag.ProtocoldropDown, "Select Protocol", htmlAttributes: new { @class = " form-control selectpicker", @data_live_search = "true", @data_live_search_placeholder = "Search Protocol" })
+                @*<div class="input-group">
+                    <input type="text" name="Protocol" value="@Model.Protocol" placeholder="Protocol" class="form-control" id="Protocol" />
+                </div>*@
+            </div>
+           
+            <div class="form-group">
+                <label for="UserName">User Name</label>
+                <div class="input-group">
+                    <input type="text" name="UserName" value="@Model.UserName" placeholder="User Name" class="form-control" id="UserName" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="Password">Password</label>
+                <div class="input-group">
+                    <i class="fa fa-eye right-icon" style="cursor:pointer;" onmouseover="if (Password.type == 'text') Password.type = 'password'; else Password.type = 'text';" onmouseout="    if (Password.type == 'password') Password.type = 'text'; else Password.type = 'password'"></i>
+                    <input type="password" name="Password" value="@Model.Password" placeholder="Password" class="form-control" id="Password" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="Host">Host</label>
+                <div class="input-group">
+                    <input type="text" name="Host" value="@Model.Host" placeholder="Host" class="form-control" id="Host" />
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="ToADEDir">To ADE Dir</label>
+                <div class="input-group">
+                    <input type="text" name="ToADEDir" value="@Model.ToADEDir" placeholder="To ADE Dir" class="form-control" id="ToADEDir" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="FromADEDir">From ADE Dir</label>
+                <div class="input-group">
+                    <input type="text" name="FromADEDir" value="@Model.FromADEDir" placeholder="From ADE Dir" class="form-control" id="FromADEDir" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="ArchiveDir">Archive Dir</label>
+                <div class="input-group">
+                    <input type="text" name="ArchiveDir" value="@Model.ArchiveDir" placeholder="Archive Dir" class="form-control" id="ArchiveDir" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="PostDownloadAction">Post Download Action</label>
+                @Html.DropDownListFor(model => model.PostDownloadAction, (IEnumerable<SelectListItem>)ViewBag.PostDownloadActiondropDown , "Select Post Download Action", htmlAttributes: new { @class = " form-control selectpicker", @data_live_search = "true", @data_live_search_placeholder = "Search Post Download Action" })
+            </div>
+            <div class="form-group">
+                <label for="Description">Description</label>
+                <div class="input-group">
+                    <textarea id="Description" name="Description" placeholder="Description" class="form-control">@Model.Description</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <hr />
+    <button type="submit" class="btn btn-primary" id="Save"><i class="fa fa-save"></i> Save</button>
+    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Cancel</button>
+</form>

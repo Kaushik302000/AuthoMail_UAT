@@ -1,0 +1,16 @@
+AuthoMail Services Released on Production With Below Changes
+
+Code Changed in AM.Core
+1) Code Fixed for TLSv1.2 for FedEx
+2) Bug fixed for Unknown Error Code
+3) TotalSheets counts Fixed for MailPieces
+4) Code fixed for Errored MailPieces
+
+Code Changed in AM.Console 
+1) Code fixed for ReturnInfo data fallback in AuthoMail
+2) Made ReturnInfo and ReturnInfo/LastName tag optional
+3) Code added for Duplicate Report Uploads in AMC
+
+Code Changed for PnS Service
+1) Code fixed for download only print vendor's response : SP Fixed : usp_GetSubmittedBatches
+2) Code fixed from DateTime.Now to Common.EstToday in PnSCore.cs

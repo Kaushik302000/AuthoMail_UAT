@@ -1,0 +1,638 @@
+﻿@{
+    ViewBag.Title = "ManageClients";
+}
+
+<link href="~/clui/dist/css/datatablecustom.css" rel="stylesheet" />
+<style>
+    #dateFilter .bootstrap-select {
+        width: 100% !important;
+    }
+
+
+    .dataTables_wrapper {
+        margin-top: -1.5% !important;
+    }
+
+    .popover-content {
+        word-wrap: break-word;
+        color: red;
+    }
+</style>
+<div class="panel panel-default">
+
+    <div class="panel-heading" id="clientHeader">
+        <div class="panel-title">
+            <i class="fa fa-users"></i> Client Details
+            <span class="pull-right" @*style=" margin-right: 11%;" *@>
+                <button type="button" data-id="0" class="btn btn-primary " onclick="AddEditClient(this)"><i class="fa fa-plus"></i> Add Client</button>
+            </span>
+        </div>
+    </div>
+    <div class="panel-body" id="ClientList">
+        <div class='alert alert-blue text-center' id="loading" style="display:none;margin-bottom:10px;"><span> Loading... </span></div>
+    </div>
+</div>
+
+
+<div id="ClientTableContent" style="display:none">
+    <table class="table table-responsive" style="overflow-x:scroll">
+        <thead>
+            <tr>
+                <th style="min-width:99px;">Action</th>
+                <th>Client Name</th>
+                <th>App Code</th>
+                <th>Business Unit</th>
+                <th>IsAMActive</th>
+                <th>IsPnSActive</th>
+                <th>Timezone</th>
+                <th>Address</th>
+                <th>Contact1 Name</th>
+                <th>Contact1 Phone</th>
+                <th>Contact1 Email</th>
+                <th>Contact2 Name</th>
+                <th>Contact2 Phone</th>
+                <th>Contact2 Email</th>
+                <th>Contact3 Name</th>
+                <th>Contact3 Phone</th>
+                <th>Contact3 Email</th>
+                <th>IT Contact Name</th>
+                <th>IT Contact Phone</th>
+                <th>IT Contact Email</th>
+                <th>Billing Contact Name</th>
+                <th>Billing Contact Phone</th>
+                <th>Billing Contact Email</th>
+            </tr>
+        </thead>
+        <tbody id="ClientbodyContent"></tbody>
+    </table>
+</div>
+<div style="display:none">
+    <table>
+        <tbody id="ClientBody">
+            <tr class="row-small">
+                <td>{Action}{CoverLetter}</td>
+                <td><span data-id="{Id}">{Name}</span></td>
+                <td><span>{AppCode}</span></td>
+                <td><span>{BusinessUnitModel.BusinessUnit}</span></td>
+                <td><span>{IsAMActiveFormatted}</span></td>
+                <td><span>{IsPnSActiveFormatted}</span></td>
+                <td><span>{TimeZone}</span></td>
+                <td><span>{Address}</span></td>
+                <td><span>{Contact1Name}</span></td>
+                <td><span>{Contact1Phone}</span></td>
+                <td><span>{Contact1Email}</span></td>
+                <td><span>{Contact2Name}</span></td>
+                <td><span>{Contact2Phone}</span></td>
+                <td><span>{Contact2Email}</span></td>
+                <td><span>{Contact3Name}</span></td>
+                <td><span>{Contact3Phone}</span></td>
+                <td><span>{Contact3Email}</span></td>
+                <td><span>{ITContactName}</span></td>
+                <td><span>{ITContactPhone}</span></td>
+                <td><span>{ITContactEmail}</span></td>
+                <td><span>{BillingContactName}</span></td>
+                <td><span>{BillingContactPhone}</span></td>
+                <td><span>{BillingContactEmail}</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+<div class="modal fade" id="AddEditModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header" style="margin-top:2%;margin-bottom:2%;">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="AddCoverLetterModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header" style="margin-top:2%;margin-bottom:2%;">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@*<div class="modal fade" id="IsActiveModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="modal-header" style="margin-top:2%;margin-bottom:2%;">
+                    <input type="hidden" id="isActive" name="isActive" />
+                    <input type="hidden" id="Id" name="Id" />
+                    <h2 id="IsActiveHeader"> Are you sure you want to reset setting?</h2>
+                    <hr />
+                    <button type="button" class="btn btn-primary" id="IsActiveYes"><i class="fa fa-check"></i> Yes</button>
+                    <button type="button" class="btn btn-default" id="IsActiveNo" data-dismiss="modal"><i class="fa fa-close"></i> No</button>
+                </div>
+            </div>1
+        </div>
+    </div>*@
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header">
+                <h1 id="myModalLabel">Client Details</h1>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    @Styles.Render("~/bundles/datatablescss")
+    @Scripts.Render("~/bundles/datatables")
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            GetClients();
+
+
+        });
+        function Clients(Id, Name, AppCode, BusinessUnit, TimeZone, Contact1Name, Contact1Phone, Contact1Email, Contact2Name, Contact2Phone, Contact2Email, Contact3Name, Contact3Phone, Contact3Email, ITContactName, ITContactPhone, ITContactEmail, BillingContactName, BillingContactPhone, BillingContactEmail, Address) {
+            this.Id = Id;
+            this.Name = Name;
+            this.AppCode = AppCode;
+            this.BusinessUnit = BusinessUnit;
+            this.TimeZone = TimeZone;
+            this.Contact1Name = Contact1Name;
+            this.Contact1Phone = Contact1Phone;
+            this.Contact1Email = Contact1Email;
+            this.Contact2Name = Contact2Name;
+            this.Contact2Phone = Contact2Phone;
+            this.Contact2Email = Contact2Email
+            this.Contact3Name = Contact3Name;
+            this.Contact3Phone = Contact3Phone;
+            this.Contact3Email = Contact3Email;
+            this.ITContactName = ITContactName;
+            this.ITContactPhone = ITContactPhone;
+            this.ITContactEmail = ITContactEmail;
+            this.BillingContactName = BillingContactName;
+            this.BillingContactPhone = BillingContactPhone;
+            this.BillingContactEmail = BillingContactEmail;
+            this.Address = Address;
+        }
+
+        function ValidateCoverLetter() {
+            window.clui.selectInit();
+            if ($("#file").val().trim() == "") {
+                $("#Save").attr("disabled", "disabled");
+            }
+            $('#coverletterform').validate({ // initialize the plugin
+                errorElement: "span",
+                rules: {
+                    FileName: {
+                        required: true,
+                        maxlength: 255
+
+                    },
+                    DocTypeId: {
+                        required: true
+                    },
+                    SeqId: {
+                        required: true,
+                        digits: true
+                    }
+                },
+                submitHandler: function (form) { // for demo
+                    var docTypeId = parseInt($("#AddCoverLetterModal").find(".modal-header").find("#DocTypeId").val());
+                    var fileName = $("#AddCoverLetterModal").find(".modal-header").find("#FileName").val();
+                    var seqId = parseInt($("#AddCoverLetterModal").find(".modal-header").find("#SeqId").val());
+                    var AppCode = $("#AddCoverLetterModal").find(".modal-header").find("#AppCode").val();
+                    var file = $("#AddCoverLetterModal").find(".modal-header").find("#file").prop('files')[0];
+                    //console.log(file);
+                    $("#AddCoverLetterModal").modal("hide");
+                    var el = $("#myModal").find(".modal-body");
+                    el.empty();
+                    var formData = new FormData();
+                    formData.append("file", file);
+                    formData.append("docTypeId", docTypeId);
+                    formData.append("seqId", seqId);
+                    formData.append("appCode", AppCode);
+                    formData.append("fileName", fileName);
+                    $.ajax({
+                        //dataType: 'json',
+                        //data: JSON.stringify({ docTypeId: docTypeId, seqId: seqId, fileName: fileName, file: file[0].files }),
+                        // contentType: "application/json; charset=utf-8",
+                        type: "POST",
+                        url: baseUrl + "Admin/_AddCoverLetter",
+                        processData: false,  // tell jQuery not to process the data
+                        contentType: false,
+                        data: formData,
+                        success: function (response) {
+                            //console.log(response);
+                            if (response.Success) {
+                                if (response.Object != null) {
+                                    if (response.Object.Key) {
+                                        el.html("<div class='alert alert-green'>" + response.Object.Value + "</div>");
+                                    }
+                                    else {
+                                        el.html("<div class='alert alert-red'>" + response.Object.Value + "</div>");
+                                    }
+                                }
+
+                            }
+                            else {
+                                el.html("<div class='alert alert-red'>" + response.ErrorMessage + "</div>");
+
+                            }
+                            $("#myModal").modal("show");
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            el.show();
+                            $("#loading").hide();
+                            var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                            el.html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + msg + "</span></div>");
+                            $("#myModal").modal("show");
+                        }
+
+                    });
+                }
+            });
+        }
+
+
+        function ValidateForm() {
+            window.clui.selectInit();
+            $('#clientform').validate({ // initialize the plugin
+                errorElement: "span",
+                rules: {
+                    Name: {
+                        required: true,
+                        lettersonly: true,
+                        maxlength: 255
+                    },
+                    BusinessUnit: {
+                        required: true
+                    },
+                    AppCode: {
+                        required: true,
+                        maxlength: 128
+                    },
+                    TimeZone: {
+                        required: true,
+                        lettersonly: true,
+                        maxlength: 255
+                    },
+                    Contact1Name: {
+                        required: true,
+                        lettersonly: true,
+                        maxlength: 255
+                    },
+                    Contact1Phone: {
+                        required: true,
+                        phoneUS: true
+                    },
+                    Contact1Email: {
+                        required: true,
+                        email: true
+                    },
+                    Contact2Name: {
+                        lettersonly: true,
+                        maxlength: 255
+                    },
+                    Contact2Phone: {
+                        phoneUS: true
+                    },
+                    Contact2Email: {
+                        email: true
+                    },
+                    Contact3Name: {
+                        lettersonly: true,
+                        maxlength: 255
+                    },
+                    Contact3Phone: {
+                        phoneUS: true
+                    },
+                    Contact3Email: {
+                        email: true
+                    },
+                    ITContactName: {
+                        required: true,
+                        lettersonly: true
+                    },
+                    ITContactPhone: {
+                        required: true,
+                        phoneUS: true
+                    },
+                    ITContactEmail: {
+                        required: true,
+                        email: true
+                    },
+                    BillingContactName: {
+                        required: true,
+                        lettersonly: true,
+                    },
+                    BillingContactPhone: {
+                        required: true,
+                        phoneUS: true
+                    },
+                    BillingContactEmail: {
+                        required: true,
+                        email: true
+                    },
+
+                },
+                submitHandler: function (form) { // for demo
+                    var Id = $("#AddEditModal").find(".modal-header").find("#Id").val();
+                    var name = $("#AddEditModal").find(".modal-header").find("#Name").val();
+                    var appCode = $("#AddEditModal").find(".modal-header").find("#AppCode").val();
+                    var businessUnit = $("#AddEditModal").find(".modal-header").find("#BusinessUnit").val();
+                    var timezone = $("#AddEditModal").find(".modal-header").find("#TimeZone").val();
+                    var Contact1Name = $("#AddEditModal").find(".modal-header").find("#Contact1Name").val();
+                    var Contact1Phone = $("#AddEditModal").find(".modal-header").find("#Contact1Phone").val();
+                    var Contact1Email = $("#AddEditModal").find(".modal-header").find("#Contact1Email").val();
+                    var Contact2Name = $("#AddEditModal").find(".modal-header").find("#Contact2Name").val();
+                    var Contact2Phone = $("#AddEditModal").find(".modal-header").find("#Contact2Phone").val();
+                    var Contact2Email = $("#AddEditModal").find(".modal-header").find("#Contact2Email").val();
+                    var Contact3Name = $("#AddEditModal").find(".modal-header").find("#Contact3Name").val();
+                    var Contact3Phone = $("#AddEditModal").find(".modal-header").find("#Contact3Phone").val();
+                    var Contact3Email = $("#AddEditModal").find(".modal-header").find("#Contact3Email").val();
+                    var ITContactName = $("#AddEditModal").find(".modal-header").find("#ITContactName").val();
+                    var ITContactPhone = $("#AddEditModal").find(".modal-header").find("#ITContactPhone").val();
+                    var ITContactEmail = $("#AddEditModal").find(".modal-header").find("#ITContactEmail").val();
+                    var BillingContactName = $("#AddEditModal").find(".modal-header").find("#BillingContactName").val();
+                    var BillingContactPhone = $("#AddEditModal").find(".modal-header").find("#BillingContactPhone").val();
+                    var BillingContactEmail = $("#AddEditModal").find(".modal-header").find("#BillingContactEmail").val();
+                    var Address = $("#AddEditModal").find(".modal-header").find("#Address").val();
+                    var ClientObj = new Clients(Id, name, appCode, businessUnit, timezone, Contact1Name, Contact1Phone, Contact1Email, Contact2Name, Contact2Phone, Contact2Email, Contact3Name, Contact3Phone, Contact3Email, ITContactName, ITContactPhone, ITContactEmail, BillingContactName, BillingContactPhone, BillingContactEmail, Address);
+                    //console.log(ClientObj);
+                   
+                    $("#AddEditModal").modal("hide");
+                    var el = $("#myModal").find(".modal-body");
+                    el.empty();
+                    $.ajax({
+                        type: "POST",
+                        url: baseUrl + "Admin/CreateOrEditClient",
+                        data: JSON.stringify({ client: ClientObj }),
+                        contentType: "application/json; charset=utf-8",
+                        success: function (response) {
+                            //console.log(response);
+                            if (response.Success) {
+                                if (response.Object != null) {
+                                    if (response.Object.Key) {
+                                        el.html("<div class='alert alert-green'>" + response.Object.Value + "</div>");
+                                    }
+                                    else {
+                                        el.html("<div class='alert alert-red'>" + response.Object.Value + "</div>");
+                                    }
+                                }
+                                GetClients();
+                            }
+                            else {
+                                el.html("<div class='alert alert-red'>" + response.ErrorMessage + "</div>");
+
+                            }
+                            $("#myModal").modal("show");
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            el.show();
+                            $("#loading").hide();
+                            var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                            el.html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + msg + "</span></div>");
+                            $("#myModal").modal("show");
+                        }
+
+                    });
+                }
+            });
+        }
+       
+        var GetClients = function () {
+            //$("#ClientList").hide();
+            var el = $('#ClientList');
+            $("#loading").show();
+            $.ajax({
+                type: "GET",
+                url: baseUrl + "Admin/GetClients",
+                //data: JSON.stringify({}),
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    //console.log(response);
+                    $("#loading").hide();
+                    if (response.Success) {
+                        el.show();
+                        if (response.Object != null) {
+                            if (response.Object.length > 0) {
+                                el.html("");
+                                var data = FormatObject(response.Object);
+                                BindTemplate(data, "#ClientBody", "#ClientbodyContent", "#ClientTableContent", "#ClientList");
+                            }
+                            else {
+                                el.html(" <div style='margin-bottom:10px;' class='alert alert-yellow'><span class='sbold'>@AM.Services.Config.Web_Msg_NoRecordFound</span></div>")
+                            }
+                        }
+                    } else {
+
+                        el.show();
+                        el.html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + response.ErrorMessage + "</span></div>");
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    el.show();
+                    $("#loading").hide();
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    el.html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + msg + "</span></div>");
+                }
+
+            });
+        }
+
+        function AddCoverLetter(obj) {
+            var Id = $(obj).data("id");
+            var el = $("#AddCoverLetterModal").find(".modal-header");
+            el.empty();
+            $.ajax({
+                type: "GET",
+                url: baseUrl + "Admin/_AddCoverLetter",
+                data: { Id: Id },
+                success: function (response) {
+                    el.html(response);
+                    $("#AddCoverLetterModal").modal("show");
+                    ValidateCoverLetter();
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+
+                    //Spinners(".spinnericon", "faspinner");
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    el.html("<div class='alert alert-red'><span>" + msg + "</span></div>");
+                    $("#AddCoverLetterModal").modal("show");
+                }
+            });
+        }
+
+        function AddEditClient(obj) {
+            var Id = $(obj).data("id");
+            var el = $("#AddEditModal").find(".modal-header");
+            el.empty();
+            $.ajax({
+                type: "GET",
+                url: baseUrl + "Admin/GetClientById",
+                data: { Id: Id },
+                success: function (response) {
+                    el.html(response);
+                    $("#AddEditModal").modal("show");
+                    ValidateForm();
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+
+                    //Spinners(".spinnericon", "faspinner");
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    el.html("<div class='alert alert-red'><span>" + msg + "</span></div>");
+                    $("#AddEditModal").modal("show");
+                }
+            });
+
+        }
+        function FormatObject(Model) {
+            $(Model).each(function () {
+                this.IsAMActiveFormatted = this.IsAMActive ? '<div class="toggle-container"><input id="isamactive' + this.Id + '" onclick="MakeActiveOrDeactive(this)" data-id="' + this.Id + '" data-isam="1"  data-currentvalue="' + this.IsAMActive + '" class="cl-toggle toggle-orange" type="checkbox" checked="checked" name="toggle-demo"/><label for="isamactive' + this.Id + '">Is Active</label></div>' : '<div class="toggle-container"><input id="isamactive' + this.Id + '" onclick="MakeActiveOrDeactive(this)" data-currentvalue="' + this.IsAMActive + '" data-id="' + this.Id + '" data-isam="1" class="cl-toggle toggle-orange" type="checkbox" name="toggle-demo"/><label for="isamactive' + this.Id + '">Is Active</label></div>';
+
+                this.IsPnSActiveFormatted = this.IsPnSActive ? '<div class="toggle-container"><input id="ispnsactive' + this.Id + '" onclick="MakeActiveOrDeactive(this)" data-isam="0"  data-id="' + this.Id + '"  data-currentvalue="' + this.IsPnSActive + '" class="cl-toggle toggle-orange" type="checkbox" checked="checked" name="toggle-demo"/><label for="ispnsactive' + this.Id + '">Is Active</label></div>' : '<div class="toggle-container"><input id="ispnsactive' + this.Id + '" onclick="MakeActiveOrDeactive(this)" data-isam="0"  data-currentvalue="' + this.IsPnSActive + '" data-id="' + this.Id + '" class="cl-toggle toggle-orange" type="checkbox" name="toggle-demo"/><label for="ispnsactive' + this.Id + '">Is Pns Active</label></div>';
+
+                this.Action = '<span style="cursor: pointer;font-size:1.2em;" onclick="AddEditClient(this)" data-id="' + this.Id + '" ><i class="padding-left-15 fa fa-edit text-blue" aria-hidden="true" title="Edit"><span class="sr-only">Edit</span></i></span>';
+
+                this.CoverLetter = '<span style="cursor: pointer;font-size:1.2em;margin-left: 10px;" onclick="AddCoverLetter(this)" data-id="' + this.Id + '" ><i class=" fa fa-file-pdf-o text-red" aria-hidden="true" title="Add Cover Letter"><span class="sr-only">Cover Letter</span></i></span>';
+
+            });
+            return Model;
+        }
+
+
+        function MakeActiveOrDeactive(obj) {
+            var isActive = $(obj).is(":checked");
+            var Id = $(obj).data("id");
+            var el = $("#myModal").find(".modal-body");
+            var isAM = parseInt($(obj).data("isam")) == 1 ? true : false;
+            var clientmsg = isAM ? "AM" : "Pns";
+            el.empty();
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "Admin/MakeActiveOrDeactiveClient",
+                data: JSON.stringify({ isActive: isActive, Id: Id, isAM: isAM }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "JSON",
+                success: function (response) {
+                    //Spinners("#pullback", "fa-reply");
+                    if (response.Success) {
+                        //if (response.Object != null) {
+                        //    if (response.Object == 1 && isActive) {
+
+                        //        el.html("<div class='alert alert-green'>" + clientmsg + " activated successfully.</div>");
+                        //    }
+                        //    if (response.Object == 1 && !isActive) {
+                        //        el.html("<div class='alert alert-green'>" + clientmsg + " deactivated successfully.</div>");
+                        //    }
+                        //}
+                        GetClients();
+                    }
+                    else {
+                        el.html("<div class='alert alert-red'>" + response.ErrorMessage + "</div>");
+                        $("#myModal").modal("show");
+                    }
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+
+                    //Spinners(".spinnericon", "faspinner");
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    el.html("<div class='alert alert-red'><span>" + msg + "</span></div>");
+                    $("#myModal").modal("show");
+                }
+
+            });
+
+        }
+
+        function applyDataTable() {
+            $('[data-toggle="popover"]').popover({
+                'trigger': 'hover',
+                'placement': 'auto left',
+                'container': 'body'
+            });
+            var table = $('#sample_2');
+            var filename = "ClientDetails";
+            var title = "Client Details";
+            var oTable = table.dataTable({
+
+                "language": {
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    },
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "No entries found",
+                    "infoFiltered": "(filtered1 from _MAX_ total entries)",
+                    "lengthMenu": "_MENU_ entries",
+                    "search": "<b>Search:</b>",
+                    "zeroRecords": "No matching records found"
+                },
+                //"columnDefs": [
+                //        {
+                //            "targets": ["ErrorText", "BatchId"],
+                //            "visible": false,
+                //            "searchable": true
+
+                //        },
+                //],
+                "scrollX": true,
+                buttons: [
+                    //{
+                    //    extend: 'colvis',
+                    //    text: 'Select Fields',
+                    //    className: 'btn purple pull-left',
+                    //    columns: ':not(.noVis)'
+                    //},
+                //{
+                //    extend: 'excel',
+                //    text: '<i class="fa fa-file-excel-o fa-2x"></i>',
+                //    className: 'btn btn-primary',
+                //    filename: filename,
+                //    title: title,
+                //    exportOptions: {
+                //        columns: ["thead th:not(.BatchId)", ".ErrorCode", ".ErrorText"],//0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 23]
+                //    }
+
+                //}
+
+
+
+                ],
+
+                "order": [
+                    [3, 'asc'],
+                    [4, 'asc']
+                ],
+                "lengthMenu": [
+                    [5, 10, 25, 50, 100, -1],
+                    [5, 10, 25, 50, 100, "All"] // change per page values here
+                ],
+                // set the initial value
+                "pageLength": 5,
+
+                "dom": "<'row' <'col-md-12'B>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
+
+
+            });
+
+        }
+
+    </script>
+}

@@ -1,0 +1,451 @@
+﻿@{
+    ViewBag.Title = "System Settings";
+}
+<link href="~/clui/dist/css/datatablecustom.css" rel="stylesheet" />
+
+<style>
+    #dateFilter .bootstrap-select {
+        width: 100% !important;
+    }
+
+    .bootstrap-select {
+        width: 205px !important;
+    }
+
+    .dataTables_wrapper {
+        margin-top: -1.5% !important;
+    }
+
+    .popover-content {
+        word-wrap: break-word;
+        color: red;
+    }
+</style>
+<div class="panel panel-default">
+
+    <div class="panel-heading" id="summaryHeader">
+        <div class="panel-title">
+            <i class="fa fa-cogs"></i> System Settings
+        </div>
+    </div>
+    <div class="panel-body" id="SettingList">
+        <div class='alert alert-blue text-center' id="loading" style="display:none;margin-bottom:10px;"><span> Loading... </span></div>
+    </div>
+</div>
+
+
+<div id="SystemSettingTableContent" style="display:none">
+    <table class="table table-responsive" style="overflow-x:scroll">
+        <thead>
+            <tr>
+                <th>Action</th>
+                <th>Id</th>
+                <th>Data Type</th>
+                <th>Value</th>
+                <th>Description</th>
+                <th>IsSystem</th>
+                <th>Default Value</th>
+                <th>Modified By</th>
+                <th>Modified On</th>
+            </tr>
+        </thead>
+        <tbody id="SystemSettingbodyContent"></tbody>
+    </table>
+</div>
+<div style="display:none">
+    <table>
+        <tbody id="SystemSettingBody">
+            <tr class="row-small">
+                <td>{Action}</td>
+                <td><span>{Id}</span></td>
+                <td><span>{DataType}</span></td>
+                <td><span>{Value}</span></td>
+                <td><span>{Description}</span></td>
+                <td><span>{IsSystem}</span></td>
+                <td><span>{DefaultValue}</span></td>
+                <td><span>{ModifiedBy}</span></td>
+                <td><span>{ModifiedOn}</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header" style="margin-top:2%;margin-bottom:2%;">
+                <h2 id="myModalLabel">Edit Setting </h2>
+                <hr />
+                <form id="systemsettingform" action="#">
+                    <div class="form-group">
+                        <label for="Value">Value</label>
+                        <div class="input-group">
+                            <input type="hidden" id="settingId" name="settingId" />
+                            <input class="form-control" name="Value" placeholder="" required id="Value">
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        <label for="Description">Description</label>
+                        <div class="input-group">
+                            <textarea class="form-control" name="Description" placeholder="" required id="Description"></textarea>
+                        </div>
+
+                    </div>
+                    <hr />
+                    <button type="submit" class="btn btn-primary" id="Save"><i class="fa fa-save"></i> Save</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="resetModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header" style="margin-top:2%;margin-bottom:2%;">
+                <input type="hidden" id="resetsettingId" name="resetsettingId" />
+                <h2 id="myModalLabel"> Are you sure you want to reset setting?</h2>
+                <hr />
+                <button type="button" class="btn btn-primary" id="reset"><i class="fa fa-check"></i> Yes</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header">
+                <h1 id="myModalLabel">System Setting</h1>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    @Styles.Render("~/bundles/datatablescss")
+    @Scripts.Render("~/bundles/datatables")
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            GetSystemSettings();
+            ValidateForm();
+        });
+        function ValidateForm() {
+            $('#systemsettingform').validate({ // initialize the plugin
+                errorElement: "span",
+                rules: {
+                    Value: {
+                        required: true,
+
+                    },
+                    Description: {
+                        required: true
+                    }
+                },
+                submitHandler: function (form) {
+                    EditSystemSetting();
+                }
+            });
+        }
+        function FormatObject(Model) {
+           // console.log(Model);
+            $(Model).each(function () {
+                this.IsSystem = this.IsSystem ? '<span  class="label medium label-yellow">Yes</span>' : '<span class="label medium label-success">No</span>';
+                this.ModifiedOn = moment(this.ModifiedOn).format("MM/DD/YY HH:mm:ss");
+                this.Action = '<a style="cursor: pointer;font-size:1.2em;" onclick="EditSetting(this)" data-settingid="' + this.Id + '" data-value="' + this.Value + '" data-description="' + this.Description + '"><i class="fa fa-edit text-blue" aria-hidden="true" title="Edit"></i><span class="sr-only">Edit</span></a><a style="cursor: pointer;font-size:1.2em;" onclick="ResetSetting(this)" data-settingid="' + this.Id + '" ><i class="padding-left-15 fa fa-undo text-red" aria-hidden="true" title="Reset"><span class="sr-only">Reset</span></i></a>';
+
+            });
+            return Model;
+        }
+
+        function EditSetting(val) {
+            var validator = $("#systemsettingform").validate();
+            $("label.error").hide();
+            $(".error").removeClass("error");
+            validator.resetForm();
+            
+            $("#editModal").find("#settingId").val("");
+            $("#editModal").find("#Value").val("");
+            $("#editModal").find("#Description").val("");
+
+            $("#editModal").find("#Value").val($(val).data("value"));
+            $("#editModal").find("#Description").val($(val).data("description"));
+            $("#editModal").find("#settingId").val($(val).data("settingid"));
+
+
+            $("#editModal").modal("show");
+
+        }
+        function ResetSetting(val) {
+            $("#resetModal").find("#resetsettingId").val("");
+            $("#resetModal").find("#resetsettingId").val($(val).data("settingid"));
+            $("#resetModal").modal("show");
+        }
+        $("#reset").click(function () {
+            var settingId = $("#resetModal").find("#resetsettingId").val();
+            $("#resetModal").modal("hide");
+            var el = $("#myModal").find(".modal-body");
+            el.empty();
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "Admin/ResetSetting",
+                data: JSON.stringify({ settingId: settingId }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "JSON",
+                success: function (response) {
+                    //Spinners("#pullback", "fa-reply");
+                    if (response.Success) {
+                        if (response.Object != null) {
+                            if (response.Object == 1) {
+                                el.html("<div class='alert alert-green'>Value reset successfully.</div>");
+                            }
+                            else {
+                                el.html("<div class='alert alert-red'>Value can not reset.</div>");
+                            }
+                        }
+                        GetSystemSettings();
+                    }
+                    else {
+                        el.html("<div class='alert alert-red'>" + response.ErrorMessage + "</div>");
+
+                    }
+                    $("#myModal").modal("show");
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+
+                    //Spinners(".spinnericon", "faspinner");
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    el.html("<div class='alert alert-red'><span>" + msg + "</span></div>");
+                    $("#myModal").modal("show");
+                }
+
+            });
+        });
+
+        function EditSystemSetting() {
+            var value = $("#editModal").find("#Value").val();
+            var settingId = $("#editModal").find("#settingId").val();
+            var description = $("#editModal").find("#Description").val();
+
+            $("#editModal").modal("hide");
+            var el = $("#myModal").find(".modal-body");
+            el.empty();
+
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "Admin/UpdateValueOrDescription",
+                data: JSON.stringify({ settingId: settingId, value: value, description: description }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "JSON",
+                success: function (response) {
+                    //console.log(response);
+                    //Spinners("#pullback", "fa-reply");
+                    if (response.Success) {
+                        if (response.Object != null) {
+                            if (response.Object == 1) {
+                                el.html("<div class='alert alert-green'>Saved successfully.</div>");
+                            }
+                            else {
+                                el.html("<div class='alert alert-red'>Setting can't be save.</div>");
+                            }
+                        }
+                        GetSystemSettings();
+                    }
+                    else {
+
+                        el.html("<div class='alert alert-red'>" + response.ErrorMessage + "</div>");
+
+                    }
+                    $("#myModal").modal("show");
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+
+                    //Spinners(".spinnericon", "faspinner");
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    el.html("<div class='alert alert-red'><span>" + msg + "</span></div>");
+                    $("#myModal").modal("show");
+                }
+
+            });
+        }
+
+
+        function UpdateUserStatus(userId, status) {
+            //console.log(userId);
+            return;
+            var el = $("#myModal").find(".modal-body");
+            el.empty();
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "Admin/UpdateUsersRequestSignUp",
+                data: JSON.stringify({ userId: userId, status: status }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "JSON",
+                success: function (response) {
+                    //console.log(response);
+                    //Spinners("#pullback", "fa-reply");
+                    if (response.Success) {
+                        if (response.Object != null) {
+                            if (response.Object.Key) {
+                                el.html("<div class='alert alert-green'>" + response.Object.Value + "</div>");
+                            }
+                            else {
+                                el.html("<div class='alert alert-red'>" + response.Object.Value + "</div>");
+                            }
+                        }
+                        FilterData();
+                    }
+                    else {
+
+                        el.html("<div class='alert alert-red'>" + response.ErrorMessage + "</div>");
+
+                    }
+                    $("#myModal").modal("show");
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+
+                    //Spinners(".spinnericon", "faspinner");
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    el.html("<div class='alert alert-red'><span>" + msg + "</span></div>");
+                    $("#myModal").modal("show");
+                }
+
+            });
+        }
+
+        function applyDataTable() {
+            $('[data-toggle="popover"]').popover({
+                'trigger': 'hover',
+                'placement': 'auto left',
+                'container': 'body'
+            });
+            var table = $('#sample_2');
+            var filename = "SummaryControlReport";
+            var title = "Summary Control Report";
+            var oTable = table.dataTable({
+
+                "language": {
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    },
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "No entries found",
+                    "infoFiltered": "(filtered1 from _MAX_ total entries)",
+                    "lengthMenu": "_MENU_ entries",
+                    "search": "<b>Search:</b>",
+                    "zeroRecords": "No matching records found"
+                },
+                "columnDefs": [
+                        {
+                            "targets": ["ErrorText", "BatchId"],
+                            "visible": false,
+                            "searchable": true
+                        },
+                ],
+                "scrollX": true,
+                buttons: [
+                    //{
+                    //    extend: 'colvis',
+                    //    text: 'Select Fields',
+                    //    className: 'btn purple pull-left',
+                    //    columns: ':not(.noVis)'
+                    //},
+                //{
+                //    extend: 'excel',
+                //    text: '<i class="fa fa-file-excel-o fa-2x"></i>',
+                //    className: 'btn btn-primary',
+                //    filename: filename,
+                //    title: title,
+                //    exportOptions: {
+                //        columns: ["thead th:not(.BatchId)", ".ErrorCode", ".ErrorText"],//0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 23]
+                //    }
+
+                //}
+
+
+
+                ],
+
+                "order": [
+                    [0, 'asc']
+                ],
+                "lengthMenu": [
+                    [5, 10, 25, 50, 100, -1],
+                    [5, 10, 25, 50, 100, "All"] // change per page values here
+                ],
+                // set the initial value
+                "pageLength": 5,
+
+                "dom": "<'row' <'col-md-12'B>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
+
+
+            });
+            $('.selectpicker').selectpicker('refresh');
+            $('#BatchList').on('change', function () {
+                var oTable = $('#sample_2').dataTable();
+                var filterColumn = oTable.api().column(".BatchId").index();
+                var selected = $(this).find("option:selected").val();
+                if (!selected) {
+
+                    oTable.fnFilter('', filterColumn, true);
+                } else {
+                    oTable.fnFilter("^" + parseInt(selected) + "$", filterColumn, true); //Exact value, column, reg
+                }
+            });
+        }
+        var GetSystemSettings = function () {
+            //$("#SettingList").hide();
+            var el = $('#SettingList');
+            $("#loading").show();
+            $.ajax({
+                type: "GET",
+                url: baseUrl + "Admin/GetAllSystemSettings",
+                //data: JSON.stringify({}),
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    //console.log(response);
+                    $("#loading").hide();
+                    if (response.Success) {
+                        el.show();
+                        if (response.Object != null) {
+                            if (response.Object.length > 0) {
+                                el.html("");
+                                var data = FormatObject(response.Object);
+                                BindTemplate(data, "#SystemSettingBody", "#SystemSettingbodyContent", "#SystemSettingTableContent", "#SettingList");
+                            }
+                            else {
+                                el.html(" <div style='margin-bottom:10px;' class='alert alert-yellow'><span class='sbold'>@AM.Services.Config.Web_Msg_NoRecordFound</span></div>")
+                            }
+                        }
+                    } else {
+
+                        el.show();
+                        el.html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + response.ErrorMessage + "</span></div>");
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    el.show();
+                    $("#loading").hide();
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    el.html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + msg + "</span></div>");
+                }
+
+            });
+        }
+    </script>
+}

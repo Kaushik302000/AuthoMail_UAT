@@ -1,0 +1,44 @@
+﻿
+<tr id="tr_0">
+    <td>
+        <span style="cursor: pointer;font-size:1.2em;" class="deletept"><i class="fa fa-trash text-red" aria-hidden="true" title="Delete"><span class="sr-only">Delete</span></i></span>
+    </td>
+    <td>
+        <select name="PrintTrailId" class="form-control selectpicker" data-live-search="true" data-live-search-placeholder="Search Print Trail">
+            @foreach (var data in ViewBag.PrintTrailId)
+            {
+                <option value="@data.Id">@data.TrailName</option>
+            }
+        </select>
+
+    </td>
+    <td>
+        <input type="text" class="form-control timespan" name="BizDayStartTime" />
+    </td>
+    <td>
+        <input type="text" class="form-control timespan" name="BizDayEndTime" />
+    </td>
+    <td>
+        <input type="text" class="form-control timespan" name="SatStartTime" />
+    </td>
+    <td>
+        <input type="text" class="form-control timespan" name="SatEndTime" />
+    </td>
+    <td>
+        <input type="text" class="form-control timespan" name="SunStartTime" />
+    </td>
+    <td>
+        <input type="text" class="form-control timespan" name="SunEndTime" />
+    </td>
+</tr>
+<script>
+    $(document).ready(function () {
+        window.clui.selectInit();
+        $(".timespan").inputmask('datetime', {
+            mask: "h:s:s",
+            placeholder: "hh:mm:ss",
+            separator: ':',
+            hourFormat: "24"
+        });
+    });
+</script>

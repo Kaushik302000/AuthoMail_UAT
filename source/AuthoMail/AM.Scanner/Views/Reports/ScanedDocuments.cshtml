@@ -1,0 +1,418 @@
+﻿@{
+    ViewBag.Title = "Scaned Documents";
+}
+
+<link href="~/Content/daterangepicker-bs3.css" rel="stylesheet" />
+<link href="~/Content/dataTables.bootstrap.css" rel="stylesheet" />
+<link href="~/assets/css/font-awesome.css" rel="stylesheet" />
+
+
+<style>
+    fieldset.scheduler-border {
+        padding: 0 1.4em 1.4em 1.4em !important;
+        margin: 0 0 1.5em 0 !important;
+        -webkit-box-shadow: 0px 0px 0px 0px #000;
+        box-shadow: 0px 0px 0px 0px #000;
+    }
+
+    legend.scheduler-border {
+        font-size: 1.2em !important;
+        font-weight: bold !important;
+        text-align: left !important;
+        width: auto;
+        padding: 0 10px;
+        border-bottom: none;
+    }
+
+    .margin {
+        margin: 7px;
+    }
+
+    .marginbottom {
+        margin-bottom: 5px;
+    }
+</style>
+<section class="container" style="margin-top:3%;">
+    <div class="row">
+        <div class="col-md-12">
+
+            <div class="box">
+
+                <div class="box-body table-responsive" id="ptable">
+                    <h3 style="text-align: center;"><span  id="cliencodeDisplay"> </span> Scanning Reports</h3>
+                    <hr>
+                    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                        <div class="panel panel-primary">
+                            <a id="ReportCollapse" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                <div class="panel-heading" role="tab" id="headingOne" style="background-color: #428bca">
+                                    <h4 class="panel-title" style="color: #fff;">Filter for Reports</h4>
+                                </div>
+                            </a>
+                            <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                                <div class="panel-body">
+                                    <div class="col-md-5">
+                                        <div class="form-group">
+                                            <label class="control-lable" for="BarcodeValue">Barcode Value</label>
+                                            <input type="text" class="form-control" name="BarcodeValue" id="BarcodeValue" placeholder="Barcode Value" tabindex="1">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-lable" for="LoanNumber">Loan Number</label>
+                                            <input type="text" class="form-control" name="LoanNumber" id="LoanNumber" placeholder="Loan Number" tabindex="2">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <div class="form-group">
+                                            <label class="control-lable">Received On</label>
+                                            <div id="reportrange" class="form-control" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
+                                                <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                                <span id="printedOn"></span><b class="caret"></b>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-lable">Shipped On</label>
+                                            <div id="reportrange1" class="form-control" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
+                                                <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                                <span id="shippedOn"></span><b class="caret"></b>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <br /><br /><br />
+                                            <button id="RefineDate" class="btn btn-primary btn-sm" type="reset"><i class="glyphicon glyphicon-filter"></i>Refine</button>
+                                            <button id="ClearData" class="btn btn-warning btn-sm" type="reset"><i class="glyphicon glyphicon-clear"></i>Clear</button>                                            
+                                            </div>
+                                        </div>
+                                    <div class="clearfix"></div>
+                                    @*<div class="row">
+                                        <div style="float: left" class="form-horizontal col-md-5">
+
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-lable" for="exampleInputPassword3">Barcode Value</label>
+                                                <div class="col-md-5">
+                                                    <input type="text" class="form-control" name="BarcodeValue" id="BarcodeValue" placeholder="Barcode Value" tabindex="1">
+                                                </div>
+
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-lable" for="exampleInputEmail3">Loan Number</label>
+                                                <div class="col-md-5">
+                                                    <input type="text" class="form-control" name="LoanNumber" id="LoanNumber" placeholder="Loan Number" tabindex="2">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style="float: right" class="form-horizontal col-md-7">
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-lable" for="exampleInputPassword3">Received On</label>
+                                                <div class="col-md-6">
+                                                    <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
+                                                        <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                                        <span id="printedOn"></span><b class="caret"></b>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-lable" for="exampleInputPassword3">Shipped On</label>
+                                                <div class="col-md-6">
+                                                    <div id="reportrange1" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
+                                                        <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                                        <span id="shippedOn"></span><b class="caret"></b>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style="float: right; margin-top: -6%" class="col-md-3">
+                                            <button id="ClearData" style="margin-right: -5%; margin-left: 4%;" class="btn btn-warning btn-sm pull-right" type="reset"><i class="glyphicon glyphicon-clear"></i>Clear</button>
+                                            <button id="RefineDate" class="btn btn-primary btn-sm pull-right" type="reset"><i class="glyphicon glyphicon-filter"></i>Refine</button>
+                                        </div>
+
+                                        <div class="clearfix"></div>
+                                    </div>*@
+                                    <input type="text" id="printedOnFrom" name="printedOnFrom" style="display: none" />
+                                    <input type="text" id="printedOnTo" name="printedOnTo" style="display: none" />
+                                    <input type="text" id="shippedOnFrom" name="shippedOnFrom" style="display: none" />
+                                    <input type="text" id="shippedOnTo" name="shippedOnTo" style="display: none" />
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- /.box -->
+            </div>
+            <!-- /.col -->
+            <div style="margin-top:2%;" id="scanList">
+
+            </div>
+        </div>
+    </div>
+</section>
+<div id="scanTableContent" style="display:none">
+    <table class="table table-responsive" style="overflow-x:scroll">
+        <thead>
+            <tr>
+                <th>Batch Name</th>
+                <th>Job Name</th>
+                <th>Loan Number</th>
+                <th>Barcode Value</th>
+                <th>Total Pages</th>
+                <th>File Name</th>
+                <th>File Path</th>
+                <th>Received Date</th>
+                <th>Shipped Date</th>
+                <th>MailPiece Status</th>
+            </tr>
+        </thead>
+        <tbody id="scanbodyContent"></tbody>
+    </table>
+</div>
+<div style="display:none">
+    <table>
+        <tbody id="scanBody">
+            <tr class="row-small">
+                <td><span>{BatchName}</span></td>
+                <td><span>{PrintBatchName}</span></td>
+                <td><span>{LoanNumber}</span></td>
+                <td><span>{BarcodeValue}</span></td>
+                <td><span>{TotalPages}</span></td>
+                <td><span>{FileName}</span></td>
+                <td><span>{FilePath}</span></td>
+                <td><span>{ReceivedDate}</span></td>
+                <td><span>{ShippedDate}</span></td>
+                <td><span>{MailPieceStatus}</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+@section Scripts{
+    <script src="~/Scripts/moment.js"></script>
+    <script src="~/Scripts/daterangepicker.js"></script>
+    @Styles.Render("~/bundles/datatablescss")
+    @Scripts.Render("~/bundles/datatables")
+    <script>
+        //var hideshow = 0;
+        var clientCode = "";
+        window.onload = function () {
+
+            $('#shippedOn').text(moment().format('MMMM D, YYYY') + ' - ' + moment().format('MMMM D, YYYY'));
+            $('#printedOn').text(moment().format('MMMM D, YYYY') + ' - ' + moment().format('MMMM D, YYYY'));
+            //if (hideshow > 0) {
+            //    $("#ReportCollapse").addClass('collapsed');
+            //    $('#collapseOne').removeClass('panel-collapse collapse in');
+            //    $("#collapseOne").addClass('panel-collapse collapse');
+            //}
+
+        }
+        $("#ClearData").click(function () {
+
+        });
+        $("#RefineDate").click(function () {
+
+            bindReportData(clientCode, $("#BarcodeValue").val().trim(), $("#LoanNumber").val().trim(), $("#printedOnFrom").val().trim(), $("#printedOnTo").val().trim(), $("#shippedOnFrom").val().trim(), $("#shippedOnTo").val().trim());
+            //$("#ReportCollapse").addClass('collapsed');
+            //$('#collapseOne').removeClass('panel-collapse collapse in');
+            //$("#collapseOne").addClass('panel-collapse collapse');
+
+        });
+        //function applyDataTable() {
+        //    $('#ReportData').dataTable({
+        //        "order": [[4, "desc"]]
+        //    });
+        //}
+        $("#ScanDocuments").click(function () {
+            var clientCode = getParameterByName('clientCode');
+            window.location.href = "/Scan/Index?clientCode=" + clientCode;
+        });
+        $(document).ready(function () {
+            clientCode = getParameterByName('clientCode');
+            $("#cliencodeDisplay").text(clientCode.replace("AUT", ""));
+            ReportDate("reportrange");
+            ReportDate("reportrange1");
+            var shippedOnDates = $("#shippedOn").text().split('-');
+            var printedOnDates = $("#printedOn").text().split('-');
+            $("#printedOnFrom").val(printedOnDates[0]);
+            $("#shippedOnFrom").val(shippedOnDates[0]);
+            $("#printedOnTo").val(printedOnDates[1]);
+            $("#shippedOnTo").val(shippedOnDates[1]);
+
+            bindReportData(clientCode, $("#BarcodeValue").val().trim(), $("#LoanNumber").val().trim(), $("#printedOnFrom").val().trim(), $("#printedOnTo").val().trim(), $("#shippedOnFrom").val().trim(), $("#shippedOnTo").val().trim());
+
+        });
+        function applyDataTable() {
+            $('[data-toggle="popover"]').popover({
+                'trigger': 'hover',
+                'placement': 'auto left',
+                'container': 'body'
+            });
+            var table = $('#sample_2');
+            var filename = "ScanningReport";
+            var title = "Scanning Report";
+            var oTable = table.dataTable({
+
+                "language": {
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    },
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "No entries found",
+                    "infoFiltered": "(filtered1 from _MAX_ total entries)",
+                    "lengthMenu": "_MENU_ entries",
+                    "search": "<b>Search:</b>",
+                    "zeroRecords": "No matching records found"
+                },
+                "columnDefs": [
+                        {
+                            "targets": ["BatchId"],
+                            "visible": false,
+                            "searchable": true
+                        },
+                ],
+                "scrollX": true,
+                buttons: [
+                    //{
+                    //    extend: 'colvis',
+                    //    text: 'Select Fields',
+                    //    className: 'btn purple pull-left',
+                    //    columns: ':not(.noVis)'
+                    //},
+                {
+                    extend: 'csv',
+                    text: '<i class="glyphicon glyphicon-export"></i> Export Table Data',
+                    className: 'btn btn-primary pull-right marginbottom',
+                    filename: filename,
+                    title: title,
+                    exportOptions: {
+                        columns: "thead th:not(.BatchId)",//[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+                    }
+
+                }
+
+
+                ],
+
+                "order": [
+                    [0, 'asc']
+                ],
+                "lengthMenu": [
+                    [5, 10, 25, 50, 100, -1],
+                    [5, 10, 25, 50, 100, "All"] // change per page values here
+                ],
+                // set the initial value
+                "pageLength": 5,
+
+                "dom": "<'row' <'col-md-12'B>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
+
+
+            });
+
+        }
+        function ReportDate(id) {
+            var cb = function (start, end, label) {
+                $('#' + id + ' span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                var shippedOnDates = $("#shippedOn").text().split('-');
+                var printedOnDates = $("#printedOn").text().split('-');
+                $("#printedOnFrom").val(printedOnDates[0]);
+                $("#shippedOnFrom").val(shippedOnDates[0]);
+                $("#printedOnTo").val(printedOnDates[1]);
+                $("#shippedOnTo").val(shippedOnDates[1]);
+
+            };
+
+            var optionSet1 = {
+                startDate: moment(),
+                endDate: moment(),
+                //minDate: '01/01/2012',
+                //maxDate: '12/31/2015',
+                //dateLimit: { days: 60 },
+                showDropdowns: true,
+                showWeekNumbers: true,
+                timePicker: false,
+                timePickerIncrement: 1,
+                timePicker12Hour: true,
+                ranges: {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                },
+                opens: 'left',
+                buttonClasses: ['btn btn-default'],
+                applyClass: 'btn-sm btn-primary',
+                cancelClass: 'btn-sm',
+                format: 'MM/DD/YYYY',
+                separator: ' to ',
+                locale: {
+                    applyLabel: 'Submit',
+                    cancelLabel: 'Clear',
+                    fromLabel: 'From',
+                    toLabel: 'To',
+                    customRangeLabel: 'Custom',
+                    daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+                    monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                    firstDay: 1
+                }
+            };
+
+
+            $('#' + id + ' span').html(moment().subtract(2, 'days').format('MMMM D, YYYY') + ' - ' + moment().format('MMMM D, YYYY'));
+
+            $('#' + id).daterangepicker(optionSet1, cb);
+            //$('#' + id).on('show.daterangepicker', function () { console.log("show event fired"); });
+            //$('#' + id).on('hide.daterangepicker', function () { console.log("hide event fired"); });
+            //$('#' + id).on('apply.daterangepicker', function (ev, picker) {
+            //    console.log("apply event fired, start/end dates are "
+            //      + picker.startDate.format('MMMM D, YYYY')
+            //      + " to "
+            //      + picker.endDate.format('MMMM D, YYYY')
+            //    );
+            //});
+            //$('#' + id).on('cancel.daterangepicker', function (ev, picker) { console.log("cancel event fired"); });
+
+
+        }
+        function FormatObject(Model) {
+
+            $(Model).each(function () {
+                this.ReceivedDate = this.ReceivedOn == null ? "--" : moment(moment.utc(this.ReceivedOn).toDate()).format("MM/DD/YY hh:mm:ss A");
+                this.ShippedDate = this.ShippedOn == null ? "--" : moment(moment.utc(this.ShippedOn).toDate()).format("MM/DD/YY hh:mm:ss A");
+            });
+            //console.log(Model);
+            return Model;
+        }
+
+        function bindReportData(clientCode, barcodeValue, loanNumber, printOnFrom, printOnTo, shippedOnFrom, shippedOnTo) {
+            //console.log(loanNumber);
+            $.ajax({
+                type: "GET",
+                url: '@Url.Content("~/api/report/ScanedDocumentList")',
+                data: { clientCode: clientCode, barcodeValue: barcodeValue, loanNumber: loanNumber, printOnFrom: printOnFrom, printOnTo: printOnTo, shippedOnFrom: shippedOnFrom, shippedOnTo: shippedOnTo },
+                success: function (response) {
+                    //console.log(response);
+                    if (response != null) {
+                        $("#scanList").empty();
+                        var data = FormatObject(response);
+                        BindTemplate(data, "#scanBody", "#scanbodyContent", "#scanTableContent", "#scanList");
+                    }
+                    else {
+                        $("#scanList").html(" <div style='margin-bottom:10px;' class='alert alert-danger'><span class='sbold'>No Records</span></div>")
+                    }
+
+                },
+                error: function (response) {
+                    $("#scanList").empty();
+                    $("#scanList").show();
+                    $("#scanList").append("<div class='alert alert-danger' style=' font-family:Copperplate Gothic;'><strong>Oops! </strong> Communication error.</div>");
+
+                }
+            });
+
+        }
+
+    </script>
+}

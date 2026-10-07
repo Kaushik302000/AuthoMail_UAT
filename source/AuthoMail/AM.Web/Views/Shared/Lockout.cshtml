@@ -1,0 +1,19 @@
+﻿@model System.Web.Mvc.HandleErrorInfo
+
+@{
+    ViewBag.Title = "Locked Out";
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+}
+<div style="margin-top:2%">
+
+</div>
+<div class="title col-md-12" style="margin-bottom:2%;">
+    <h1>@ViewBag.Title.</h1>
+
+    <div class="alert alert-red">
+        <div class="row">
+            <i class="fa fa-exclamation-circle fa-2x"></i>
+            @AM.Services.Config.Web_Msg_Lockout
+        </div>
+    </div>
+</div>

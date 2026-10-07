@@ -1,0 +1,6 @@
+﻿CREATE TABLE [Profile].[Roles] (
+    [Id]   NVARCHAR (128) NOT NULL,
+    [Name] NVARCHAR (256) NOT NULL,
+    CONSTRAINT [PK__Roles] PRIMARY KEY CLUSTERED ([Id] ASC)
+);
+

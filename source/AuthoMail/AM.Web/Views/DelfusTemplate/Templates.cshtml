@@ -1,0 +1,138 @@
+﻿
+@{
+    ViewBag.Title = "Templates";
+}
+<link href="~/Content/dropzone/dropzone.css" rel="stylesheet" />
+<link rel="stylesheet" href="~/Content/ag/ag-grid.css">
+<link href="~/Content/ag/ag-theme-alpine.css" rel="stylesheet" />
+
+<style>
+    hr {
+        margin-top: 7px !important;
+    }
+
+    .upload-container .btn {
+        margin-top: 0px !important;
+        margin-bottom: 3px !important;
+    }
+
+    .panel .panel-body:last-child {
+        padding-bottom: 15px !important;
+    }
+
+    .label {
+        font-size: 14px !important;
+    }
+
+
+    .totalcounts {
+        font-size: 15px !important;
+        font-weight: bold !important;
+        color: #000 !important;
+    }
+
+
+    .ag-header-cell-label {
+        justify-content: center;
+        font-size: 17px !important;
+    }
+
+    .ag-theme-alpine .ag-ltr .ag-cell {
+        text-align: center !important;
+    }
+
+    .searchbox {
+        width: 230px;
+        height: auto;
+        margin-top: 5px;
+    }
+
+    .leftalign div.ag-header-cell-label {
+        justify-content: left !important;
+    }
+    .cell-copy-text {
+        user-select: all !important;
+    }
+</style>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="panel-title">
+            <h3>
+                DELFUS Templates - @if (AM.Services.Config.Common_Environment == AM.Services.Env.Prod)
+                {
+                    <b class="text-danger">
+                        PRODUCTION
+                    </b>
+                }
+                else
+                {
+                    <b>
+                        UAT
+                    </b>
+                }
+                <sapn class="pull-right totalcounts">Total counts: <span id="totalcounts"> --</span></sapn>
+            </h3>
+
+        </div>
+    </div>
+    <div class="panel-body">
+        <progress id="progressBar" value="0" max="100" style="width: 100%;display: none;"></progress>
+        <div class="upload-container" style="padding:0px;">
+
+            <form action="SaveDelfusTemplates" id="uploadtemplatediv" enctype="multipart/form-data" method="post" class="dropzone" style="border:none;">
+                <div class="dz-default dz-message col-md-1" style="padding-left: 1px;"><button title="Upload Template" class="dz-button btn btn-primary" type="button"><i class="fa fa-upload"></i></button></div>
+                <a title="Upload Template" href="TemplateSummary" target="_blank" class="btn btn-info pull-left viewsummary" style="margin-top: 5px !important;margin-left: 5%;" type="button">View Template Upload Summary</a>
+                <input type="text" class="form-control pull-right searchbox" id="quickFilter" placeholder="Search" />
+                <div class="row" id="accReqTableBody" style="height: calc(100% - 25px); ">
+                    <div id="requestGrid" style="width:100%;margin-top:3.8%;" class="ag-theme-alpine"></div>
+                </div>
+                <div class="row" style="font-size: 14px;font-weight: bold;" id="filterLength"></div>
+            </form>
+            <div class='alert alert-blue text-center' id="loading" style="display:none"><span> Loading... </span></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header" style="margin-top:2%;margin-bottom:2%;">
+                <h2 id="myModalLabel">Are you sure you want delete <span id="filenametxt"></span>? </h2>
+                <hr />
+                <input type="hidden" name="FileName" id="FileName" />
+                <input type="hidden" name="Id" id="Id" />
+                <input type="hidden" name="trid" id="trid" />
+                <button type="button" class="btn btn-default" id="yesRemove"><i class="fa fa-check"></i> Yes</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal"><i class="fa fa-close"></i> No</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="historyModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header" style="margin-top:2%;margin-bottom:2%;">
+                <h2 id="historyLabel"> </h2>
+                <hr />
+                <div class="row" id="historyTableBody" style="height: calc(100% - 25px); ">
+                    <div id="historyGrid" style="width:100%;margin-top:3%;" class="ag-theme-alpine"></div>
+                </div>
+                <hr />
+                <button type="button" class="btn btn-primary" data-dismiss="modal"><i class="fa fa-check"></i> Ok</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section Scripts{
+    @Styles.Render("~/bundles/datatablescss")
+    @Scripts.Render("~/bundles/datatables")
+    <script src="~/Content/ag/ag-grid-community.min.noStyle.js"></script>
+    <script>var __basePath = '';</script>
+    <script src="~/Content/dropzone/dropzone.js"></script>
+    <script src="~/Scripts/PageScript_Templates.js"></script>
+}

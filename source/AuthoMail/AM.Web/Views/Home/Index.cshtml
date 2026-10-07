@@ -1,0 +1,1349 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+    var businessId = Html.Action("GetHeadingForBusinessId", "Common");
+}
+
+<style>
+    .modal-backdrop.in {
+        opacity: .75 !important;
+        filter: alpha(opacity=75);
+    }
+
+    /*.bootstrap-select {
+        width: 165px !important;
+    }*/
+
+    .popover-content {
+        word-wrap: break-word;
+        color: red;
+    }
+
+    .tooltip-inner {
+        /*max-width: 453px !important;*/
+        word-wrap: break-word !important;
+    }
+
+    .label.label-Edelivery {
+        background-color: #20c997;
+    }
+
+    .label.label-Esign {
+        background-color: #6f42c1;
+    }
+
+    .bootstrap-select {
+        width: 45% !important;
+    }
+</style>
+<div class="row">
+    @*<div class="col-md-6">
+            <div class="panel panel-default ">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        Today's Batch Details
+                    </div>
+                </div>
+                <div class="panel-body panel-gray" style="padding:2% 2% 2% 2% !important;" id="todayBody">
+                    <div id="todayChart"></div>
+                </div>
+
+            </div>
+        </div>*@
+
+    <div class="col-md-6">
+        <div class="panel panel-default ">
+            <div class="panel-heading">
+                <div class="panel-title">
+                    Daily Summary Details
+                </div>
+            </div>
+            <div class="panel-body panel-gray" style="        padding: 2% 2% 2% 2% !important;">
+                <div id="DailySummaryByDocType"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <div class="panel-title">Weekly Batch Details</div>
+                    </div>
+                    <div class="panel-body panel-gray" style="        padding: 2% 2% 2% 2% !important;">
+                        <div id="weeklyChart"></div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <div class="panel-title"><i class="fa fa-reply"></i> Quick Pullback</div>
+                    </div>
+                    <div class="panel-body panel-gray" @(ViewBag.BusinessId.Count == 0 ? Html.Raw("style='padding: 2% 0% 0% 0% !important;height:95px;'") : Html.Raw(""))>
+                        <div class="form-group col-md-@(ViewBag.BusinessId.Count==0?"12":ViewBag.BusinessId.Count>1?"9":"8")">
+
+                            @if (ViewBag.BusinessId.Count == 1)
+                            {
+                                <label for="BusinessFriendlyIdValue">@ViewBag.BusinessId[0]</label>
+                                <div class="input-group">
+                                    <i class="fa fa-search left-icon"></i>
+                                    <input class="form-control" name="loanNumber" placeholder="@ViewBag.BusinessId[0]" required id="BusinessFriendlyIdValue">
+                                    <input type="hidden" value="@ViewBag.BusinessId[0]" name="BusinessFriendlyIdName" id="BusinessFriendlyIdName" />
+                                </div>
+                                <div class="text-red pull-left" style="        display: none" id="BusinessFriendlyIdValueError">This field is required.</div>
+                            }
+                            else if (ViewBag.BusinessId.Count > 1)
+                            {
+                                <label for="BusinessFriendlyIdName">Select Business ID</label>
+                                <div class="input-group">
+
+                                    <select id="BusinessFriendlyIdName" class="selectpicker" data-live-search="true" data-live-search-placeholder="Search Business ID">
+                                        <option value="">Select BusinessId</option>
+                                        @foreach (var item in ViewBag.BusinessId)
+                                        {
+                                            <option value="@item.ToString()">@item.ToString()</option>
+                                        }
+                                    </select>
+                                    <input class="form-control" name="BusinessFriendlyIdValue" placeholder="" required id="BusinessFriendlyIdValue">
+
+                                </div>
+                                <div class="text-red pull-left" style="        display: none" id="BusinessFriendlyIdNameError">This field is required.</div>
+                                <div class="text-red pull-right" style="        display: none" id="BusinessFriendlyIdValueError">This field is required.</div>
+                            }
+                            else
+                            {
+                                <style>
+                                    #pullback {
+                                        display: none;
+                                    }
+                                </style>
+                                <div class='alert alert-yellow'><span>No business friendly id found!</span></div>
+                            }
+
+
+                        </div>
+                        <div class="form-group text-center col-md-1">
+
+                            <label for="pullback">&nbsp;&nbsp;&nbsp;</label>
+                            <button type="button" id="pullback" class="btn btn-primary ">
+                                <span class="sr-only"></span>
+                                <i class="fa fa-reply fa-2x" style="        margin-top: 24%;"></i>
+
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+
+
+</div>
+<div class="clearfix"></div>
+
+
+<div class="modal fade" id="TodayChartModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg col-md-12" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header">
+                <h1 id="myModalLabel">Today's Batch Details</h1>
+            </div>
+            <div class="modal-body" id="TodayChartModalBody">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                @*<button type="button" class="btn btn-primary">View All</button>*@
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header">
+                <h1 id="myModalLabel">Pullback Response</h1>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                @*<button type="button" class="btn btn-primary">View All</button>*@
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="batchModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg col-md-12" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header">
+                <h1 id="batchModalHeader">Batch Details</h1>
+            </div>
+            <div class="modal-body" id="batchModalModalBody">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                @*<button type="button" class="btn btn-primary">View All</button>*@
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="batchMailPieceModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg col-md-12" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header">
+                <h1 id="batchMailPieceModalHeader">Batch MailPiece Details</h1>
+            </div>
+            <div class="modal-body" id="batchMailPieceModalBody">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                @*<button type="button" class="btn btn-primary">View All</button>*@
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="WeeklybatchMailPieceModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg col-md-12" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" onclick="showModal()" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header">
+                <h1 id="WeeklybatchMailPieceHeader">Batch MailPiece Details</h1>
+            </div>
+            <div class="modal-body" id="WeeklyChartModalBody">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="showModalESC" onclick="showModal()" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="charDatatable" style="        display: none"></div>
+<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg col-md-12" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header">
+                <h2 id="confirmMsg"> @AM.Services.Config.Web_Msg_PullBackConfirmation</h2>
+                <h2 id="mailPieceMsg">MailPiece details of pulled back request</h2>
+                @*<h4 id="pullbackmsg" class="alert alert-yellow"></h4>*@
+                <hr />
+
+            </div>
+            <div class="modal-body" id="confirmModalBody">
+
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-default" id="yesPullback"><i class="fa fa-check"></i> Yes</button>
+                <button type="button" class="btn btn-primary" id="noPullback" data-dismiss="modal"><i class="fa fa-close"></i> No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--PullbackRequest table html template code -->
+<div id="pullbackTableContent" style="        display: none">
+    <table class="table table-responsive" style="        overflow-x: scroll;
+        margin-bottom: 2%;">
+        <thead>
+            <tr>
+                <th>Shipping Status</th>
+                <th>Pullback Requested</th>
+                <th>@businessId</th>
+                <th>Received Date <span class="fontcapitalize">(Local)</span></th>
+                @if (!User.IsInRole(AM.Entities.AMRoles.BAOffShore))
+                {
+                    <th>Recipient Name</th>
+                    <th>Recipient Address</th>
+                }
+                <th>Pages</th>
+                <th>Document Type</th>
+                <th>Tracking Number</th>
+                <th>File Name</th>
+            </tr>
+        </thead>
+        <tbody id="pullbackbodyContent"></tbody>
+    </table>
+</div>
+<div style="        display: none">
+    <table>
+        <tbody id="pullbackBody">
+            <tr class="row-small">
+                <td class="status"><span>{ShippingStatusFormatted}</span></td>
+                <td class="ispullbackr"><span>{IsPullBackRequestedFormatted}</span></td>
+                <td class="mailpieceid" data-mailpieceid="{UniqueId}"><span>{BusinessIdValue}</span></td>
+                <td><span>{ReceivedOnFormatted}</span></td>
+                @if (!User.IsInRole(AM.Entities.AMRoles.BAOffShore))
+                {
+                    <td><span>{Name}</span></td>
+                    <td><span>{Address}</span></td>
+                }
+                <td><span>{TotalPages}</span></td>
+                <td><span>{DocType}</span></td>
+                <td><span>{TrackingNo}</span></td>
+                <td><span data-toggle="tooltip" data-container="body" data-placement="top" title="{FileName}">{FileNameFormatted}</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<!-- end table template code -->
+<!--ChartMailPiece table html template code -->
+<div id="ChartMailPieceTableContent" style="        display: none">
+    <table class="table table-responsive" style="        overflow-x: scroll;
+        margin-bottom: 2%;">
+        <thead>
+            <tr>
+                <th>@businessId</th>
+                <th>File Name</th>
+                @if (!User.IsInRole(AM.Entities.AMRoles.BAOffShore))
+                {
+                    <th>Recipient Name</th>
+                    <th>Recipient Address</th>
+                }
+                <th>Received Date <span class="fontcapitalize">(Local)</span></th>
+                <th>Due Date <span class="fontcapitalize">(Local)</span></th>
+                <th>Document Type</th>
+                <th>Delivery Type</th>
+                <th>Pages</th>
+                <th>Blank Pages</th>
+                <th>Tracking Number</th>
+                <th>Shipping Status</th>
+            </tr>
+        </thead>
+        <tbody id="ChartMailPiecebodyContent"></tbody>
+    </table>
+</div>
+<div style="        display: none">
+    <table>
+        <tbody id="ChartMailPieceBody">
+            <tr class="row-small">
+                <td><span>{BusinessIdValue}</span></td>
+                <td><span data-toggle="tooltip" data-container="body" data-placement="top" title="{FileName}">{FileNameFormatted}</span></td>
+                @if (!User.IsInRole(AM.Entities.AMRoles.BAOffShore))
+                {
+                    <td><span>{Name}</span></td>
+                    <td><span>{Address}</span></td>
+                }
+                <td class="receivedon"><span>{MailPieceReceivedOn}</span></td>
+                <td><span>{DueDateFormatted}</span></td>
+                <td><span>{DocType}</span></td>
+                <td><span>{IsEDeliveryRequested}</span></td>
+                <td><span>{TotalPages}</span></td>
+                <td><span>{TotalBlankPages}</span></td>
+                <td><span class="small">{TrackingNo}</span></td>
+                <td><span>{ShippingStatusFormatted}</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<!-- end table template code -->
+<!--ChartMailPiece table html template code -->
+<div id="WeeklyChartMailPieceTableContent" style="        display: none">
+    <table class="table table-responsive" style="        overflow-x: scroll;
+        margin-bottom: 2%;">
+        <thead>
+            <tr>
+                <th>@businessId</th>
+                <th>File Name</th>
+                @if (!User.IsInRole(AM.Entities.AMRoles.BAOffShore))
+                {
+                    <th>Recipient Name</th>
+                    <th>Recipient Address</th>
+                }
+                <th>Received Date <span class="fontcapitalize">(Local)</span></th>
+                <th>Due Date <span class="fontcapitalize">(Local)</span></th>
+                <th>Document Type</th>
+                <th>Delivery Type</th>
+                <th>Pages</th>
+                <th>Blank Pages</th>
+                <th>Tracking Number</th>
+                <th>Shipping Status</th>
+            </tr>
+        </thead>
+        <tbody id="WeeklyChartMailPiecebodyContent"></tbody>
+    </table>
+</div>
+<div style="        display: none">
+    <table>
+        <tbody id="WeeklyChartMailPieceBody">
+            <tr class="row-small">
+                <td><span>{BusinessIdValue}</span></td>
+                <td><span data-toggle="tooltip" data-container="body" data-placement="top" title="{FileName}">{FileNameFormatted}</span></td>
+                @if (!User.IsInRole(AM.Entities.AMRoles.BAOffShore))
+                {
+                    <td><span>{Name}</span></td>
+                    <td><span>{Address}</span></td>
+                }
+                <td><span>{MailPieceReceivedOn}</span></td>
+                <td><span>{DueDateFormatted}</span></td>
+                <td><span>{DocType}</span></td>
+                <td><span>{IsEDeliveryRequested}</span></td>
+                <td><span>{TotalPages}</span></td>
+                <td><span>{TotalBlankPages}</span></td>
+                <td><span class="small">{TrackingNo}</span></td>
+                <td><span>{ShippingStatusFormatted}</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<!-- end table template code -->
+<!--Weekly Chart table html template code -->
+<div id="WeeklyChartTableContent" style="        display: none">
+    <table class="table table-responsive" style="        overflow-x: scroll;
+        margin-bottom: 2%;">
+        <thead>
+            <tr>
+                <th>Batch Id</th>
+                <th>Batch Name</th>
+                <th>Batch Status</th>
+                <th>Total MailPiece</th>
+                <th>Received On <span class="fontcapitalize">(Local)</span></th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="WeeklyChartbodyContent"></tbody>
+    </table>
+</div>
+<div style="        display: none">
+    <table>
+        <tbody id="WeeklyChartBody">
+            <tr class="row-small">
+                <td><span data-toggle="tooltip" data-container="body" data-placement="top" title="{ClientBatchId}">{ClientBatchIdFormatted}</span></td>
+                <td><span data-toggle="tooltip" data-container="body" data-placement="top" title="{BatchName}">{BatchNameFormatted}</span></td>
+                <td><span>{BatchStatusFormatted}</span></td>
+                <td><span>{MailPieceCount}</span></td>
+                <td><span>{ReceivedOnFormatted}</span></td>
+                <td><span>{BatchButtonFormatted}</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<!-- end table template code -->
+@section Scripts{
+    @Styles.Render("~/bundles/datatablescss")
+    @Scripts.Render("~/bundles/datatables")
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js">
+    </script>
+    <script type="text/javascript">
+        $(document).keyup(function (e) {
+            if (e.keyCode == 27) { // escape key maps to keycode `27`
+                if ($('#WeeklybatchMailPieceModal:visible').length == 1) {
+
+                    $("#showModalESC").click();
+                }
+            }
+        });
+        var sumArr = new Array();
+        var sumArrDS = new Array();
+        Array.prototype.uniquePush = function (item) {
+            if (this.indexOf(item) == -1)
+                this.push(item);
+
+            this.sort(function (a, b) {
+                var a1 = a, b1 = b;
+                if (a1 == b1) return 0;
+                return a1 > b1 ? 1 : -1;
+            });
+        };
+        var commonmsg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+        function GetChartDataByStatusAndDocTypeCode(status, docTypeCode) {
+            var el = $("#batchMailPieceModal").find('.modal-body');
+            el.html("");
+
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "Home/DailySummaryChartDetails",
+                data: JSON.stringify({ status: status, docTypeCode: docTypeCode }),
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    //console.log(response);
+                    if (response.Success) {
+                        if (response.Object != null) {
+                            if (response.Object.model.length > 0) {
+                                var data = FormatObjectToday(response.Object.model);
+                                //console.log(data);
+                                $("#batchMailPieceModalBody").html("");
+                                //this.ReceivedOnFormatted = moment(this.ReceivedOn).format("MM/DD/YY HH:mm:ss");
+                                BindTemplate(data, "#ChartMailPieceBody", "#ChartMailPiecebodyContent", "#ChartMailPieceTableContent", "#batchMailPieceModalBody");
+                                $("#batchMailPieceModalHeader").html("Mailpiece Summary of " + docTypeCode);
+                                window.clui.tooltipInit();
+                            }
+                            else {
+                                el.html(" <div class='alert alert-yellow'><span class='sbold'>@AM.Services.Config.Web_Msg_NoRecordFound</span></div>")
+                            }
+                        }
+                    }
+                    else {
+                        el.html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + response.ErrorMessage + "</span></div>");
+                    }
+                    $("#batchMailPieceModal").modal("show");
+                    setModalHeight("batchMailPieceModal");
+
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    el.html("<div class='alert alert-red'><span>" + commonmsg + "</span></div>");
+                    $("#batchMailPieceModal").modal("show");
+                    setModalHeight("batchMailPieceModal");
+                }
+
+            });
+        }
+
+        function GetChartDataByStatusAndBatchIds(status, ids, clientBatchId, receivedOn) {
+            var el = $("#batchMailPieceModal").find('.modal-body');
+            el.html("");
+
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "Home/TodayChartDetails",
+                data: JSON.stringify({ status: status, batchId: ids }),
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    //console.log(response);
+                    if (response.Success) {
+                        if (response.Object != null) {
+                            if (response.Object.model.length > 0) {
+                                var data = FormatObjectToday(response.Object.model);
+                                //console.log(data);
+                                $("#batchMailPieceModalBody").html("");
+                                //this.ReceivedOnFormatted = moment(this.ReceivedOn).format("MM/DD/YY HH:mm:ss");
+                                BindTemplate(data, "#ChartMailPieceBody", "#ChartMailPiecebodyContent", "#ChartMailPieceTableContent", "#batchMailPieceModalBody");
+                                if (clientBatchId.length > 31) {
+                                    $("#batchMailPieceModalHeader").html("Mailpiece Summary: <button type='button' style='cursor:none !important;' class='btn btn-default normaltext' data-toggle='tooltip' data-placement='bottom' title='" + clientBatchId + "'>Batch Id - " + shortName(clientBatchId) + "</button><button type='button' style='cursor:none !important;margin-left:1%;' class='btn btn-default normaltext'>Received On - " + moment(receivedOn).format("MM/DD/YY HH:mm:ss") + "</button>");
+
+                                } else {
+                                    $("#batchMailPieceModalHeader").html("Mailpiece Summary: <button type='button' style='cursor:none !important;' class='btn btn-default normaltext'>Batch Id - " + clientBatchId + "</button><button type='button' style='cursor:none !important;margin-left:1%;' class='btn btn-default normaltext'>Received On - " + moment(receivedOn).format("MM/DD/YY HH:mm:ss") + "</button>");
+                                }
+                                //$("#batchMailPieceModalHeader").html("Mailpiece Summary: <button type='button' style='cursor:none !important;' class='btn btn-default normaltext'>Batch Id - " + clientBatchId + "</button> <button type='button' style='cursor:none !important;margin-left:1%;' class='btn btn-default normaltext'>Received On - " + receivedOn + "</button>");
+                                //, Received On - " + moment(receivedOn).format("MM/DD/YY HH:mm:ss")
+                                window.clui.tooltipInit();
+                            }
+                            else {
+                                el.html(" <div class='alert alert-yellow'><span class='sbold'>@AM.Services.Config.Web_Msg_NoRecordFound</span></div>")
+                            }
+                        }
+                    }
+                    else {
+                        el.html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + response.ErrorMessage + "</span></div>");
+                    }
+                    $("#batchMailPieceModal").modal("show");
+                    setModalHeight("batchMailPieceModal");
+
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    el.html("<div class='alert alert-red'><span>" + commonmsg + "</span></div>");
+                    $("#batchMailPieceModal").modal("show");
+                    setModalHeight("batchMailPieceModal");
+                }
+
+            });
+        }
+        function GetChartDataByStatusAndDate(status, date) {
+            var el = $("#batchModal").find('.modal-body');
+            $("#batchModalHeader").html("Batch Summary: <button type='button' style='cursor:none !important;' class='btn btn-default normaltext'> Received On - " + moment(date).format("MM/DD/YY") + "</button>");
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "Home/WeeklyChartDetails",
+                data: JSON.stringify({ status: status, date: date }),
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    //console.log(response);
+                    if (response.Success) {
+                        if (response.Object != null) {
+                            if (response.Object.model.length > 0) {
+                                var data = FormatObject(response.Object.model);
+                                //console.log(data);
+                                $("#batchModalModalBody").html("");
+                                //this.ReceivedOnFormatted = moment(this.ReceivedOn).format("MM/DD/YY HH:mm:ss");
+                                BindTemplate(data, "#WeeklyChartBody", "#WeeklyChartbodyContent", "#WeeklyChartTableContent", "#batchModalModalBody");
+                                window.clui.tooltipInit();
+                            }
+                            else {
+                                el.html(" <div class='alert alert-yellow'><span class='sbold'>@AM.Services.Config.Web_Msg_NoRecordFound</span></div>")
+                            }
+                        }
+                    }
+                    else {
+                        el.html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + response.ErrorMessage + "</span></div>");
+                    }
+                    $("#batchModal").modal("show");
+                    setModalHeight("batchModal");
+
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    el.html("<div class='alert alert-red'><span>" + commonmsg + "</span></div>");
+                    $("#batchModal").modal("show");
+                }
+
+            });
+        }
+
+        function BindWeeklyChartData() {
+            var el = $("#weekluChart");
+            $.ajax({
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                dataType: "JSON",
+                //url: baseUrl + "Home/GetWeeklyChartData",
+                url: baseUrl + "api/chart/GetWeeklyChartData",
+                success: function (response) {
+                    var chartData = [];
+                    //var ticksArr = [];
+                    chartData.push(['Date', 'InProgress', 'Failed', 'PulledBack', 'ShippedAll', 'ShippedPartial', 'eDelivered', 'eSigned', 'Dates']);
+                    var cnt = 0;
+                    var startDate = response[response.length - 1].Date;
+                    var endDate = response[0].Date;
+                    sumArr = new Array();
+                    //console.log(startDate + " " + endDate);
+                    for (var i = 1; i <= response.length; i++) {
+                        //console.log(moment(response[cnt].Date).format("MM/DD/YYYY") == moment().format("MM/DD/YYYY") + " " + cnt + " " + i);
+                        //var day = moment(response[cnt].Date).format("MM/DD/YYYY") == moment().format("MM/DD/YYYY") ? "Today" : moment(response[cnt].Date).format("ddd");
+                        var inProgressCount = parseInt(response[cnt].InProgress == 0 ? null : response[cnt].InProgress);
+                        var failedCount = parseInt(response[cnt].Failed == 0 ? null : response[cnt].Failed);
+                        var pulledBackCount = parseInt(response[cnt].PulledBack == 0 ? null : response[cnt].PulledBack);
+                        var shippedAllCount = parseInt(response[cnt].ShippedAll == 0 ? null : response[cnt].ShippedAll);
+                        var shippedPartialCount = parseInt(response[cnt].ShippedPartial == 0 ? null : response[cnt].ShippedPartial);
+                        var eDeliveredCount = parseInt(response[cnt].eDelivered == 0 ? null : response[cnt].eDelivered);
+                        var eSignedCount = parseInt(response[cnt].eSigned == 0 ? null : response[cnt].eSigned);
+
+                        chartData.push([response[cnt].Weekday, inProgressCount, failedCount, pulledBackCount, shippedAllCount, shippedPartialCount, eDeliveredCount, eSignedCount, moment(response[cnt].Date).format("MM/DD/YYYY hh:mm:ss a")]);
+                        sumArr.push(response[cnt].InProgress + response[cnt].Failed + response[cnt].PulledBack + response[cnt].ShippedAll + response[cnt].ShippedPartial + response[cnt].eDelivered + response[cnt].eSigned);
+
+                        cnt++;
+                    }
+                    // console.log(chartData);
+                    drawChart(chartData, "weeklyChart", 'Batch Details : ' + moment(startDate).format('MM/DD/YYYY') + " - " + moment(endDate).format('MM/DD/YYYY'), 300, 620);
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    el.html("<div class='alert alert-red'><span>" + commonmsg + "</span></div>");
+                }
+
+            });
+        }
+        function GetFullChart() {
+            var el = $("#TodayChartModalBody");
+            $.ajax({
+                type: "GET",
+                dataType: "JSON",
+                url: baseUrl + "api/chart/GetTodayChartData",
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    //console.log(response);
+                    if (response.length == 0) {
+                        el.html("<div class='alert alert-yellow'><span>@AM.Services.Config.Web_Msg_NoMailPieceReceivedToday</span></div>");
+                        $("#todayBody").css("min-height", "467px");
+                        return;
+                    }
+                    var chartData = [];
+                    chartData.push(['BatchName', 'InProgress', 'Error', 'PulledBack', 'eDelivered', 'eSigned', 'Shipped', 'BatchId']);
+                    var cnt = 0;
+                    for (var i = 1; i <= response.length; i++) {
+
+                        chartData.push([response[cnt].ClientBatchId, response[cnt].InProgress, response[cnt].Error, response[cnt].PulledBack, response[cnt].Shipped, response[cnt].MailBatchId]);
+                        cnt++;
+                    }
+                    //console.log(chartData);
+                    $("#TodayChartModal").modal("show");
+                    drawChart(chartData, "TodayChartModalBody", 'MailPiece Status', 900, 1400);
+
+
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    el.html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + commonmsg + "</span></div>");
+
+                }
+
+            });
+        }
+        function BindTodayChartData() {
+            var el = $("#todayChart");
+            $.ajax({
+                type: "GET",
+                dataType: "JSON",
+                url: baseUrl + "api/chart/GetTodayChartData",
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    //console.log(response);
+                    if (response.length == 0) {
+                        el.html("<div class='alert alert-yellow' style='margin-bottom:10px;'><span>@AM.Services.Config.Web_Msg_NoMailPieceReceivedToday</span></div>");
+                        $("#todayBody").css("min-height", "488px");
+                        return;
+                    }
+                    var chartData = [];
+                    chartData.push(['BatchName', 'InProgress', 'Error', 'PulledBack', 'Shipped', 'BatchId', 'ReceivedOn']);
+                    var cnt = 0;
+                    //var ticksArr = [];
+                    sumArr = new Array();
+                    for (var i = 1; i <= response.length; i++) {
+
+                        var inProgressCountBatch = parseInt(response[cnt].InProgress == 0 ? null : response[cnt].InProgress);
+                        var errorCountBatch = parseInt(response[cnt].Error == 0 ? null : response[cnt].Error);
+                        var pulledBackCountBatch = parseInt(response[cnt].PulledBack == 0 ? null : response[cnt].PulledBack);
+                        var shippedCountBatch = parseInt(response[cnt].Shipped == 0 ? null : response[cnt].Shipped);
+                        var eDeliveredCountBatch = parseInt(response[cnt].eDelivered == 0 ? null : response[cnt].eDelivered);
+                        var eSignedCountBatch = parseInt(response[cnt].eSigned == 0 ? null : response[cnt].eSigned);
+
+                        chartData.push([response[cnt].ClientBatchId, inProgressCountBatch, errorCountBatch, pulledBackCountBatch, shippedCountBatch, eDeliveredCountBatch, eSignedCountBatch, response[cnt].MailBatchId, moment(response[cnt].ReceivedOn).format("MM/DD/YYYY  HH:mm:ss")]);
+                        sumArr.push(response[cnt].InProgress + response[cnt].Error + response[cnt].PulledBack + response[cnt].Shipped + response[cnt].eDelivered + response[cnt].eSigned);
+
+                        cnt++;
+                    }
+                    ////console.log(chartData);
+
+                    //  drawChart(chartData, "todayChart", 'MailPiece Status', 467, 534);//uncomment if need to start Today chart
+
+
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    el.html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + commonmsg + "</span></div>");
+
+                }
+
+            });
+        }
+        function showModal() {
+            $("#batchModal").modal("show");
+        }
+        function setModalHeight(id) {
+            var bodyHeight = $("body").height();
+            var count = $("#" + id).find("tr").length;//.find(".modal-body").height();
+            ////console.log(bodyHeight + " " + modalHeight);
+            if (count > 5) {
+                $("#" + id).find(".modal-body").height(bodyHeight - 350);
+                $("#" + id).find(".modal-body").css("overflow-y", "scroll");
+            }
+            else {
+                $("#" + id).find(".modal-body").height('auto');
+
+            }
+
+        }
+
+        function GetMailPieceById(batchId, receivedOn, clientBatchId) {
+            var el = $("#WeeklybatchMailPieceModal").find(".modal-body");
+            $("#WeeklybatchMailPieceHeader").html("");
+            if (clientBatchId.length > 31) {
+                $("#WeeklybatchMailPieceHeader").html("Mailpiece Summary: <button type='button' style='cursor:none !important;' class='btn btn-default normaltext' data-toggle='tooltip' data-placement='bottom' title='" + clientBatchId + "'>Batch Id - " + shortName(clientBatchId) + "</button><button type='button' style='cursor:none !important;margin-left:1%;' class='btn btn-default normaltext'>Received On - " + moment(receivedOn).format("MM/DD/YY HH:mm:ss") + "</button>");
+
+            } else {
+                $("#WeeklybatchMailPieceHeader").html("Mailpiece Summary: <button type='button' style='cursor:none !important;' class='btn btn-default normaltext'>Batch Id - " + clientBatchId + "</button><button type='button' style='cursor:none !important;margin-left:1%;' class='btn btn-default normaltext'>Received On - " + moment(receivedOn).format("MM/DD/YY HH:mm:ss") + "</button>");
+            }
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "Home/GetMailPieceByBatchId",
+                data: JSON.stringify({ batchId: batchId }),
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    //console.log(response);
+                    if (response.Success) {
+                        if (response.Object != null) {
+                            if (response.Object.model.length > 0) {
+                                var data = FormatObjectToday(response.Object.model);
+                                //console.log(data);
+                                $("#WeeklyChartModalBody").html("");
+                                //this.ReceivedOnFormatted = moment(this.ReceivedOn).format("MM/DD/YY HH:mm:ss");
+                                BindTemplate(data, "#WeeklyChartMailPieceBody", "#WeeklyChartMailPiecebodyContent", "#WeeklyChartMailPieceTableContent", "#WeeklyChartModalBody");
+
+                                window.clui.tooltipInit();
+                                //, Received On - " + moment(receivedOn).format("MM/DD/YY HH:mm:ss")
+
+                            }
+                            else {
+                                el.html(" <div class='alert alert-yellow' style='margin-bottom:10px;'><span class='sbold'>@AM.Services.Config.Web_Msg_NoRecordFound</span></div>")
+                            }
+                        }
+                    }
+                    else {
+                        el.html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + response.ErrorMessage + "</span></div>");
+                    }
+                    $("#batchModal").modal("hide");
+                    $("#WeeklybatchMailPieceModal").modal("show");
+                    setModalHeight("WeeklybatchMailPieceModal");
+
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    el.html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + commonmsg + "</span></div>");
+                    $("#batchModal").modal("hide");
+                    $("#WeeklybatchMailPieceModal").modal("show");
+                }
+
+            });
+        }
+
+
+        google.charts.load('current', { packages: ['corechart'] });
+        function drawChart(chartData, div, title, height, width) {
+            var data = google.visualization.arrayToDataTable(chartData);
+            var view = new google.visualization.DataView(data);
+            var colors = [];
+            var series;
+            var hTitle = "Mailpieces";
+            var vTitle = "Batch Names";
+            if (div == "weeklyChart") {
+                view.setColumns([0, 1, 2, 3, 4, 5, 6, 7]);
+                series = {
+                    0: { color: '#069' },
+                    1: { color: '#e03c31' },
+                    2: { color: '#e7ab08' },
+                    3: { color: '#539536' },
+                    4: { color: '#f63' },
+                    5: { color: '#20c997' },
+                    6: { color: '#6f42c1' }
+                };
+                hTitle = "Batches";
+                vTitle = "";//"Week Days";
+            }
+            else {
+                view.setColumns([0, 1, 2, 3, 4, 5, 6]);
+                //colors = ['#069', '#e03c31', '#e7ab08', '#539536'];
+                series = {
+                    0: { color: '#069' },
+                    1: { color: '#e03c31' },
+                    2: { color: '#e7ab08' },
+                    3: { color: '#539536' },
+                    4: { color: '#20c997' },
+                    5: { color: '#6f42c1'}
+                };
+            }
+            var ticksArr = new Array();
+            if (sumArr.length > 0) {
+                var maxSum = Math.max.apply(Math, sumArr);
+                if (maxSum < 6) {
+                    ticksArr = new Array();
+                    for (var i = 0; i <= maxSum; i++) {
+                        ticksArr[i] = i;
+                    }
+                }
+                else {
+                    ticksArr = null;
+                }
+            }
+
+            var options = {
+                title: title,
+                isStacked: true,
+                'height': height,
+                //'width': width,
+
+                hAxis: {
+                    minValue: 0,
+                    ticks: ticksArr,
+                    format: 0,
+                    title: hTitle,
+                    textStyle: {
+                        fontSize: 12,
+                        bold: true,
+                        //color: '#848484'
+                    },
+                    titleTextStyle: {
+                        fontSize: 12,
+                        bold: true,
+                        //color: '#848484'
+                    }
+                },
+                vAxis: {
+                    title: vTitle,
+
+                    titleTextStyle: {
+                        fontSize: 12,
+                        bold: true,
+
+                    }
+                },
+                legend: { position: 'top', maxLines: 3 },
+                series: series
+
+            };
+
+            // Instantiate and draw the chart.
+            var chart = new google.visualization.BarChart(document.getElementById(div));
+
+            google.visualization.events.addListener(chart, 'select', selectHandler);
+            chart.draw(view, options);
+
+            function selectHandler() {
+                var selectedItem = chart.getSelection()[0];
+                if (selectedItem) {
+                    var status = data.getColumnLabel(selectedItem.column);
+                    if (selectedItem.row != null) {
+                        if (div == "todayChart") {
+                            var batchId = parseInt(data.getValue(selectedItem.row, 5));
+                            var clientBatchId = data.getValue(selectedItem.row, 0);
+                            if (batchId != 0) {
+                                var receivedOn = data.getValue(selectedItem.row, 6);
+                                GetChartDataByStatusAndBatchIds(status, batchId, clientBatchId, receivedOn);
+                            }
+                        }
+                        if (div == "weeklyChart") {
+                            var dates = data.getValue(selectedItem.row, 8);
+                            console.log(data);
+                            GetChartDataByStatusAndDate(status, moment(dates).format("MM/DD/YYYY"));
+                        }
+                    }
+
+                }
+            }
+        }
+        google.charts.setOnLoadCallback(BindWeeklyChartData);
+        google.charts.setOnLoadCallback(BindTodayChartData);
+
+        $("#FullTodayChart").click(function () {
+
+            google.charts.setOnLoadCallback(GetFullChart);
+
+        });
+
+        function SendPullBackRequest(mailpieceId) {
+            Spinners("#pullback", "fa-reply");
+            var mailpieceIds = [];
+            mailpieceIds.push(mailpieceId);
+            //console.log(mailpieceIds);
+            var el = $("#myModal").find('.modal-body');
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "api/pullback/pullbackold",
+                data: JSON.stringify(mailpieceIds),
+                contentType: "application/json; charset=utf-8",
+                dataType: "JSON",
+                success: function (response) {
+                    if (response.Success) {
+                        if (response.Object != null) {
+                            Spinners("#pullback", "fa-reply");
+                            var msgAdd = "<ul>";
+                            for (var i = 0; i < response.Object.length; i++) {
+                                var msg = response.Object[i].Message;
+                                if (response.Object[i] != "" || response.Object[i] == "undefined") {
+                                    if (response.Object[i].PullBackRequestedOn != null && response.Object[i].PulledBackRequestedBy != "") {
+
+                                        msg = msg.slice(0, -1) + " by " + response.Object[i].PulledBackRequestedBy + " on " + moment(response.Object[i].PullBackRequestedOn).format("MM/DD/YYYY  HH:mm:ss");
+                                    }
+                                    if (response.Object[i].Success) {
+
+                                        msgAdd += "<li><span class='text-bright-blue '>" + $("#BusinessFriendlyIdValue").val() + "</span>:" + msg + "</li>";
+                                    }
+                                    else {
+                                        msgAdd += "<li ><span class='text-bright-blue '>" + $("#BusinessFriendlyIdValue").val() + "</span>:<span class='text-red'>" + response.Object[i].Message + "</span></li>";
+                                    }
+
+                                }
+                            }
+                            msgAdd += "</ul>";
+                            //alert(msgAdd);
+                            //$("#ErrorMessage").append(msgAdd);
+                            el.html(msgAdd);
+                        }
+                    }
+                    else {
+                        Spinners("#pullback", "fa-reply");
+                        var htmlstr = "<div class='alert alert-red' style='margin-bottom:10px;'><span>" + response.ErrorMessage + "</span></h1></div>";
+                        htmlstr += '<br><blockquote class=""><p><u><i class="fa fa-search"></i> @Html.ActionLink("Advance Search", "PullBack", "RequestPullBack") </u></P></blockquote>';
+                        el.html(htmlstr);
+                    }
+                    $("#myModal").modal("show");
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    Spinners("#pullback", "fa-reply");
+                    el.html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + commonmsg + "</span></div>");
+                    $("#myModal").modal("show");
+                }
+
+            });
+
+        }
+        $('#BusinessFriendlyIdValue').on("keypress", function (e) {
+            if (e.keyCode == 13) {
+                RequestPullback(); // prevent the button click from happening
+            }
+        });
+        $("#BusinessFriendlyIdName").on("change", function () {
+            if ($("#BusinessFriendlyIdName").val() == "") {
+                $("#BusinessFriendlyIdNameError").show();
+                return;
+            }
+            else {
+                $("#BusinessFriendlyIdNameError").hide();
+            }
+        });
+
+        function RequestPullback() {
+            if ($("#BusinessFriendlyIdName").val() == "") {
+                $("#BusinessFriendlyIdNameError").show();
+                return;
+            }
+
+            if ($("#BusinessFriendlyIdValue").val() == "") {
+                $("#BusinessFriendlyIdValueError").show();
+                return;
+            }
+            else {
+                $("#BusinessFriendlyIdValueError").hide();
+            }
+
+
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "Home/GetMailPieceIdByLoanNumber",
+                data: JSON.stringify({ BusinessFriendlyIdName: $("#BusinessFriendlyIdName").val().trim(), BusinessFriendlyIdValue: $("#BusinessFriendlyIdValue").val().trim() }),
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    //console.log(response);
+                    if (response.Success) {
+                        if (response.Object != null) {
+                            if (response.Object == "PullBack") {
+                                window.location = baseUrl + 'RequestPullBack/PullBack?BusinessFriendlyIdName=' + $("#BusinessFriendlyIdName").val() + '&BusinessFriendlyIdValue=' + $("#BusinessFriendlyIdValue").val();
+                                return;
+                            } else if (response.Object == "AdvancePullBack") {
+                                var el = $("#myModal").find('.modal-body');
+                                var htmlstr = "<div class='alert alert-red'><span>@AM.Services.Config.Web_Msg_NoRecordFound</span></h1></div>";
+                                htmlstr += '<br><blockquote class=""><p><u><i class="fa fa-search"></i> @Html.ActionLink("Advance Search", "PullBack", "RequestPullBack") </u></p></blockquote>';
+                                el.html(htmlstr);
+
+                                $("#myModal").modal("show");
+                                return;
+                            } else if (response.Object.model.length == 1) {
+                                var data = FormatObject(response.Object.model);
+                                //console.log(data[0].IsPullBackRequested);
+                                $("#confirmModalBody").html("");
+                                BindTemplate(data, "#pullbackBody", "#pullbackbodyContent", "#pullbackTableContent", "#confirmModalBody");
+                                //var IsPullbackRequested = $("#sample_2").find(".ispullbackr").text().trim();
+                                switch (data[0].Status) {
+
+                                    case "PulledBack":
+                                    case "Error":
+                                    case "Shipped":
+                                        $("#yesPullback").hide();
+                                        $("#noPullback").html("Close");
+                                        $("#confirmMsg").hide();
+                                        $("#noPullback").removeClass("btn-primary");
+                                        $("#noPullback").addClass("btn-primary");
+                                        break;
+                                    case "InProgress":
+                                        if (data[0].IsPullBackRequested == 1) {
+                                            $("#confirmMsg").hide();
+                                            $("#yesPullback").hide();
+                                            $("#noPullback").html("Close");
+                                            $("#noPullback").removeClass("btn-primary");
+                                            $("#noPullback").addClass("btn-primary");
+                                        }
+                                        else {
+                                            $("#confirmMsg").show();
+                                            $("#yesPullback").show();
+                                            $("#noPullback").html("<i class='fa fa-close'></i> No");
+                                            $("#noPullback").removeClass("btn-default");
+                                            $("#noPullback").addClass("btn-primary");
+                                        }
+                                        //$("#yesPullback").show();
+                                        //$("#noPullback").html("<i class='fa fa-close'></i> No");
+                                        //$("#noPullback").removeClass("btn-primary");
+                                        //$("#noPullback").addClass("btn-default");
+                                        break;
+                                }
+                                $("#confirmModal").modal("show");
+                                window.clui.tooltipInit();
+                                return;
+                            }
+                            else {
+                                var el = $("#myModal").find('.modal-body');
+                                el.html("<div class='alert alert-yellow' ><span>@AM.Services.Config.Web_Msg_NoRecordInTodayAndPendingBatches</span></div>");
+                                $("#myModal").modal("show");
+                            }
+                        }
+                    }
+                    else {
+                        var el = $("#myModal").find('.modal-body');
+                        el.html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + response.ErrorMessage + "</span></div>");
+                        $("#myModal").modal("show");
+                    }
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    var el = $("#myModal").find('.modal-body');
+                    el.html("<div class='alert alert-red'><span>" + commonmsg + "</span></div>");
+                    $("#myModal").modal("show");
+                }
+
+            });
+            $("#BusinessFriendlyIdNameError").hide();
+            $("#BusinessFriendlyIdValueError").hide();
+        }
+        function FormatObjectToday(Model) {
+            $(Model).each(function () {
+                var requestedPullback = this.IsPullBackRequested ? '<span class="label medium label-yellow">Yes</span>' : '<span class="label medium label-success">No</span>';
+                var status = "";
+                this.ErrorDesc = this.ErrorDesc != null ? this.ErrorDesc.replace(/"/g, '\'') : "";
+                switch (this.Status) {
+
+                    case "PulledBack":
+                        status = '<span class="label medium label-yellow">' + this.Status + '</span>';
+                        break;
+                    case "Error":
+                        status = '<span class="label medium label-red" data-toggle="popover" data-original-title="Error : ' + this.ErrorCode + '" data-html="true" data-content="' + this.ErrorDesc + '" data-placement="left">' + this.Status + '</span>';
+                        break;
+                    case "Shipped":
+                        status = '<span class="label medium label-success">' + this.Status + '</span>';
+                        break;
+                    case "InProgress":
+                        status = '<span class="label medium label-blue">' + this.Status + '</span>';
+                        break;
+                    case "eDelivered":
+                        status = '<span class="label medium label-Edelivery">' + this.Status + '</span>';
+                        break;
+                    case "eSigned":
+                        status = '<span class="label medium label-Esign">' + this.Status + '</span>';
+                        break;
+                }
+                // \''+this.TrackingNo+'\',\''+this.ShippingMethod+'\'
+                this.MailPieceReceivedOn = moment(this.ReceivedOn).format("MM/DD/YY HH:mm:ss");
+                //this.ReceivedOnFormatted = moment(this.ReceivedOn).format("MM/DD/YY HH:mm:ss");
+                this.DueDateFormatted = this.DueDate == null ? "--" : moment(this.DueDate).format("MM/DD/YY HH:mm:ss");
+                this.ErrorDescPopover = this.ErrorDesc == null ? "--" : '<span id="popoverError" data-toggle="popover" data-original-title="Error" data-html="true" data-content="' + this.ErrorDesc + '" data-placement="left"><a>Error Details</a></span>';
+                this.ShippingStatusFormatted = status;
+                this.FileNameFormatted = shortName(this.FileName);
+                //this.RcptNameFormatted = this.RcptFirstName + " " + this.RcptLastName;
+
+                this.IsPullBackRequestedFormatted = requestedPullback;
+                this.IsEDeliveryRequested = this.IsEDeliveryRequested && !this.IsESignRequested ? '<span class="label medium label-success">E-Delivery</span>' : this.IsEDeliveryRequested && this.IsESignRequested ? '<span class="label medium label-success">E-Sign</span>' : '<span class="label medium label-blue">P&S</span>';
+            });
+            return Model;
+            //console.log(Model);
+        }
+        function shortName(str) {
+            //console.log(str);
+            if (typeof str != 'undefined' && str != null && str != "")
+                return str.length > 31 ? str.substring(0, 31) + '...' : str;
+        }
+        function FormatObject(Model) {
+            //console.log(Model);
+            $(Model).each(function () {
+                var requestedPullback = this.IsPullBackRequested ? '<span class="label medium label-yellow">Yes</span>' : '<span class="label medium label-success">No</span>';
+                var status = "";
+                this.BatchNameFormatted = shortName(this.BatchName);
+                this.ClientBatchIdFormatted = shortName(this.ClientBatchId);
+                this.ErrorDesc = this.ErrorDesc != null ? this.ErrorDesc.replace(/"/g, '\'') : "";
+                this.FileNameFormatted = shortName(this.FileName);
+                switch (this.Status) {
+
+                    case "PulledBack":
+                        status = '<span class="label medium label-yellow">' + this.Status + '</span>';
+
+                        break;
+                    case "Error":
+                        status = '<span class="label medium label-red" data-toggle="popover" data-original-title="Error Code: ' + this.ErrorCode + '" data-html="true" data-content="' + this.ErrorDesc + '" data-placement="left">' + this.Status + '</span>';
+                        break;
+                    case "Shipped":
+                        status = '<span class="label medium label-success">' + this.Status + '</span>';
+                        break;
+                    case "InProgress":
+                        status = '<span class="label medium label-blue">' + this.Status + '</span>';
+                        break;
+                    case "eDelivered":
+                        status = '<span class="label medium label-Edelivery">' + this.Status + '</span>';
+                        break;
+                    case "eSigned":
+                        status = '<span class="label medium label-Esign">' + this.Status + '</span>';
+                        break;
+                }
+                // \''+this.TrackingNo+'\',\''+this.ShippingMethod+'\'
+                //this.MailPieceReceivedOn = moment(this.MailBatches.ReceivedOn).format("MM/DD/YY HH:mm:ss");
+                this.ReceivedOnFormatted = moment(this.ReceivedOn).format("MM/DD/YY HH:mm:ss");
+                this.DueDateFormatted = this.DueDate == null ? "--" : moment(this.DueDate).format("MM/DD/YY HH:mm:ss");
+                this.ErrorDescPopover = this.ErrorDesc == null ? "--" : '<span id="popoverError" data-toggle="popover" data-original-title="Error" data-html="true" data-content="' + this.ErrorDesc + '" data-placement="left"><a>Error Details</a></span>';
+                this.ShippingStatusFormatted = status;
+                //this.RcptNameFormatted = this.RcptFirstName + " " + this.RcptLastName;
+                this.BatchButtonFormatted = this.MailPieceCount > 0 ? '<button onclick="GetMailPieceById( \'' + this.BatchId + '\',\'' + this.ReceivedOnFormatted + '\',\'' + this.ClientBatchId + '\')" type="button" class="btn btn-transparent-bright-blue">View Details</button>' : '<button disabled="disabled" type="button" class="btn btn-transparent-bright-blue">View Details</button>'
+                this.IsPullBackRequestedFormatted = requestedPullback;
+                var batchStatus = "";
+                switch (this.BatchStatus) {
+
+                    case "InProgress":
+                        batchStatus = '<span class="label medium label-blue">' + this.BatchStatus + '</span>';
+                        break;
+                    case "PulledBack":
+                        batchStatus = '<span class="label medium label-yellow">' + this.BatchStatus + '</span>';
+                        break;
+                    case "Failed":
+                        batchStatus = '<span class="label medium label-red" data-toggle="popover" data-original-title="Error" data-html="true" data-content="' + (this.ValidationErrors == null ? "--" : this.ValidationErrors) + '" data-placement="left">' + this.BatchStatus + '</span>';
+                        break;
+                    case "ShippedPartial":
+                        batchStatus = '<span class="label medium label-orange">' + this.BatchStatus + '</span>';
+                        break;
+                    case "ShippedAll":
+                        batchStatus = '<span class="label medium label-green">' + this.BatchStatus + '</span>';
+                        break;
+
+                }
+                this.BatchStatusFormatted = batchStatus;
+                this.IsEDeliveryRequested = this.IsEDeliveryRequested && !this.IsESignRequested ? '<span class="label medium label-success">E-Delivery</span>' : this.IsEDeliveryRequested && this.IsESignRequested ? '<span class="label medium label-success">E-Sign</span>' : '<span class="label medium label-blue">P&S</span>';
+            });
+            return Model;
+            //console.log(Model);
+        }
+        function applyDataTable() {
+            $('[data-toggle="popover"]').popover({
+                'trigger': 'hover',
+                'placement': 'auto left',
+                'container': 'body'
+            });
+        }
+        $("#pullback").click(function (e) {
+            RequestPullback();
+        });
+
+        $("#yesPullback").unbind("click").click(function (e) {
+            e.preventDefault();
+            $("#confirmModal").modal("hide");
+            var mailpieceId = $("#pullbackbodyContent").find(".mailpieceid").data("mailpieceid");
+            SendPullBackRequest(mailpieceId);
+        });
+
+        function DailySummaryChartFunction() {
+            $.ajax({
+                type: "GET",
+                url: baseUrl + "api/chart/DailySummaryChart",
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+
+                    if (response.length == 0) {
+                        $('#DailySummaryByDocType').html("<div class='alert alert-yellow' style='margin-bottom:10px;'><span>@AM.Services.Config.Web_Msg_NoMailPieceReceivedToday</span></div>");
+                        $('#DailySummaryByDocType').parent().css("min-height", "488px");
+                        return;
+                    }
+                    var chartData = [];
+                    chartData.push(['DocTypeCode', 'InProgress', 'Error', 'PulledBack', 'Shipped','eDelivered', 'eSigned']);
+                    var cnt = 0;
+                    //var ticksArr = [];
+                    sumArrDS = new Array();
+                    for (var i = 1; i <= response.length; i++) {
+
+                        var inProgressCountBatch = parseInt(response[cnt].InProgress == 0 ? null : response[cnt].InProgress);
+                        var errorCountBatch = parseInt(response[cnt].Error == 0 ? null : response[cnt].Error);
+                        var pulledBackCountBatch = parseInt(response[cnt].PulledBack == 0 ? null : response[cnt].PulledBack);
+                        var shippedCountBatch = parseInt(response[cnt].Shipped == 0 ? null : response[cnt].Shipped);
+                        var eDeliveredCountBatch = parseInt(response[cnt].eDelivered == 0 ? null : response[cnt].eDelivered);
+                        var eSignedCountBatch = parseInt(response[cnt].eSigned == 0 ? null : response[cnt].eSigned);
+
+                        chartData.push([response[cnt].DocTypeCode, inProgressCountBatch, errorCountBatch, pulledBackCountBatch, shippedCountBatch, eDeliveredCountBatch, eSignedCountBatch]);
+                        sumArrDS.push(response[cnt].InProgress + response[cnt].Error + response[cnt].PulledBack + response[cnt].Shipped, response[cnt].eDelivered, response[cnt].eSigned);
+
+                        cnt++;
+                    }
+
+                    drawDailySummaryChart(chartData, "DailySummaryByDocType", 'MailPiece Status', 467, 620);
+                }, error: function (err) {
+                    $('#DailySummaryByDocType').html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + commonmsg + "</span></div>");
+                }
+            });
+        }
+        function drawDailySummaryChart(chartData, div, title, height, width) {
+            var data = google.visualization.arrayToDataTable(chartData);
+            var view = new google.visualization.DataView(data);
+            var colors = [];
+            var series;
+            var hTitle = "Mailpieces";
+            var vTitle = "Doc Types";
+            view.setColumns([0, 1, 2, 3, 4, 5, 6]);
+            //colors = ['#069', '#e03c31', '#e7ab08', '#539536'];
+            series = {
+                0: { color: '#069' },
+                1: { color: '#e03c31' },
+                2: { color: '#e7ab08' },
+                3: { color: '#539536' },
+                4: { color: '#20c997' },
+                5: { color: '#6f42c1'}
+            };
+            var ticksArr = new Array();
+            if (sumArr.length > 0) {
+                var maxSum = Math.max.apply(Math, sumArrDS);
+                if (maxSum < 6) {
+                    ticksArr = new Array();
+                    for (var i = 0; i <= maxSum; i++) {
+                        ticksArr[i] = i;
+                    }
+                }
+                else {
+                    ticksArr = null;
+                }
+            }
+
+            var options = {
+                title: title,
+                isStacked: true,
+                'height': height,
+                //'width': width,
+
+                hAxis: {
+                    minValue: 0,
+                    ticks: ticksArr,
+                    format: 0,
+                    title: hTitle,
+                    textStyle: {
+                        fontSize: 12,
+                        bold: true,
+                        //color: '#848484'
+                    },
+                    titleTextStyle: {
+                        fontSize: 12,
+                        bold: true,
+                        //color: '#848484'
+                    }
+                },
+                vAxis: {
+                    title: vTitle,
+
+                    titleTextStyle: {
+                        fontSize: 12,
+                        bold: true,
+
+                    }
+                },
+                legend: { position: 'top', maxLines: 3 },
+                series: series
+
+            };
+
+            // Instantiate and draw the chart.
+            var chart = new google.visualization.BarChart(document.getElementById(div));
+
+            google.visualization.events.addListener(chart, 'select', selectHandler);
+            chart.draw(view, options);
+
+            function selectHandler() {
+                var selectedItem = chart.getSelection()[0];
+                if (selectedItem) {
+                    var status = data.getColumnLabel(selectedItem.column);
+                    if (selectedItem.row != null) {
+                        var docTypeCode = data.getValue(selectedItem.row, 0);
+                        // console.log(status);
+                        //console.log(docTypeCode);
+                        GetChartDataByStatusAndDocTypeCode(status, docTypeCode);
+                    }
+
+                }
+            }
+        }
+        google.charts.setOnLoadCallback(DailySummaryChartFunction);
+    </script>
+}

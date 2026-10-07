@@ -1,0 +1,529 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="shortcut icon" href="~/clui/dist/img/favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuthoMail</title>
+    @Styles.Render("~/Content/clcss")
+    @Scripts.Render("~/bundles/modernizr")
+    <style>
+        #mainlink:hover {
+            color: lightgray;
+        }
+
+        .error {
+            color: #e03c31;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="mobile-overlay"></div>
+        <div class="container-fluid">
+            <div class="navbar-collapse-btn">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#example-navbar-collapse-3">
+                    <span class="sr-only">Toggle navigation</span>
+                    <i class="fa fa-bars" aria-hidden="true"></i>
+                </button>
+            </div>
+            @if (User.Identity.IsAuthenticated)
+            {
+                <div class="navbar-header">
+                    <div class="navbar-logo"></div>
+
+                    <div class="application-name">
+                        <h1 style="line-height:50px;">
+                            @Html.ActionLink("AuthoMail", "Index", "Home", new { area = "" }, new { @class = "text-white ", @id = "mainlink" }) <span style="font-size:15px !important;" id="ClientName"></span>
+                            @if (User.IsInRole(AM.Entities.AMRoles.Admin) || User.IsInRole(AM.Entities.AMRoles.BA) || User.IsInRole(AM.Entities.AMRoles.BAOffShore))
+                            {
+                                <span id="AMStatusNotification"></span>
+                            }
+                            @if (User.IsInRole(AM.Entities.AMRoles.Admin))
+                            {
+                                @*<span id="InventoryNotificationSpan"></span>*@
+                            }
+                            <span id="ErrorNotificationSpan"></span>
+                        </h1>
+                    </div>
+
+                </div>
+                <div class="collapse navbar-collapse" id="example-navbar-collapse-3">
+
+                    <ul class="nav navbar-nav navbar-right">
+
+                        <li>@Html.ActionLink("Home", "Index", "Home")</li>
+                        @if (User.IsInRole(AM.Entities.AMRoles.Admin) || User.IsInRole(AM.Entities.AMRoles.BA) || User.IsInRole(AM.Entities.AMRoles.Client) || User.IsInRole(AM.Entities.AMRoles.BAOffShore))
+                        {
+                            <li>
+                                <a href="#" id="clientmenu">Clients</a>
+                            </li>
+                        }
+
+
+                        <li>@Html.ActionLink("Search", "Search", "Home")</li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Manage Loans<span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li>@Html.ActionLink("Request Pullback ", "PullBack", "RequestPullBack")</li>
+                                @if (User.IsInRole(AM.Entities.AMRoles.Admin))
+                                {
+                                    <li>@Html.ActionLink("Request Reship ", "ReshipPackage", "Common")</li>
+                                }
+                                @if (User.IsInRole(AM.Entities.AMRoles.Admin) || User.IsInRole(AM.Entities.AMRoles.EVault))
+                                {
+                                    <li>@Html.ActionLink("E-Vault", "EVaultPackages", "EVault")</li>
+                                }
+                                <li>@Html.ActionLink("Single Package Entry", "SingleLoanEntry", "Common")</li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Reports <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+
+                                <li>@Html.ActionLink("Daily Detail Operations Report", "DailyDetailOperationsReport", "Report")</li>
+                                <li>@Html.ActionLink("Errors Report", "ErrorsReport", "Report")</li>
+                                <li>@Html.ActionLink("Summary Control Report", "SummaryControlReport", "Report")</li>
+                                <li>@Html.ActionLink("SLA Report", "ErrorSLAReport", "Report")</li>
+                                <li>@Html.ActionLink("Monthly Recon Report", "MonthlyReconReport", "Report")</li>
+                                <li>@Html.ActionLink("Pullback Request Report", "PullbackRequestReport", "Report")</li>
+                                <li>@Html.ActionLink("Report Wizard", "ReportWizard", "Report")</li>
+                                <li>@Html.ActionLink("Duplicate Report", "DuplicateReport", "Report")</li>
+                                @if (User.IsInRole(AM.Entities.AMRoles.Admin) || User.IsInRole(AM.Entities.AMRoles.BA))
+                                {
+                                    <li>@Html.ActionLink("Print Vendor Recon Report", "PVReconReport", "Report")</li>
+                                    <li>@Html.ActionLink("Supply Inventory Report", "SupplyInventoryReport", "Report")</li>
+                                    <li>@Html.ActionLink("Inventory Usage Report", "EnvelopesUsageReport", "Report")</li>
+                                }
+                            </ul>
+                        </li>
+                        @if (User.IsInRole(AM.Entities.AMRoles.Delfus))
+                        {
+                            <li>@Html.ActionLink("Manage Templates", "Templates", "DelfusTemplate")</li>
+                        }
+                        @if (User.IsInRole(AM.Entities.AMRoles.Admin) || User.IsInRole(AM.Entities.AMRoles.BA) || User.IsInRole(AM.Entities.AMRoles.CoreLogicUserManager))
+                        {
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Manage<span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li>@Html.ActionLink("Sign Up Request", "SignUpRequest", "Admin")</li>
+                                    @if (User.IsInRole(AM.Entities.AMRoles.Admin))
+                                    {
+                                        <li>@Html.ActionLink("System Settings", "SystemSettings", "Admin")</li>
+                                        <li>@Html.ActionLink("Manage Domain", "ManageDomain", "Admin")</li>
+                                        <li>@Html.ActionLink("Manage Business Units", "ManageBusinessUnits", "Admin")</li>
+                                        <li>@Html.ActionLink("Manage SFT Channel", "ManageSFTChannels", "Admin")</li>
+                                        <li>@Html.ActionLink("Manage Document Type", "ManageDocumentTypes", "Admin")</li>
+                                        <li>@Html.ActionLink("Assign User Manager", "AssignUserManagerDetails", "Admin")</li>
+                                        <li>@Html.ActionLink("Manage Clients", "ManageClients", "Admin")</li>
+                                        <li>@Html.ActionLink("Manage Inventory", "ManageEnvelopes", "Admin")</li>
+                                        <li>@Html.ActionLink("Manage Print Trails", "ManagePrintTrails", "Admin")</li>
+                                        <li>@Html.ActionLink("Manage Delfus Template", "Templates", "DelfusTemplate")</li>
+                                    }
+                                    <li>@Html.ActionLink("Services and Cost ", "AllProjectSetupDetails", "Admin")</li>
+                                </ul>
+                            </li>
+                        }
+                        @if (User.IsInRole(AM.Entities.AMRoles.Admin))
+                        {
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Support<span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+
+                                    <li>@Html.ActionLink("Not Reported Back Of Batch Summary", "NotReportedBackOfBatchSummary", "Support")</li>
+                                    <li>@Html.ActionLink("Loan Details By SubmittedOn", "LoanDetailsBySubmittedOn", "Support")</li>
+                                    <li>@Html.ActionLink("Not Reported Back Of MailBatches", "NotReportedBackOfMailBatches", "Support")</li>
+                                    <li>@Html.ActionLink("Delayed Batches", "DelayedBatches", "Support")</li>
+                                    <li>@Html.ActionLink("Clients Packages", "AllClientsPackages", "Support")</li>
+                                </ul>
+                            </li>
+                        }
+                        @Html.Partial("_LoginPartial")
+                    </ul>
+                    <i class="fa fa-times"></i>
+
+
+                </div>
+            }
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        @RenderBody()
+        <footer>
+            <div>
+                2021 Copyright CoreLogic. All Rights Reserved.
+            </div>
+            <div>
+                <ol>
+                    <li><a href="http://www.corelogic.com/about-us/our-company.aspx" target="_blank">About Our Company</a></li>
+                    <li><a href="http://www.corelogic.com/about-us/contact-us.aspx" target="_blank">Contact Us</a></li>
+                    <li><a href="http://www.corelogic.com/privacy.aspx" target="_blank">Policies</a></li>
+                </ol>
+            </div>
+        </footer>
+    </div>
+
+    @*<div id="clientmodal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <div class="modal-header">
+                        <h3>Please choose client</h3>
+                    </div>
+                    <div class="modal-body">
+                        <select class="form-control" id="clientselect"></select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+    <div class="modal fade" id="clientmodal" tabindex="-1" role="dialog" aria-labelledby="myclientmodal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="modal-header">
+                    <h1 id="myModalLabel">Please choose client</h1>
+                </div>
+                <div class="modal-body">
+                    <select class="form-control" data-live-search="true" data-live-search-placeholder="Search Client" id="clientselect"></select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/cljs")
+    @Scripts.Render("~/bundles/clselect2")
+    @Scripts.Render("~/bundles/clcomponetjs")
+
+    <script src="~/Scripts/jquery.signalR-2.3.0.min.js"></script>
+    <!--Reference the autogenerated SignalR hub script. -->
+    <script src="~/signalr/hubs"></script>
+    <!--SignalR script to update the chat page and send messages.-->
+    @RenderSection("scripts", required: false)
+    <script>
+        var baseUrl = '@Url.Content("~/")';
+        $(document).ready(function () {
+            init();
+            GetClientNameById();
+            if ($('#clientmenu').length != 0) {
+                GetClientMenu();
+            }
+            jQuery.validator.addMethod("lettersonly", function(value, element) {
+                return this.optional(element) || /^[A-z\s]+$/i.test(value);
+            }, "Letters only please");
+            jQuery.validator.addMethod("domainonly", function(value, element) {
+                return this.optional(element) || /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/i.test(value);
+            }, "Please enter valid domain name.");
+            jQuery.validator.addMethod("password",function(value,element){
+                return this.optional(element) || /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,20}$/i.test(value);
+            },"Passwords are 8-20 characters with uppercase letters, lowercase letters and at least one number.");
+            jQuery.validator.addMethod("doctypecode",function(value,element){
+                //console.log(!(/^[-]+[\s]+$/i.test(value)));
+                return this.optional(element) || !(/[-\s]+/i.test(value));
+            },"space and dash not allow.");
+
+            var GetAMStatus=function()
+            {
+                if($('#AMStatusNotification').length!=0)
+                {
+                    //$.connection.hub.logging = true;
+                    var amh = $.connection.aMAlertHub;
+                    amh.client.getAMDetailStatus = function (response) {
+                        //console.log("res:"+JSON.stringify(response));
+                        if (response != null)
+                        {
+                            var color=response.AlertLevel=="Critical"?"red":response.AlertLevel=="Warning"?"yellow":"white";
+                            var pulse=response.IsAMDelay?"blink":"";
+                            $('#AMStatusNotification').html('<a href="/AuthoMailHealth/37f9ac3e-40b3-4ae8-ac9a-d84634638065" style="color:'+color+';" class="'+pulse+'"><i class="fa fa-heartbeat fa-2" style="margin:5px;"></i></a>');
+                        }
+                    };
+                    $.connection.hub.start().done(function () {
+                        amh.server.getConnection($.connection.hub.id);
+                    });
+                    $.connection.hub.error(function(error) {
+                        console.log('communication error: ' + error);
+                    });
+                    $.connection.aMAlertHub.client.exceptionHandler = function (error) {
+                        console.log('Server Error: ' + error);
+                    };
+                }
+                if($('#InventoryNotificationSpan').length!=0)
+                {
+                    $('#InventoryNotificationSpan').html();
+                    '<a href="#" title="Inventory"><i class="fa fa-hourglass" style="color:white"></i><i class="fa fa-hourglass-half" style="color:yellow"></i><i class="fa fa-hourglass-end" style="color:red"></i></a>'
+                }
+            }
+            GetAMStatus();
+
+            //var AMHealth=function(){
+            //    $.ajax({
+            //        type: "GET",
+            //        url: baseUrl+"AuthoMailHealth/getamstatus",
+            //        dataType: "json",
+            //        success: function (response) {
+            //            //console.log(Date() + " : " + response);
+            //            if (response != null)
+            //            {
+            //                var color=response.AlertLevel=="Critical"?"red":response.AlertLevel=="Warning"?"yellow":"white";
+            //                var pulse=response.IsAMDelay?"blink":"";
+            //                $('#AMStatusNotification').html('<a href="/AuthoMailHealth/37f9ac3e-40b3-4ae8-ac9a-d84634638065" style="color:'+color+';" class="'+pulse+'"><i class="fa fa-heartbeat fa-2" style="margin:5px;"></i></a>');
+            //            }
+            //        },error:function(err)
+            //        {
+            //            console.log(JSON.stringify(err));
+            //        }
+            //    });
+            //}
+            //AMHealth();
+            //setInterval(function(){AMHealth();},(1000*60*5));
+        });
+
+        function ClientSelectEvent() {
+
+            $('#clientselect').unbind('change');
+            $('#clientselect').bind('change', function (e) {
+                var clientId = $(this).val();
+                 if (clientId!="") {
+                $.ajax({
+                    type: "POST",
+                    url: baseUrl + "Common/RefreshDataByClientId",
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({ clientId: parseInt(clientId) }),
+                    success: function (response) {
+                        if (response.Success) {
+                            //console.log(response.Object)
+                            window.location = baseUrl + "Home/Index";
+                        }
+                        else {
+                            //window.clui.globalAlert({
+                            //    message: response.ErrorMessage,
+                            //    alertType: 'red',
+                            //    timeout: 5000
+                            //});
+                        }
+
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        window.clui.globalAlert({
+                            message: "@AM.Services.Config.Web_Msg_Ajax_CommonError",
+                            alertType: 'red',
+                            timeout: 5000
+                        });
+                    }
+
+                });
+            }
+            else
+            {
+                window.clui.globalAlert({
+                    message: "Select client.",
+                    alertType: 'red',
+                    timeout: 5000
+                });
+            }
+            });
+
+
+
+        }
+        function GetClientMenu() {
+
+            $('#clientmenu').unbind('click');
+            $('#clientmenu').bind('click', function (e) {
+            $('#clientmodal').modal('show');
+            $.ajax({
+                type: "GET",
+                url: baseUrl + "Common/GetClientMenu",
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    if (response.Success) {
+                        if (response.Object != null) {
+                            $("#clientselect").empty();
+                            var data = response.Object;
+                            var groupedData = _.groupBy(data, function (d) { return d.GroupAlias });
+                            var $select = $('#clientselect');
+                            $.each(groupedData, function (key, value) {
+                                var group = $('<optgroup label="' + key + '" />');
+                                $.each(value, function (k,v) {
+                                    console.log(value,key)
+                                    var sel = $("#ClientName").text() == v.Name ? "selected" : "";
+                                    $('<option ' + sel + ' value="' + v.Id +'" />').html(v.Name).appendTo(group);
+                                });
+                               group.appendTo($select);
+                            });
+                            $("#clientselect").selectpicker();
+                            ClientSelectEvent();
+                        }
+                    }
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    window.clui.globalAlert({
+                        message: "@AM.Services.Config.Web_Msg_Ajax_CommonError",
+                        alertType: 'red',
+                        timeout: 5000
+                    });
+                }
+
+            });
+            });
+        }
+        function GetClientNameById() {
+            $("#ClientName").text("");
+            $.ajax({
+                type: "GET",
+                url: baseUrl + "Common/GetClientNameById",
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    $("#ClientName").text(response);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    $("#ClientName").text("");
+                }
+
+            });
+        }
+        function Spinners(selector, className) {
+            if ($(selector).find("i").hasClass("fa-circle-o-notch fa-spin")) {
+                $(selector).find("i").removeClass("fa-circle-o-notch fa-spin");
+                $(selector).find("i").addClass(className);
+            }
+            else {
+                $(selector).find("i").removeClass(className);
+                $(selector).find("i").addClass("fa-circle-o-notch fa-spin");
+            }
+        }
+        if (!String.prototype.supplant) {
+            String.prototype.supplant = function (o) {
+                return this.replace(/{([^{}]*)}/g,
+                    function (a, b) {
+                        var lst = b.split('.');
+                        $obj = o;
+                        for (var i = 0; i < (lst.length) ; i++) {
+                            var r = $obj[lst[i]];
+                            if (r === null || typeof r === "undefined") return "--";
+                            if (typeof r === 'object') {
+                                $obj = r;
+                            }
+                            else {
+                                return typeof r === 'string' || typeof r === 'number' ? r : a;
+                            }
+                        }
+                    }
+                );
+            };
+        }
+        //if (!String.prototype.supplant) {
+        //    String.prototype.supplant = function (o) {
+        //        return this.replace(/{([^{}]*)}/g,
+        //            function (a, b) {
+        //                var r = o[b];
+        //                if (r === null || typeof r === "undefined") return "--";
+        //                return typeof r === 'string' || typeof r === 'number' ? r : a;
+        //            }
+        //        );
+        //    };
+        //}
+        function BindTemplate(model, bodyId, bodyContentId, mainTableId, mainDivId) {
+
+            var bodyHtml = $(bodyId).html();
+            var tableHtml = "";
+            $(model).each(function () {
+                tableHtml = tableHtml + bodyHtml.supplant(this);
+            });
+            // console.log(test1);
+
+            $(bodyContentId).html(tableHtml);
+            $(mainDivId).html($(mainTableId).html());
+            $(mainDivId).find("table").attr("id", "sample_2");
+            applyDataTable();
+        }
+        function BindTemplateWithDataTable(model, bodyId, bodyContentId, mainTableId, mainDivId,tableId,filename,title,scroll) {
+
+            var bodyHtml = $(bodyId).html();
+            var tableHtml = "";
+            $(model).each(function () {
+                tableHtml = tableHtml + bodyHtml.supplant(this);
+            });
+            $(bodyContentId).html(tableHtml);
+            $(mainDivId).html($(mainTableId).html());
+            $(mainDivId).find("table").attr("id", tableId);
+            applyDataTableWithId(tableId,filename,title,scroll);
+        }
+
+        function BindTemplateWithOutDatatable(model, bodyId, bodyContentId, mainTableId, mainDivId) {
+
+            var bodyHtml = $(bodyId).html();
+            var tableHtml = "";
+            $(model).each(function () {
+                tableHtml = tableHtml + bodyHtml.supplant(this);
+            });
+            // console.log(test1);
+
+            $(bodyContentId).html(tableHtml);
+            $(mainDivId).html($(mainTableId).html());
+            $(mainDivId).find("table").attr("id", "sample_2");
+        }
+        function GetTrackingInfo(TrackingNo, ShippingMethod) {
+            selector = "#" + TrackingNo;
+            Spinners(selector, "faspinner");
+            var el = $('#TrackingInfo').find('.modal-body');
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "Common/USPSTracking",
+                data: JSON.stringify({
+                    TrackingNo: TrackingNo,
+                    ShippingMethod: ShippingMethod
+                }),
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    Spinners(selector, "faspinner");
+                    el.html(response);
+
+                    $("#TrackingInfo").modal("show");
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    Spinners(selector, "faspinner");
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    el.html("<div class='alert alert-red'><span>" + msg + "</span></div>");
+                    $("#TrackingInfo").modal("show");
+                }
+
+            });
+        }
+        function alertMessage(alertType,message) {
+            window.clui.globalAlert({
+                message: message,
+                alertType: alertType,
+                timeout: 3000
+            });
+        }
+        $(document).ajaxSuccess(function (event, xhr, settings) {
+            //console.log("Server Result:" + cnt++);
+            //console.log(xhr.responseText);
+            if (xhr.responseText == "") {
+                window.location.reload();
+            }
+        });
+
+
+        $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
+            //console.log("error:" + JSON.stringify(thrownError));
+            //console.log("Status:" + jqxhr.status);
+            if (jqxhr.status == 200) {
+                window.location.reload();
+            }
+
+        });
+
+    </script>
+</body>
+</html>

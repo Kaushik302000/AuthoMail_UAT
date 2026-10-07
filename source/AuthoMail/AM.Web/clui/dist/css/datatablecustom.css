@@ -1,0 +1,37 @@
+﻿.prev, .next {
+    font-size: 15px !important;
+    content: '' !important;
+}
+
+.dt-buttons {
+    float: right !important;
+    margin-top: -2.8% !important;
+}
+
+.dataTables_wrapper {
+    margin-top: -3% !important;
+}
+
+.dt-button {
+    margin-right: 5px !important;
+}
+
+
+.cl-check + label {
+    margin-bottom: 38% !important;
+}
+
+.dataTables_wrapper .dt-buttons {
+    float: none;
+    text-align: center !important;
+}
+
+.modal-backdrop.in {
+    opacity: .75 !important;
+    filter: alpha(opacity=75);
+}
+
+.buttons-excel {
+    padding-top: 5% !important;
+}
+

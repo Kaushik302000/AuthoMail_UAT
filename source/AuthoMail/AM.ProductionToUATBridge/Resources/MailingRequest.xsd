@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.corelogic.com/ade/authomail/v1.18.0" elementFormDefault="qualified" targetNamespace="http://schemas.corelogic.com/ade/authomail/v1.18.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="MailBatch" type="tns:MailBatch" />
+  <xs:complexType name="MailBatch">
+    <xs:all>
+      <!--<xs:element minOccurs="1" maxOccurs="1" name="ShippingInfo" type="tns:ShippingInfo" />-->
+      <xs:element minOccurs="0" maxOccurs="1" name="ReturnInfo" type="tns:ReturnInfo" />
+      <xs:element minOccurs="1" maxOccurs="1" name="MailPieces" type="tns:MailPieces" />
+      <xs:element minOccurs="0" maxOccurs="1" name="CustomInfo" type="tns:CustomInfo" />
+    </xs:all>
+    <xs:attribute name="Id" type="tns:guid" use="optional" />
+    <xs:attribute name="ClientCode" type="tns:nonEmptyString" use="required" />
+    <xs:attribute name="ClientBatchId" type="tns:nonEmptyString" use="optional" />
+    <xs:attribute name="ChannelCode" type="tns:nonEmptyString" use="optional" />
+    <xs:attribute name="Priority" type="tns:Priority" use="optional" />
+    <xs:attribute name="DocumentOrPackageType" type="tns:nonEmptyString" use="optional" />
+  </xs:complexType>
+  <xs:complexType name="ReturnInfo">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Recipient" type="tns:Recipient" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Address" type="tns:Address" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="Recipient">
+    <xs:attribute name="Organization" type="xs:string" use="optional" />
+    <xs:attribute name="Prefix" type="xs:string" use="optional" />
+    <xs:attribute name="FirstName" type="xs:string" use="optional"  />
+    <xs:attribute name="MiddleName" type="xs:string" use="optional"  />
+    <xs:attribute name="LastName" type="xs:string" use="optional"  />
+    <xs:attribute name="Suffix" type="xs:string"  use="optional" />
+    <xs:attribute name="Phone" type="tns:NAPhone" use="optional" />
+    <xs:attribute name="EmailAddress" type="tns:nonEmptyString" use="optional"  />
+  </xs:complexType>
+  <xs:complexType name="Address">
+    <xs:attribute name="OptionalLine1AboveStreet" type="xs:string" use="optional"  />
+    <xs:attribute name="OptionalLine2AboveStreet" type="xs:string" use="optional"  />
+    <xs:attribute name="Street" type="tns:nonEmptyString" use="optional"  />
+    <xs:attribute name="AptOrSuiteOrOther" type="xs:string" use="optional"  />
+    <xs:attribute name="OptionalLine1BelowStreet" type="xs:string" use="optional"  />
+    <xs:attribute name="OptionalLine2BelowStreet" type="xs:string" use="optional"  />
+    <xs:attribute name="City" type="tns:nonEmptyString" use="optional"  />
+    <xs:attribute name="State" type="tns:nonEmptyString" use="optional"  />
+    <xs:attribute name="Zip" type="tns:USZIP" use="optional"  />
+    <xs:attribute name="Country" type="tns:nonEmptyString" use="optional"  />
+  </xs:complexType>
+  <xs:complexType name="MailPieces">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="unbounded" name="MailPiece" type="tns:MailPiece" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="MailPiece">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="DocumentOrPackage" type="tns:DocumentOrPackage" />
+      <xs:element minOccurs="0" maxOccurs="1" name="eDelivery" type="tns:eDelivery" />
+      <xs:element minOccurs="0" maxOccurs="1" name="RecipientInfo" type="tns:RecipientInfo" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ReturnInfo" type="tns:ReturnInfo" />
+      <!--<xs:element minOccurs="1" maxOccurs="1" name="ShippingInfo" nillable="true" type="tns:ShippingInfo" />-->
+      <xs:element minOccurs="0" maxOccurs="1" name="CustomInfo" type="tns:CustomInfo" />
+    </xs:all>
+    <xs:attribute name="Id" type="tns:guid" use="optional" />
+    <xs:attribute name="BusinessFriendlyIdName" type="tns:nonEmptyString" use="optional" />
+    <xs:attribute name="BusinessFriendlyIdValue" type="tns:nonEmptyString" use="optional" />
+    <xs:attribute name="DocumentOrPackageType" type="tns:nonEmptyString" use="optional" />
+  </xs:complexType>
+  <xs:complexType name="eDelivery">
+    <xs:attribute name="ExpiryDate" type="xs:date" use="optional" />
+    <xs:attribute name="PrintAndShipOnExpiry" type="xs:boolean" use="required" />
+  </xs:complexType>
+  <xs:complexType name="DocumentOrPackage">
+    <xs:attribute name="Name" type="tns:nonEmptyString" use="optional" />
+    <xs:attribute name="Pattern" type="tns:nonEmptyString" use="optional" />
+    <xs:attribute name="Base64String" type="xs:base64Binary" use="optional" />
+  </xs:complexType>
+  <xs:complexType name="RecipientInfo">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Recipient" type="tns:Recipient" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Address" type="tns:Address" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="CustomInfo">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="unbounded" name="Metadata" type="tns:Metadata" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Metadata">
+    <xs:attribute name="Key" type="tns:nonEmptyString" use="required" />
+    <xs:attribute name="DataType" type="tns:DataType" use="required" />
+    <xs:attribute name="Value" type="xs:string" use="required" />
+  </xs:complexType>
+  <xs:simpleType name="Priority">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="High" />
+      <xs:enumeration value="Medium" />
+      <xs:enumeration value="Low" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="DataType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="String" />
+      <xs:enumeration value="DateTime" />
+      <xs:enumeration value="Boolean" />
+      <xs:enumeration value="Integer" />
+      <xs:enumeration value="Float" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="guid">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="nonEmptyString">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(\s*\S\s*)+"></xs:pattern>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="USZIP">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="^(?(^00000(|-0000))|\d{5}(?:|[-\s]+\d{4}))$"></xs:pattern>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="NAPhone">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="^\(?([2-9][0-8][0-9])\)?[-. ]?([2-9][0-9]{2})[-. ]?([0-9]{4})$"></xs:pattern>
+    </xs:restriction>
+  </xs:simpleType>
+  <!--<xs:complexType name="ShippingInfo">
+    <xs:attribute name="Carrier" type="tns:Carrier" use="required" />
+    <xs:attribute name="ServiceType" type="tns:ServiceType" use="required" />
+    <xs:attribute name="AccountCode" type="xs:string" />
+  </xs:complexType>
+  <xs:simpleType name="Carrier">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="USPS" />
+      <xs:enumeration value="FedEx" />
+      <xs:enumeration value="UPS" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="ServiceType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="USPS" />
+      <xs:enumeration value="FEDEX_2_DAY" />
+      <xs:enumeration value="FEDEX_EXPRESS_SAVER" />
+      <xs:enumeration value="FEDEX_GROUND" />
+      <xs:enumeration value="FIRST_OVERNIGHT" />
+      <xs:enumeration value="GROUND_HOME_DELIVERY" />
+      <xs:enumeration value="PRIORITY_OVERNIGHT" />
+      <xs:enumeration value="STANDARD_OVERNIGHT" />
+    </xs:restriction>
+  </xs:simpleType>-->
+</xs:schema>

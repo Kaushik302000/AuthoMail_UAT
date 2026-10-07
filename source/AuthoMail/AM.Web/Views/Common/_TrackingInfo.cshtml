@@ -1,0 +1,44 @@
+﻿@model AM.Web.USPSIMService.USPSTrackingInfo
+
+@if (Model.MailRoute.Count()>0)
+{
+    <table class="table table-responsive">
+        <thead>
+            <tr>
+                <th>Facility ID</th>
+                <th>Facility Name</th>
+                <th>City</th>
+                <th>Operation Code</th>
+                <th>Scan Date</th>
+                <th>Routing Code</th>
+                @*<th>Tracking Code</th>*@
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.MailRoute.OrderByDescending(s=>s.ScanDate))
+            {
+                <tr>
+                    <td>@item.FacilityID</td>
+                    <td>@item.FacilityName</td>
+                    <td>@item.City</td>
+                    <td>@item.OperationCode</td>
+                    <td>@item.ScanDate</td>
+                    <td>@Model.RoutingCode</td>
+                    @*<td>@Model.TrackingCode</td>*@
+                    
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-yellow">
+        @*<span class="sbold">@AM.Services.Config.Web_Msg_NoRecordFound</span>*@
+        <h2 class="text-white">Not found</h2>
+        <span class="sbold">
+            This tracking number cannot be found, please check the number.
+        </span>
+    </div>
+}
+

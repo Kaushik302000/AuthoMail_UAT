@@ -1,0 +1,44 @@
+﻿@model ICollection<AM.Services.EnvelopeInventoryStockCalculation>
+
+<h2 id="myModalLabel">Shipper wise stock detail for @ViewBag.EnvelopeName</h2>
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-responsive" style="overflow-x:scroll">
+            <thead>
+                <tr>
+                    <th>Shipper Name</th>
+                    <th>Current Quantity</th>
+                    <th>Avg Stock</th>
+                    <th>Alert Level</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Count == 0)
+                {
+                    <tr>
+                        <td colspan="4">
+                            <div style='margin-bottom:10px;' class='alert alert-yellow'><span class='sbold'>@AM.Services.Config.Web_Msg_NoRecordFound</span></div>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var stockModel in Model)
+                    {
+                        <tr>
+                            <td>@stockModel.ShipperName</td>
+                            <td>@stockModel.CurrentQuantity</td>
+                            <td>@stockModel.AvgRate / Days(~ @stockModel.EnvDays Days)</td>
+                            <td>@{ 
+                                var color = stockModel.AlertLevel == 0 ? "green" : stockModel.AlertLevel == 1 ? "yellow" : "red";
+                                }
+                            <i class="fa fa-envelope-open" style="color:@color"></i></td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+
+    </div>
+</div>

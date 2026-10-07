@@ -1,0 +1,611 @@
+﻿@model AM.Services.DocTypes
+
+@{
+
+    if (Model.Id == 0)
+    {
+        Model.ContentScalePercent = 100;
+        Model.QCPercent = 0;
+    }
+    int rangeIndex = 0;
+}
+
+
+<h2 id="myModalLabel">@(Model.Id == 0 ? Html.Raw("Add Document Type Details") : Html.Raw("Edit Document Type Details"))</h2>
+<style>
+    hr {
+        margin-top: 2% !important;
+        margin-bottom: 2% !important;
+    }
+
+    .frm-control {
+        padding: 4px 8px;
+    }
+
+    .colmd {
+        padding-right: 5px;
+        padding-left: 5px;
+    }
+
+    .rw {
+        border: 1px solid #d9d9d9;
+        border-bottom: 1px solid #d9d9d9;
+        padding: 8px 4px;
+    }
+
+        .rw .colmd {
+            border-right: 1px solid #d9d9d9;
+        }
+
+    .colmda {
+        font-size: 23px;
+    }
+</style>
+<hr />
+<form id="doctypeform" action="#" enctype="multipart/form-data">
+    <input type="hidden" name="Id" id="Id" value="@Model.Id" />
+    <div class="row">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <div class="panel-title">
+                                Basic Configuration
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="Description">Document Type Name</label>
+                                    <div class="input-group">
+                                        <input type="text" id="ClientDocTypesName" class="form-control" placeholder="Document Type Name" name="ClientDocTypesName" required value="@Model.ClientDocTypesName" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="Clients">Clients</label>
+                                    @Html.DropDownListFor(model => model.ClientId, ViewBag.Clients as SelectList, "Select Client", htmlAttributes: new { @class = " form-control selectpicker", @data_live_search = "true", @data_live_search_placeholder = "Search Client" })
+                                </div>
+                            </div>
+                            <div class="clearfix"></div>
+                            <div class="col-md-12">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <div class="panel-title">
+                                            Doctype page range configuration
+                                            <span class="pull-right">
+                                                <button class="btn btn-primary addpagerangebtn" type="button"><i class="fa fa-plus"></i></button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="row" id="PageRangeDiv">
+                                            @if (Model.DocTypePageRangeList.Any(m => !m.IsFallBack))
+                                            {
+                                                foreach (var range in Model.DocTypePageRangeList.Where(m => !m.IsFallBack))
+                                                {
+
+                                                    @Html.Action("_DocTypePageRange", "Admin", new { docTypePageRange = range, hasAdd = false, index = rangeIndex, isFallBack = false, shippingServiceType = "" })
+                                                    rangeIndex++;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                @Html.Action("_DocTypePageRange", "Admin", new { docTypePageRange = new AM.Services.DocTypePageRange() { From = 1 }, hasAdd = true, index = rangeIndex, isFallBack = false, shippingServiceType = "" })
+                                                rangeIndex++;
+                                            }
+                                        </div>
+                                        <div class="row" id="PageRangeFallBackDiv">
+                                            @{
+                                                var priorityExp = Model.DocTypePageRangeList.FirstOrDefault(m => m.ShippingServiceType == "PRIORITY_EXPRESS");
+                                                var priority = Model.DocTypePageRangeList.FirstOrDefault(m => m.ShippingServiceType == "PRIORITY");
+                                                priorityExp = priorityExp ?? new AM.Services.DocTypePageRange(); priorityExp = priorityExp ?? new AM.Services.DocTypePageRange();
+                                                priority = priorityExp ?? new AM.Services.DocTypePageRange(); priority = priority ?? new AM.Services.DocTypePageRange();
+                                            }
+
+                                            @Html.Action("_DocTypePageRange", "Admin", new { docTypePageRange = priorityExp, hasAdd = false, index = 101, isFallBack = true, shippingServiceType = "PRIORITY_EXPRESS" })
+
+                                            @Html.Action("_DocTypePageRange", "Admin", new { docTypePageRange = priority, hasAdd = false, index = 102, isFallBack = true, shippingServiceType = "PRIORITY" })
+
+                                        </div>
+                                    </div>
+                                    <br />
+                                </div>
+                            </div>
+                            @*<div class="row">
+                                    <div class="">
+                                        <div class="row">
+                                            <div class="col-md-1"><label>From</label></div>
+                                            <div class="col-md-1"><label>To</label></div>
+                                            <div class="col-md-3"><label>Shipping Carrier</label></div>
+                                            <div class="col-md-3"><label>Service Type</label></div>
+                                            <div class="col-md-2"><label>Envelope</label></div>
+                                            <div class="col-md-2"><label>BRE Envelope</label></div>
+                                        </div>
+                                        <div class="clearfix"></div>
+
+                                        <div class="clearfix"></div>
+                                    </div>
+                                </div>*@
+                            <div class="clearfix"></div>
+                            @*<div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="Description">Shipping Carrier</label>
+
+                                        @Html.DropDownListFor(model => model.ShippingCarrier, (IEnumerable<SelectListItem>)ViewBag.ShippingCarrierdropDown, "Select Shipping Carrier", htmlAttributes: new { @class = " form-control selectpicker", @data_live_search = "true", @data_live_search_placeholder = "Search Shipping Carrier" })
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="Description">Shipping Service Type</label>
+                                        @Html.DropDownListFor(model => model.ShippingServiceType, (IEnumerable<SelectListItem>)ViewBag.ShippingServiceTypedropDown, "Select Shipping Service Type", htmlAttributes: new { @class = " form-control selectpicker", @data_live_search = "true", @data_live_search_placeholder = "Search Shipping Service Type" })
+                                    </div>
+                                </div>*@
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Description">Shipping Account Code</label>
+                                    <div class="input-group">
+                                        <input type="text" id="ShippingAccountCode" class="form-control" placeholder="Shipping Account Code" name="ShippingAccountCode" value="@Model.ShippingAccountCode" />
+                                    </div>
+                                </div>
+                            </div>
+                            @*<div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="Description">BRE Envelope</label>
+                                        @Html.DropDownListFor(model => model.BREEnvelopeId, (IEnumerable<SelectListItem>)ViewBag.BREEnvelopedropDown, "Select BRE Envelope", htmlAttributes: new { @class = " form-control selectpicker", @data_live_search = "true", @data_live_search_placeholder = "Search BRE Envelope" })
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="Description">Shipping Special Service</label>
+                                        <div class="input-group">
+
+                                            <select id="ShippingSpecialService" data-live-search="true" data-live-search-placeholder="Select Shipping Special Service" multiple="multiple" class="form-control selectpicker" name="ShippingSpecialService">
+                                                @foreach (var item in ViewBag.ShippingSpecialService as List<SelectListItem>)
+                                                {
+                                                    var lst = Model.ShippingSpecialService == null ? new List<string>() : Model.ShippingSpecialService.Split(',').ToList();
+                                                    string sel = lst.Any(l => l == item.Value) ? "selected" : "";
+                                                    <option value="@item.Value" @sel>@item.Text</option>
+                                                }
+
+                                            </select>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="Description">Is BRE Envelope?</label>
+                                        <div class="input-group">
+                                            <div class="toggle-container form-control">
+                                                <input id="IsBRE" class="cl-toggle toggle-orange" type="checkbox" @(Model.IsBRE ? "checked" : "") name="toggle-demo" /><label for="IsBRE">IsBRE</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>*@
+                            @*<div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="Description">Description</label>
+                                        <div class="input-group">
+                                            <textarea id="Description" rows="1" name="Description" placeholder="Description" class="form-control">@Model.Description</textarea>
+                                        </div>
+                                    </div>
+                                </div>*@
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="clearfix"></div>
+            <div class="col-md-12">
+                <div class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <div class="panel-title">
+                                Printing Configuration
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Description">Print Size</label>
+                                    @Html.DropDownListFor(model => model.PrintSize, (IEnumerable<SelectListItem>)ViewBag.PrintSizedropDown, "Select Print Size", htmlAttributes: new { @class = " form-control selectpicker", @data_live_search = "true", @data_live_search_placeholder = "Search Print Size" })
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Description">Print Format</label>
+                                    @Html.DropDownListFor(model => model.PrintFormat, (IEnumerable<SelectListItem>)ViewBag.PrintFormatdropDown, "Select Print Format", htmlAttributes: new { @class = " form-control selectpicker", @data_live_search = "true", @data_live_search_placeholder = "Search Print Format" })
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Description">Content Scale Percent</label>
+                                    <div class="input-group">
+                                        <input type="text" id="ContentScalePercent" class="form-control" placeholder="Content Scale Percent" name="ContentScalePercent" value="@Model.ContentScalePercent" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Description">Envelope</label>
+                                    @Html.DropDownListFor(model => model.EnvelopeId, (IEnumerable<SelectListItem>)ViewBag.EnvelopedropDown, "Select Envelope", htmlAttributes: new { @class = " form-control selectpicker", @data_live_search = "true", @data_live_search_placeholder = "Search Envelope" })
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="NoOfCopies">No Of Copies</label>
+                                    <div class="input-group">
+                                        <input type="number" id="NoOfCopies" value="@Model.NoOfCopies" class="form-control" placeholder="No Of Copies" name="NoOfCopies" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Description">QC Percent</label>
+                                    <div class="input-group">
+                                        <input type="text" id="QCPercent" class="form-control" name="QCPercent" placeholder="QC Percent" value="@Model.QCPercent" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="col-md-12">
+                <div class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <div class="panel-title">
+                                Cutoff Configuration
+                            </div>
+                        </div>
+                        <div class="panel-body">
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Description">Bizday SLA Type</label>
+                                    <div class="input-group">
+                                        <select id="BizdaySLAType" class="form-control" name="BizdaySLAType">
+                                            <option @(Model.BizdaySLAType == AM.Entities.SLAType.NA ? "selected='selected'" : "") value="@AM.Entities.SLAType.NA">@AM.Entities.SLAType.NA</option>
+                                            <option @(Model.BizdaySLAType == AM.Entities.SLAType.Duration ? "selected='selected'" : "") @Model value="@AM.Entities.SLAType.Duration">@AM.Entities.SLAType.Duration</option>
+                                            <option @(Model.BizdaySLAType == AM.Entities.SLAType.FixedTime ? "selected='selected'" : "") @Model value="@AM.Entities.SLAType.FixedTime">@AM.Entities.SLAType.FixedTime</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Description">Bizday Cut Off</label>
+                                    <div class="input-group">
+                                        <input type="text" id="BizdayCutOff" value="@Model.BizdayCutOff" class="form-control timespan" placeholder="Bizday Cut Off" name="BizdayCutOff" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Description">Bizday Timespan</label>
+                                    <div class="input-group">
+                                        <input type="text" id="BizdayTimeSpan" value="@Model.BizdayTimeSpan" class="form-control daytimespan" placeholder="Bizday Timespan" name="BizdayTimeSpan" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Description">Sat SLA Type</label>
+                                    <div class="input-group">
+                                        <select id="SatSLAType" class="form-control" name="SatSLAType">
+                                            <option @(Model.SatSLAType == AM.Entities.SLAType.NA ? "selected='selected'" : "") value="@AM.Entities.SLAType.NA">@AM.Entities.SLAType.NA</option>
+                                            <option @(Model.SatSLAType == AM.Entities.SLAType.Duration ? "selected='selected'" : "") @Model value="@AM.Entities.SLAType.Duration">@AM.Entities.SLAType.Duration</option>
+                                            <option @(Model.SatSLAType == AM.Entities.SLAType.FixedTime ? "selected='selected'" : "") @Model value="@AM.Entities.SLAType.FixedTime">@AM.Entities.SLAType.FixedTime</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Description">Sat Cut Off</label>
+                                    <div class="input-group">
+                                        <input type="text" id="SatCutOff" value="@Model.SatCutOff" class="form-control timespan" placeholder="Sat Cut Off" name="SatCutOff" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Description">Sat Timespan</label>
+                                    <div class="input-group">
+                                        <input type="text" id="SatTimeSpan" value="@Model.SatTimeSpan" class="form-control daytimespan" placeholder="Sat Timespan" name="SatTimeSpan" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Description">Sun SLA Type</label>
+                                    <div class="input-group">
+                                        <select id="SunLAType" class="form-control" name="SunSLAType">
+                                            <option @(Model.SunSLAType == AM.Entities.SLAType.NA ? "selected='selected'" : "") value="@AM.Entities.SLAType.NA">@AM.Entities.SLAType.NA</option>
+                                            <option @(Model.SunSLAType == AM.Entities.SLAType.Duration ? "selected='selected'" : "") @Model value="@AM.Entities.SLAType.Duration">@AM.Entities.SLAType.Duration</option>
+                                            <option @(Model.SunSLAType == AM.Entities.SLAType.FixedTime ? "selected='selected'" : "") @Model value="@AM.Entities.SLAType.FixedTime">@AM.Entities.SLAType.FixedTime</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Description">Sun Timespan</label>
+                                    <div class="input-group">
+                                        <input type="text" id="SunTimeSpan" value="@Model.SunTimeSpan" class="form-control daytimespan" placeholder="Sun Timespan" name="SunTimeSpan" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Description">Sun Cut Off</label>
+                                    <div class="input-group">
+                                        <input type="text" id="SunCutOff" value="@Model.SunCutOff" class="form-control timespan" placeholder="Sun Cut Off" name="SunCutOff" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix">            </div>
+            <div class="col-md-12">
+                <div class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" id="headingOne">
+                            <a role="button" data-toggle="collapse" aria-expanded="false" id="isreturninfo" class="collapsed" @*onclick="ShowHideReturnInfo(this)" class="@(Model.IsReturnInfoSpecified ? "collapse" : "collapsed")"*@ data-parent="#accordion" href="#tabreturninfo">
+                                <div class="panel-title">
+                                    Click here to fill return info.
+                                    <div class="collapsed-icon pull-right">
+                                        <i class="fa fa-caret-left"></i>
+                                    </div>
+                                    <div class="expanded-icon pull-right">
+                                        <i class="fa fa-caret-down"></i>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div id="tabreturninfo" class="panel-collapse collapse">
+                            @*@(Model.IsReturnInfoSpecified ? "in" : "")*@
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <input type="hidden" id="IsReturnInfoSpecified" value="@(Model.IsReturnInfoSpecified ? "true" : "false")" name=" IsReturnInfoSpecified" />
+                                        <div class="form-group">
+                                            <label for="Description">Prefix</label>
+                                            <div class="input-group">
+                                                <input type="text" id="RetRcptPrefix" class="form-control returninfovalidate" placeholder="Prefix" name="RetRcptPrefix" value="@Model.RetRcptPrefix" />
+                                            </div>
+
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="Description">First Name</label>
+                                            <div class="input-group">
+                                                <input type="text" id="RetRcptFirstName" class="form-control returninfovalidate" placeholder="First Name" name="RetRcptFirstName" value="@Model.RetRcptFirstName" />
+                                            </div>
+
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="Description">Middle Name</label>
+                                            <div class="input-group">
+                                                <input type="text" id="RetRcptMiddleName" placeholder="Middle Name" class="form-control returninfovalidate" name="RetRcptMiddleName" value="@Model.RetRcptMiddleName" />
+                                            </div>
+
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="Description">Last Name</label>
+                                            <div class="input-group">
+                                                <input type="text" id="RetRcptLastName" placeholder="Last Name" class="form-control returninfovalidate" name="RetRcptLastName" value="@Model.RetRcptLastName" />
+                                            </div>
+
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="Description">Suffix</label>
+                                            <div class="input-group">
+                                                <input type="text" id="RetRcptSuffix" class="form-control returninfovalidate" placeholder="Suffix" name="RetRcptSuffix" value="@Model.RetRcptSuffix" />
+                                            </div>
+
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="Description">Phone</label>
+                                            <div class="input-group">
+                                                <input type="text" id="RetRcptPhone" placeholder="Phone" class="form-control returninfovalidate" name="RetRcptPhone" value="@Model.RetRcptPhone" />
+                                            </div>
+
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="Description">Organization</label>
+                                            <div class="input-group">
+                                                <input type="text" id="RetRcptOrganization" placeholder="Organization" class="form-control returninfovalidate" name="RetRcptOrganization" value="@Model.RetRcptOrganization" />
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+
+                                        <div class="form-group">
+                                            <label for="Description">Address Line1 Above Street</label>
+                                            <div class="input-group">
+                                                <input type="text" id="RetRcptAddrOptionalLine1AboveStreet" class="form-control returninfovalidate" placeholder="Address Line1 Above Street" name="RetRcptAddrOptionalLine1AboveStreet" value="@Model.RetRcptAddrOptionalLine1AboveStreet" />
+                                            </div>
+
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="Description">Address Line2 Above Street</label>
+                                            <div class="input-group">
+                                                <input type="text" id="RetRcptAddrOptionalLine2AboveStreet" placeholder="Address Line2 Above Street" class="form-control returninfovalidate" name="RetRcptAddrOptionalLine2AboveStreet" value="@Model.RetRcptAddrOptionalLine2AboveStreet" />
+                                            </div>
+
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="Description">Street</label>
+                                            <div class="input-group">
+                                                <input type="text" id="RetRcptAddressStreet" placeholder="Street Address" class="form-control returninfovalidate" name="RetRcptAddressStreet" value="@Model.RetRcptAddressStreet" />
+                                            </div>
+
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="Description">APARTMENT OR SUITE</label>
+                                            <div class="input-group">
+                                                <input type="text" id="RetRcptAddressAptOrSuiteOrOther" class="form-control returninfovalidate" placeholder="Apartment Or Suite" name="RetRcptAddressAptOrSuiteOrOther" value="@Model.RetRcptAddressAptOrSuiteOrOther" />
+                                            </div>
+
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="Description">Address Line1 Below Street</label>
+                                            <div class="input-group">
+                                                <input type="text" id="RetRcptAddrOptionalLine1BelowStreet" class="form-control returninfovalidate" placeholder="Address Line1 Below Street" name="RetRcptAddrOptionalLine1BelowStreet" value="@Model.RetRcptAddrOptionalLine1BelowStreet" />
+                                            </div>
+
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="Description">Address Line2 Below Street</label>
+                                            <div class="input-group">
+                                                <input type="text" id="RetRcptAddrOptionalLine2BelowStreet" class="form-control returninfovalidate" placeholder="Address Line2 Below Street" name="RetRcptAddrOptionalLine2BelowStreet" value="@Model.RetRcptAddrOptionalLine2BelowStreet" />
+                                            </div>
+
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="Description">City</label>
+                                            <div class="input-group">
+                                                <input type="text" id="RetRcptAddressCity" class="form-control returninfovalidate" placeholder="City" name="RetRcptAddressCity" value="@Model.RetRcptAddressCity" />
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+
+
+                                        <div class="form-group">
+                                            <label for="Description">State</label>
+                                            <div class="input-group">
+                                                <input type="text" id="RetRcptAddressState" placeholder="State" class="form-control returninfovalidate" name="RetRcptAddressState" value="@Model.RetRcptAddressState" />
+                                            </div>
+
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="Description">Zip Code</label>
+                                            <div class="input-group">
+                                                <input type="text" id="RetRcptAddressZIP" class="form-control returninfovalidate" placeholder="Zip code" name="RetRcptAddressZIP" value="@Model.RetRcptAddressZIP" />
+                                            </div>
+
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="Description">Client Emails</label>
+                                            <div class="input-group">
+                                                <input type="text" id="ClientEmails" class="form-control returninfovalidate" placeholder="Client Emails" name="ClientEmails" value="@Model.ClientEmails" />
+                                            </div>
+
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="Description">Client Contact No.</label>
+                                            <div class="input-group">
+                                                <input type="text" id="ClientContactNo" placeholder="Client Contact No." class="form-control returninfovalidate" name="ClientContactNo" value="@Model.ClientContactNo" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="Description">Support Emails</label>
+                                            <div class="input-group">
+                                                <input type="text" id="SupportEmails" placeholder="Support Emails" class="form-control returninfovalidate" name="SupportEmails" value="@Model.SupportEmails" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="Description">Support Contact No.</label>
+                                            <div class="input-group">
+                                                <input type="text" id="SupportContactNo" placeholder="Support Contact No." class="form-control returninfovalidate" name="SupportContactNo" value="@Model.SupportContactNo" />
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <hr />
+    <button type="button" class="btn btn-primary" id="Save"><i class="fa fa-save"></i> Save</button>
+    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Cancel</button>
+</form>
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var index='@rangeIndex';
+        if ($("#Id").val() == "0") {
+            $(".daytimespan").val("00:00:00:00");
+            $(".timespan").val("00:00:00");
+        }
+        $(".daytimespan").inputmask('datetime', {
+            mask: "X:h:s:s",
+            placeholder: "dd:hh:mm:ss",
+            separator: ':',
+            hourFormat: "24"
+        });
+        $(".timespan").inputmask('datetime', {
+            mask: "h:s:s",
+            placeholder: "hh:mm:ss",
+            separator: ':',
+            hourFormat: "24"
+        });
+        var Message = function (id,message) {
+            var alert = '<div id="message" class="alert alert-yellow">' + message + '</div>';
+            $(id).append($(alert).delay(5000).fadeOut()).show();
+        }
+        var AddNewPageRange = function () {
+            $('.addpagerangebtn').unbind('click');
+            $('.addpagerangebtn').bind('click', function (e) {
+                var idx = index - 1;
+                if (idx == 0) {
+                    if ($('#To' + idx).val() == 999) {
+                        Message('#pagerangediv' + idx, "Page range limit is over.");
+                        //alertMessage("yellow", "Page range limit is over.");
+                        return false;
+                    }
+                    if ($('#To' + idx).val() == 0) {
+                        Message('#pagerangediv' + idx, "Page To range must be larger then 0.");
+                        //alertMessage("yellow", "Page To range must be larger then 0.");
+                        return false;
+                    }
+                }
+                var lastToVal = $('#To' + idx).val();
+                if (lastToVal == 999) {
+                     Message('#pagerangediv' + idx, "Page range limit is over.");
+                    //alertMessage("yellow", "Page range limit is over.");
+                        return false;
+                }
+                if (lastToVal == 0) {
+                    Message('#pagerangediv' + idx, "Page To range must be larger then 0.");
+                        //alertMessage("yellow", "Page To range must be larger then 0.");
+                        return false;
+                }
+                $.ajax({
+                    type: "GET",
+                    url: baseUrl+"Admin/_DocTypePageRangeAjax",
+                    data: {index:index},
+                    success: function (response) {
+                        $('#PageRangeDiv').append(response);
+                        $('#From' + index).val(parseInt(lastToVal)+1);
+                        index++;
+                    },
+                    error: function (err) {
+                        console.log(err);
+                    }
+                });
+            });
+        }
+        AddNewPageRange();
+    });
+
+</script>

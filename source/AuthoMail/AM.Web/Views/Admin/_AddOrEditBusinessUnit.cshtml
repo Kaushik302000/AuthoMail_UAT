@@ -1,0 +1,26 @@
+﻿@model AM.Services.BusinessUnitModel
+
+<h2 id="myModalLabel">@(Model.Id==0 ? Html.Raw("Add Business Unit") : Html.Raw("Edit Business Unit"))</h2>
+<hr />
+<form id="businessform" action="#">
+    <div class="form-group">
+        <label for="Value">Business Unit</label>
+        <div class="input-group">
+            <input type="hidden" name="Id" id="Id" value="@Model.Id" />
+
+            <input class="form-control" type="text"  name="BusinessUnit" placeholder="Business Unit" value="@Model.BusinessUnit"  id="BusinessUnit">
+
+        </div>
+
+    </div>
+    <div class="form-group">
+        <label for="Description">Cust Code</label>
+        <div class="input-group">
+            <input class="form-control" type="text"  name="CustCode" placeholder="Cust Code" value="@Model.CustCode"  id="CustCode">
+        </div>
+
+    </div>
+    <hr />
+    <button type="submit" class="btn btn-primary" id="Save"><i class="fa fa-save"></i> Save</button>
+    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Cancel</button>
+</form>

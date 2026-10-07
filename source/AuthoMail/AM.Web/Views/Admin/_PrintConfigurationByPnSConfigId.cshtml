@@ -1,0 +1,97 @@
+﻿@model ICollection<AM.Services.PnSConfigDetail>
+
+<h2 id="myModalLabel">Print Configuration for <span id="docTypePrintModal"></span></h2>
+
+<hr />
+
+<div class="row">
+    <div class="col-md-12" style="overflow-x:scroll">
+        <table class="table table-responsive">
+            <thead>
+                <tr>
+                    <th>Print Size</th>
+                    <th>Shipping Carrier</th>
+                    <th>Shipping Service Type</th>
+                    <th>Shipping Account Code</th>
+                    <th>Shipping Special Services</th>
+                    <th>Min Page</th>
+                    <th>Max Page</th>
+                    <th>Is Fallback</th>
+                    <th>Is Print Ready</th>
+                    <th>Content Scale %</th>
+                    <th>Businessday Cut-Off (EST)</th>
+                    <th>Businessday SLA Type</th>
+                    <th>Businessday SLA Time Span</th>
+                    <th>Saturday Cut-Off (EST)</th>
+                    <th>Saturday SLA Type</th>
+                    <th>Saturday SLA Time Span</th>
+                    <th>Sunday Cut-Off (EST)</th>
+                    <th>Sunday SLA Type</th>
+                    <th>Sunday SLA Time Span</th>
+                    <th>Biz Day Start Time (EST)</th>
+                    <th>Biz Day End Time (EST)</th>
+                    <th>Sat Start Time (EST)</th>
+                    <th>Sat End Time (EST)</th>
+                    <th>Sun Start Time (EST)</th>
+                    <th>Sun End Time (EST)</th>
+                    <th>Print Trail Name</th>
+                    <th>Envelope Name</th>
+                    <th>Envelope Part Nummber</th>
+                    <th>Vendor Code</th>
+                </tr>
+            </thead>
+            <tbody id="fileList">
+                @if (Model.Count() > 0)
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.PrintSize</td>
+                            <td>@item.ShippingCarrier</td>
+                            <td>@item.ShippingServiceType</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.ShippingAccountCode)? "--" :item.ShippingAccountCode)</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.ShippingSpecialService) ? "--" : item.ShippingSpecialService)</td>
+                            <td>@item.MinPage</td>
+                            <td>@item.MaxPage</td>
+                            <td>@item.IsFallBack</td>
+                            <td>@item.IsPrintReady</td>
+                            <td>@item.ContentScalePercent</td>
+                            <td>@item.BizdayCutOff</td>
+                            <td>@item.BizdaySLAType</td>
+                            <td>@(item.BizdayTimeSpan=="00:23:59:59"?"Same Day":"Next Day")</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.SatCutOff) ? "--" : item.SatCutOff)</td>
+                            <td>@item.SatSLAType</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.SatTimeSpan) ? "--" : item.SatTimeSpan == "00:23:59:59" ? "Same Day" : "Next Day" )</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.SunCutOff) ? "--" : item.SunCutOff)</td>
+                            <td>@item.SunSLAType</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.SunTimeSpan) ? "--" : item.SunTimeSpan == "00:23:59:59" ? "Same Day" : "Next Day" )</td>
+                            <td>@item.BizdayStartTime</td>
+                            <td>@item.BizdayEndTime</td>
+                            <td>@(item.SatStartTime==null?"--":item.SatStartTime.Value.ToString())</td>
+                            <td>@(item.SatEndTime == null?"--":item.SatEndTime.Value.ToString())</td>
+                            <td>@(item.SunStartTime == null?"--":item.SunStartTime.Value.ToString())</td>
+                            <td>@(item.SunEndTime == null?"--":item.SunEndTime.Value.ToString())</td>
+                            <td>@item.TrailName</td>
+                            <td>@item.EnvelopeName</td>
+                            <td>@item.PartNumber</td>
+                            <td>@item.VendorCode</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="3">Print Configuration Not Found</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-primary pull-right" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+</div>
+
+
+
+

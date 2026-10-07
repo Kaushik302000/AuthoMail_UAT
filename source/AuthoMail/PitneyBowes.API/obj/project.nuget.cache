@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "Fr3R9BE13c8=",
+  "success": true,
+  "projectFilePath": "C:\\New Repo AuthoMail\\AuthoMail\\source\\AuthoMail\\PitneyBowes.API\\PitneyBowes.API.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\KaushikRaj\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
+    "C:\\Users\\KaushikRaj\\.nuget\\packages\\system.configuration.configurationmanager\\9.0.4\\system.configuration.configurationmanager.9.0.4.nupkg.sha512",
+    "C:\\Users\\KaushikRaj\\.nuget\\packages\\system.diagnostics.eventlog\\9.0.4\\system.diagnostics.eventlog.9.0.4.nupkg.sha512",
+    "C:\\Users\\KaushikRaj\\.nuget\\packages\\system.security.cryptography.protecteddata\\9.0.4\\system.security.cryptography.protecteddata.9.0.4.nupkg.sha512"
+  ],
+  "logs": []
+}

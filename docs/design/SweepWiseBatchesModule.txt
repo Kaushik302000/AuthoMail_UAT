@@ -1,0 +1,33 @@
+Sweepwise Batch Submit Module :
+
+Flow changes in AuthoMail : 
+
+	When AMC(USAA) batches comes for processing every 30 minutes through AuthoMail :
+
+	1) Till Prepped State everything will remain as it is. (Print Ready)
+	2) Stop AMC batches to generate PCI batches in onwards states (Allow other clients(fixed sweep clients) to generate PCI batches)
+		- Need to take all clients' batches which is in Prepped State except "USAA" to generate PCI batches. So Add Condition for that in Query
+	3) After "SubmittedToShipping" status, process will remain same for getting response and processing response for all clients.(just need to remove references of Mailbatches tables from services / query, path change to pickup response for USAA)
+	4) Because of we are merging multiple batches' mailpieces, we need to keep PnSResponse into one folder and need to process that response from it.
+
+Flow in AM.BatchGenerator Application :
+
+	- Separate Application for submitting sweep time wise batches of AMC(USAA) :
+	
+	- AM.BatchGenerator will be executed on below specic timings 
+		- As per mentioned in Change Request Document, Bundle sweep times (EST): 8:00 am, 12:00 pm, 4:00 pm, 4:45 pm, 7:45 pm
+	
+	1) take AMC(USAA) batches whose status is in "Prepped" 
+	2) Get all mail pieces which have ErrorCode="No_Error" for selected MailBatchIds and group that mailpieces DocTypeId wise and generate batches for PCI
+	3) Make entries in AM.PrintBatches tables while generating batches to PCI (Need to remove MailBatchId column from AM.PrintBatches tables because now we are going to separate mailpieces using DocTypeId only for AMC client) and Update PrintBatchId of AM.MailPieces tables according to that.
+	4) Make a notification to Internal team for submitting sweep time wise.
+		- In mail give confirmation of DocType wise batches submitted on particular time.
+	5) Check if all mailpieces are submitted to shipping then change batch status to "SubmittedToShipping" in AM.MailBatches
+	
+
+Tables Defs :
+
+Remove MailBatchId Field from AM.PrintBatches
+
+
+Remark : Channel Comparison not client for sweep

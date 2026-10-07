@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Style-Type" content="text/css">
+    <title>Packages Count For Dallas</title>
+    <style>
+        table {
+            font-family: arial !important;
+            text-align: center !important;
+            border: solid 1px black;
+        }
+
+        td {
+            border: solid 1px !important;
+        }
+
+        .heading td {
+            font-size: 20px !important;
+            padding: 18px !important;
+        }
+
+        .information td {
+            font-size: 22px !important;
+            padding: 10px !important;
+        }
+
+        .title td {
+            font-size: 14px !important;
+            font-weight: bold !important;
+            padding: 5px !important;
+        }
+
+        .details td {
+            font-size: 14px !important;
+            padding: 4px !important;
+        }
+
+        .finalCount td {
+            font-size: 17px !important;
+            text-transform: capitalize;
+            padding: 10px !important;
+            font-weight: bold !important;
+        }
+
+        .notes td {
+            font-size: 14px !important;
+            padding: 16px !important;
+            text-align: left !important;
+        }
+    </style>
+</head>
+<body>
+    <center>
+        <table>
+            <tbody>
+                <%REPLACE%>
+                <tr class="notes">
+                    <td colspan="7">
+                        <b>Notes</b><br />
+                        <p>Actual package counts may not match with the SFTP file count right away but eventually (in few minutes) it must match.</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </center>
+</body>
+</html>

@@ -1,0 +1,379 @@
+﻿@{
+    ViewBag.Title = "Daily Detail Operations Report";
+}
+<link href="~/clui/dist/css/datatablecustom.css" rel="stylesheet" />
+<style>
+    #dateFilter .bootstrap-select {
+        width: 100% !important;
+    }
+
+    .bootstrap-select {
+        width: 205px !important;
+    }
+
+    .popover-content {
+        word-wrap: break-word;
+        color: red;
+    }
+
+    .margin-bottom-15px {
+        margin-bottom: 15px;
+    }
+</style>
+<div class="panel-group">
+    <div class="panel panel-default">
+        <div class="panel-heading" id="headingOne">
+            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#metaItem1">
+                <div class="panel-title">
+                    Daily Detail Operations Report
+                    <div class="collapsed-icon pull-right">
+                        <i class="fa fa-caret-left"></i>
+                    </div>
+                    <div class="expanded-icon pull-right">
+                        <i class="fa fa-caret-down"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div id="metaItem1" class="panel-collapse collapse in">
+            <div class="panel-body">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="date">Select Date (EST)</label>
+                        <div class="input-group date" id="datepicker4">
+                            <input type="text" class="form-control" id="date">
+                            <span class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-md-3" id="dateFilter">
+                    <div class="form-group">
+                        <label for="Channel">Channel</label>
+                        @Html.Action("_Channel", "Common")
+                    </div>
+                </div>
+                <div class="col-md-1">
+                    <div class="form-group ">
+                        <label for="filterData"> &nbsp;&nbsp;&nbsp;&nbsp;</label>
+                        <button type="button" id="filterData" class="btn btn-primary" style=" padding-top: 6%;">
+                            <span class="sr-only">Filter</span>
+                            <i class="fa fa-arrow-right fa-2x"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="modal fade" id="TrackingInfo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg col-md-10" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header">
+                <h1 id="myModalLabel">Tracking Details</h1>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                @*<button type="button" class="btn btn-primary">View All</button>*@
+            </div>
+        </div>
+    </div>
+</div>
+<div class="panel panel-default">
+    <div class='alert alert-blue text-center' id="loading" style="display:none"><span> Loading... </span></div>
+    <div class="panel-heading" id="dailyHeader">
+        <div class="panel-title">
+            Daily Detail Operations : <span class="normaltext" id="headerdate"></span>
+            <label for="labelBatch" id="labelBatch" class="normallabel"></label>
+            <span id="batchListSelect">
+
+            </span>
+        </div>
+    </div>
+    <div class="panel-body" id="dailyMailPieceList" style="margin-top:10px;"></div>
+</div>
+
+<!-- table html template code -->
+<div id="dailyTableContent" style="display:none">
+    <table class="table table-responsive" style="overflow-x:scroll">
+        <thead>
+            <tr>
+                <th>Batch Id</th>
+                <th>MailPiece Id</th>
+                <th>Channel</th>
+                <th>Document Type</th>
+                <th>Delivery Type</th>
+                <th>@Html.Action("GetHeadingForBusinessId", "Common")</th>
+                <th style="display:none">Tracking Number</th>
+                <th class="BatchIds">Tracking Number</th>
+                <th>Date Received <span class="fontcapitalize">(Local)</span></th>
+                <th>Date Printed <span class="fontcapitalize">(Local)</span></th>
+                <th>Date Mailed <span class="fontcapitalize">(Local)</span></th>
+                <th>File Name</th>
+                <th>Client Code</th>
+                <th>Inserts</th>
+                <th>Shipment Status</th>
+                <th>Shipping Method</th>
+                @if (!User.IsInRole(AM.Entities.AMRoles.BAOffShore))
+                {
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Recipient Street Address</th>
+                    <th>Recipient City</th>
+                    <th>Recipient State</th>
+                    <th>Recipient Zip</th>
+                }
+                <th>Envelope Name</th>
+                <th>Print File Name</th>
+                <th>Delivery Date</th>
+                <th>Delivery Status</th>
+                <th>Print Location</th>
+                <th>Pages Shipped</th>
+                <th>Blank Pages</th>
+                <th class="BatchId">BatchId</th>
+
+            </tr>
+        </thead>
+        <tbody id="dailybodyContent"></tbody>
+    </table>
+</div>
+<div style="display:none">
+    <table>
+        <tbody id="dailyBody">
+            <tr class="row-small">
+                <td><span>{ClientBatchId}</span></td>
+                <td><span>{UniqueId}</span></td>
+                <td><span>{Channel}</span></td>
+                <td><span>{DocType}</span></td>
+                <td><span>{IsEDeliveryRequested}</span></td>
+                <td><span>{BusinessIdValue}</span></td>
+                <td style="display:none;"><span>{TrackingNoFormatted}</span></td>
+                <td><span>{TrackingNo}</span></td>
+                <td><span>{ReceivedOnFormatted}</span></td>
+                <td><span>{PrintedOnFormatted}</span></td>
+                <td><span>{MailedOnFormatted}</span></td>
+                <td><span>{FileName}</span></td>
+                <td><span>{ClientCode}</span></td>
+                <td><span>{Inserts}</span></td>
+                <td><span>{ShipmentStatus}</span></td>
+                <td><span>{ShippingMethod}</span></td>
+                @if (!User.IsInRole(AM.Entities.AMRoles.BAOffShore))
+                {
+                    <td><span>{FirstName}</span></td>
+                    <td><span>{LastName}</span></td>
+                    <td><span>{Address}</span></td>
+                    <td><span>{City}</span></td>
+                    <td><span>{State}</span></td>
+                    <td><span>{ZIP}</span></td>
+                }
+                <td><span>{EnvelopeName}</span></td>
+                <td><span>{PrintFileName}</span></td>
+                <td><span>{DeliveryDateFormatted}</span></td>
+                <td><span>{DeliveryStatus}</span></td>
+                <td><span>{PrintLocation}</span></td>
+                <td><span>{TotalPages}</span></td>
+                <td><span>{TotalBlankPages}</span></td>
+                <td>{BatchId}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<!-- end table template code -->
+@section Scripts{
+    @Styles.Render("~/bundles/datatablescss")
+    @Scripts.Render("~/bundles/datatables")
+    <script>
+        $(document).ready(function () {
+            window.clui.dateTimePickerInit();
+            //console.log(baseUrl);
+            FilterData();
+
+        });
+        function applyDataTable() {
+            $('[data-toggle="popover"]').popover({
+                'trigger': 'hover',
+                'placement': 'auto left',
+                'container': 'body'
+            });
+            var table = $('#sample_2');
+
+            var filename = "DailyDetailOperationsReport_" + moment($("#date").val()).format("MMDDYYYY") +"_"+ $("#ClientName").text();
+            var title = "Daily Detail Operations Report";
+            var oTable = table.dataTable({
+
+                "language": {
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    },
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "No entries found",
+                    "infoFiltered": "(filtered1 from _MAX_ total entries)",
+                    "lengthMenu": "_MENU_ entries",
+                    "search": "<b>Search:</b>",
+                    "zeroRecords": "No matching records found"
+                },
+                "columnDefs": [
+                        {
+                            "targets": ["BatchId"],
+                            "visible": false,
+                            "searchable": true
+                        },
+                ],
+                "scrollX": true,
+                buttons: [
+                    //{
+                    //    extend: 'colvis',
+                    //    text: 'Select Fields',
+                    //    className: 'btn purple pull-left',
+                    //    columns: ':not(.noVis)'
+                    //},
+                {
+                    extend: 'csv',
+                    text: '<i class="fa fa-file-excel-o fa-2x"></i>',
+                        className: 'btn btn-primary margin-bottom-15px',
+                    filename: filename,
+                    title: title,
+                    exportOptions: {
+                        columns: "thead th:not(.BatchIds)",//[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+                    }
+
+                }
+
+
+                ],
+
+                "order": [
+                    [0, 'asc']
+                ],
+                "lengthMenu": [
+                    [5, 10, 25, 50, 100, -1],
+                    [5, 10, 25, 50, 100, "All"] // change per page values here
+                ],
+                // set the initial value
+                "pageLength": 5,
+
+                "dom": "<'row' <'col-md-12'B>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
+
+
+            });
+            $('.selectpicker').selectpicker('refresh');
+            $('#BatchList').on('change', function () {
+                var oTable = $('#sample_2').dataTable();
+                var filterColumn = oTable.api().column(".BatchId").index();
+                var selected = $(this).find("option:selected").val();
+                if (!selected) {
+
+                    oTable.fnFilter('', filterColumn, true);
+                } else {
+                    oTable.fnFilter("^" + parseInt(selected) + "$", filterColumn, true); //Exact value, column, reg
+                }
+            });
+        }
+        function FormatObject(Model) {
+            //console.log(Model);
+            $(Model).each(function () {
+                var trackingNo = "";
+                var trackingFormatted = "";
+                if (this.TrackingNo == null || this.TrackingNo == "") {
+                    trackingNo = "--";
+                    trackingFormatted = "--";
+                }
+                else {
+                    trackingNo = '<a id="' + this.TrackingNo + '" style="width:185px;" class="btn btn-transparent-blue btn-sm" href="/track/' + this.TrackingNo + '" target="_blank"><i class="fa faspinner"></i> ' + this.TrackingNo + '</a>';
+                    trackingFormatted = '="' + this.TrackingNo + '"';
+                    //if (this.ShippingCarrier == "USPS" && this.ShippingMethod == "PRIORITY_EXPRESS") {
+
+                    //    trackingNo = '<a id="' + this.TrackingNo + '" style="width:185px;" class="btn btn-transparent-blue btn-sm" href="https://m.usps.com/m/TrackConfirmAction_detail?tLabels=' + this.TrackingNo + '" target="_blank"><i class="fa faspinner"></i> ' + this.TrackingNo + '</a>';
+                    //} else if (this.ShippingCarrier == "USPS" && this.ShippingMethod == "USPS") {
+                    //    trackingNo = '<button id="' + this.TrackingNo + '" style="width:185px;" class="btn btn-transparent-blue btn-sm" onclick="GetTrackingInfo(\'' + this.TrackingNo + '\',\'' + this.ShippingMethod + '\')"><i class="fa faspinner"></i> ' + this.TrackingNo + '</button>';
+
+                    //}
+                    //else if (this.ShippingCarrier == "FedEx") {
+                    //    trackingNo = '<a id="' + this.TrackingNo + '" style="width:185px;" class="btn btn-transparent-blue btn-sm" href="http://www.fedex.com/Tracking?cntry_code=us&action=1&track=y&tracknumbers=' + this.TrackingNo + '" target="_blank"><i class="fa faspinner"></i> ' + this.TrackingNo + '</a>';
+                    //} else {
+                    //    trackingNo = "--";
+                    //}
+                }
+                //console.log(trackingNo + "|" + trackingFormatted);
+                this.TotalPages = this.Status == "Shipped" ? this.TotalPages : 0;
+                this.ReceivedOnFormatted = moment(this.ReceivedOn).format("MM/DD/YY HH:mm:ss");
+                this.PrintedOnFormatted = this.PrintedOn == null ? "--" : moment(this.PrintedOn).format("MM/DD/YY HH:mm:ss");
+                this.DeliveryDateFormatted = this.DeliveryDate == null ? "--" : moment(this.DeliveryDate).format("MM/DD/YY HH:mm:ss");
+                this.MailedOnFormatted = this.ShippedOn == null ? "--" : moment(this.ShippedOn).format("MM/DD/YY HH:mm:ss");
+                this.TrackingNo = trackingNo;
+                this.TrackingNoFormatted = trackingFormatted;
+                //this.TrackingNo == "" ? "--" : '<button id="' + this.TrackingNo + '" class="btn btn-transparent-blue btn-sm" onclick="GetTrackingInfo(\'' + this.TrackingNo + '\',\'' + this.ShippingMethod + '\')"><i class="fa faspinner"></i> ' + this.TrackingNo + '</button>';
+                this.IsEDeliveryRequested = this.IsEDeliveryRequested && !this.IsESignRequested ? '<span class="label medium label-success">E-Delivery</span>' : this.IsEDeliveryRequested && this.IsESignRequested ? '<span class="label medium label-success">E-Sign</span>' : '<span class="label medium label-blue">P&S</span>';
+            });
+            return Model;
+        }
+        function FilterData() {
+
+            $("#dailyHeader").hide();
+            $("#dailyMailPieceList").hide();
+            var date = $("#date").val();
+            var el = $('#dailyMailPieceList');
+            $("#headerdate").html(date + " EST");
+            $("#loading").show();
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "Report/_GetDailyDetailOperationsReport",
+                data: JSON.stringify({ date: date, channel: $("#Channel").val() }),
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    // console.log(response);
+                    if (response.Success) {
+                        if (response.Object != null) {
+                            $("#loading").hide();
+                            var sel = '<select id="BatchList" class="selectpicker" data-live-search="true" data-live-search-placeholder="Search by Time/Batch Name">';
+                            sel = sel + "<option value=''>All (Time - Batch Name)</option>";
+                            $(response.Object.BatchList).each(function () {
+                                sel = sel + "<option value='" + this.Key + "'>" + this.Value + "</option>";
+                            });
+                            $("#labelBatch").html("Filter by Batch");
+                            $("#batchListSelect").html(sel);
+                            $('.selectpicker').selectpicker('refresh');
+                            $("#dailyHeader").show();
+                            $("#dailyMailPieceList").show();
+                            //console.log(response.Object.model.length);
+                            if (response.Object.model.length > 0) {
+                                $("#dailyMailPieceList").html("");
+                                var data = FormatObject(response.Object.model);
+                                BindTemplate(data, "#dailyBody", "#dailybodyContent", "#dailyTableContent", "#dailyMailPieceList");
+                            }
+                            else {
+                                $("#dailyMailPieceList").html(" <div style='margin-bottom:10px;' class='alert alert-yellow'><span class='sbold'>@AM.Services.Config.Web_Msg_NoRecordFound</span></div>")
+                            }
+                        }
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    $("#loading").hide();
+                    $("#dailyHeader").show();
+                    $("#dailyMailPieceList").show();
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    $("#dailyMailPieceList").html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + msg + "</span></div>");
+                }
+
+            });
+        }
+        $("#filterData").click(function () {
+            FilterData();
+        });
+
+    </script>
+}
+
+
+
+

@@ -1,0 +1,50 @@
+﻿@model AM.Services.EnvelopeStockVM
+
+@if (Model.EnvelopeId.HasValue)
+{
+<tr id="shipper_@(Model.ShipperId)" class="old">
+    <td>
+        @Model.ShipperName
+        <input type="hidden" class="form-control" value="@Model.ShipperId" name="ShipperId[@Model.ShipperId]" />
+        <input class="form-control" type="hidden" value="0" name="UnitPrice[@Model.ShipperId]" />
+    </td>
+    <td>
+        <input class="form-control" name="ReceivedQuantity[@Model.ShipperId]" disabled style=" width: 55%;color: #565252;" value="@Model.ReceivedQuantity"  />
+    </td>
+    @*<td>@Model.UnitPrice
+        </td>*@
+<td>
+    <input class="form-control"  name="ReorderDuration[@Model.ShipperId]" style=" width: 55%;color: #565252;" value="@Model.ReorderDuration" />
+</td>
+    <td>
+        <span>--</span>
+
+    </td>
+</tr>
+}
+else
+{
+    <tr id="shipper_@(Model.ShipperId)" class="newadded">
+        <td>
+            @Model.ShipperName
+            <input type="hidden" class="form-control"  value="@Model.ShipperId" name="ShipperId[@Model.ShipperId]" />
+            <input class="form-control" type="hidden" value="0" name="UnitPrice[@Model.ShipperId]" />
+        </td>
+        <td>
+            <input class="form-control" style=" width: 55%;" value="@Model.ReceivedQuantity" name="ReceivedQuantity[@Model.ShipperId]" />
+        </td>
+        @*<td>
+               <input class="form-control" type="hidden" value="0" name="UnitPrice[@Model.ShipperId]"  />
+            </td>*@
+        <td>
+            <input class="form-control" style=" width: 55%;" value="@Model.ReorderDuration" name="ReorderDuration[@Model.ShipperId]" />
+        </td>
+        <td>
+            <button class="btn btn-sm btn-danger" data-shipperid="@Model.ShipperId" onclick="DeleteShipper(this)"><i class="fa fa-trash"></i></button>
+        </td>
+    </tr>
+    
+}
+
+
+

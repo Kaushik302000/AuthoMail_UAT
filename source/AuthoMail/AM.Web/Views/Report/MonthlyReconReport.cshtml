@@ -1,0 +1,286 @@
+﻿@{
+    ViewBag.Title = "MonthlyReconReport";
+}
+
+<link href="~/clui/dist/css/datatablecustom.css" rel="stylesheet" />
+<script src="~/clui/dist/js/vendor/moment.js"></script>
+<div class="panel-group">
+    <div class="panel panel-default">
+        <div class="panel-heading" id="headingOne">
+            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#metaItem1">
+                <div class="panel-title">
+                    Monthly Recon Report
+                    <div class="collapsed-icon pull-right">
+                        <i class="fa fa-caret-left"></i>
+                    </div>
+                    <div class="expanded-icon pull-right">
+                        <i class="fa fa-caret-down"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div id="metaItem1" class="panel-collapse collapse in">
+            <div class="panel-body">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="dp4">Select Date (EST)</label>
+                        @*<select class="selectpicker" id="dates"></select>*@
+                        <select class="selectpicker" id="dates">
+                            @foreach (var item in ViewBag.dateList as List<string>)
+                            {
+                                <option value="@item">@item</option>
+                            }
+                        </select>
+                        <input type="hidden" value="@ViewBag.BusinessId" id="businessIdentifierName" />
+                    </div>
+
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="Channel">Channel</label>
+                        @Html.Action("_Channel", "Common")
+                    </div>
+                </div>
+                <div class="col-md-1">
+                    <div class="form-group ">
+                        <label for="input1"></label>
+                        <button type="button" id="filterData" class="btn btn-primary" style=" padding-top: 6%;">
+                            <span class="sr-only">Filter</span>
+                            <i class="fa fa-download"></i> Download Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+@*<div class="panel panel-default" >
+        <div class='alert alert-blue text-center' id="loading" style="display:none"><span> Loading... </span></div>
+        <div class="panel-heading" id="monthlyHeader">
+            <div class="panel-title">
+                Monthly Recon Details: <span class="normaltext" id="headerdate"></span>
+            </div>
+        </div>
+        <div class="panel-body" id="monthlyList">
+        </div>
+    </div>*@
+<!-- table html template code -->
+<div id="monthlyTableContent" style="display:none">
+    <table class="table table-responsive" style="overflow-x:scroll">
+        <thead>
+            <tr>
+                <th>@Html.Action("GetHeadingForBusinessId", "Common")</th>
+                <th>File Name</th>
+                <th>Channel</th>
+                <th>Document Type</th>
+                <th>Delivery Type</th>
+                <th class="notprint">Shipped Document</th>
+                @if (!User.IsInRole(AM.Entities.AMRoles.BAOffShore))
+                {
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Recipient Street Address</th>
+                    <th>Recipient City</th>
+                    <th>Recipient State</th>
+                    <th>Recipient Zip</th>
+                }
+                <th>Received Date <span class="fontcapitalize">(Local)</span></th>
+                <th>Printed Date <span class="fontcapitalize">(Local)</span></th>
+                <th>Mailed Date <span class="fontcapitalize">(Local)</span></th>
+                <th>Pages Shipped</th>
+                <th>Blank Pages</th>
+                <th>Shipping Method</th>
+                <th>Tracking Number</th>
+                <th>Shipping Status</th>
+                <th>Print Location</th>
+            </tr>
+        </thead>
+        <tbody id="monthlybodyContent"></tbody>
+    </table>
+</div>
+<div style="display:none">
+    <table>
+        <tbody id="monthlyBody">
+            <tr class="row-small">
+                <td><span>{BusinessIdValue}</span></td>
+                <td><span>{FileName}</span></td>
+                <td><span>{Channel}</span></td>
+                <td><span>{DocType}</span></td>
+                <td><span>{IsEDeliveryRequested}</span></td>
+                <td><span data-toggle="tooltip" data-container="body" data-placement="top" title="{message}">{ReturnPdf}</span></td>
+                @if (!User.IsInRole(AM.Entities.AMRoles.BAOffShore))
+                {
+                    <td><span>{FirstName}</span></td>
+                    <td><span>{LastName}</span></td>
+                    <td><span>{Address}</span></td>
+                    <td><span>{City}</span></td>
+                    <td><span>{State}</span></td>
+                    <td><span>{ZIP}</span></td>
+                }
+                <td><span>{ReceivedOnFormatted}</span></td>
+                <td><span>{PrintedOnFormatted}</span></td>
+                <td><span>{MailedOnFormatted}</span></td>
+                <td><span>{TotalPages}</span></td>
+                <td><span>{TotalBlankPages}</span></td>
+                <td><span>{ShippingMethod}</span></td>
+                <td><span>{TrackingNo}</span></td>
+                <td><span><span class="label medium label-success">{Status}</span></span></td>
+                <td><span>{PrintLocation}</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<!-- end table template code -->
+@section Scripts{
+    @Styles.Render("~/bundles/datatablescss")
+    @Scripts.Render("~/bundles/datatables")
+    <script>
+        $(document).ready(function () {
+            //window.clui.dateTimePickerInit();
+            window.clui.tooltipInit();
+            //FilterData();
+        });
+        function applyDataTable() {
+
+            var table = $('#sample_2');
+            var filename = "MonthlyReconReport";
+            var title = "Monthly Recon Report";
+            window.clui.tooltipInit();
+            var oTable = table.dataTable({
+
+                "language": {
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    },
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "No entries found",
+                    "infoFiltered": "(filtered1 from _MAX_ total entries)",
+                    "lengthMenu": "_MENU_ entries",
+                    "search": "<b>Search:</b>",
+                    "zeroRecords": "No matching records found"
+                },
+
+                "scrollX": true,
+                buttons: [
+                    //{
+                    //    extend: 'colvis',
+                    //    text: 'Select Fields',
+                    //    className: 'btn purple pull-left',
+                    //    columns: ':not(.noVis)'
+                    //},
+                {
+                    extend: 'csv',
+                    text: '<i class="fa fa-file-excel-o fa-2x"></i>',
+                    className: 'btn btn-primary',
+                    filename: filename,
+                    title: title,
+                    exportOptions: {
+                        columns: "thead th:not(.notprint)",//[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+                    }
+
+                },
+
+
+
+
+                ],
+
+                "order": [
+                    [0, 'asc']
+                ],
+                "lengthMenu": [
+                    [5, 10, 25, 50, 100, -1],
+                    [5, 10, 25, 50, 100, "All"] // change per page values here
+                ],
+                // set the initial value
+                "pageLength": 5,
+
+                "dom": "<'row' <'col-md-12'B>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
+
+
+            });
+
+        }
+        function FormatObject(Model) {
+            $(Model).each(function () {
+                this.TotalPages = this.Status == "Shipped" ? this.TotalPages : 0;
+                this.ReceivedOnFormatted = moment(this.ReceivedOn).format("MM/DD/YY HH:mm:ss");
+                this.PrintedOnFormatted = this.PrintedOn == null ? "--" : moment(this.PrintedOn).format("MM/DD/YY HH:mm:ss");
+                this.MailedOnFormatted = this.ShippedOn == null ? "--" : moment(this.ShippedOn).format("MM/DD/YY HH:mm:ss");
+                this.message = this.PdfReceivedPath == null ? "File not received." : "View / Download";
+                this.ReturnPdf = this.PdfReceivedPath == null ? "<i class='fa fa-file-pdf-o' disabled='true' style='cursor:not-allowed;'></i>" : "<a href='/" + this.PdfReceivedPath + "'  target='_blank'><i class='fa fa-file-pdf-o' style='color:red'></i></a>";
+                this.IsEDeliveryRequested = this.IsEDeliveryRequested && !this.IsESignRequested ? '<span class="label medium label-success">E-Delivery</span>' : this.IsEDeliveryRequested && this.IsESignRequested ? '<span class="label medium label-success">E-Sign</span>' : '<span class="label medium label-blue">P&S</span>';
+            });
+            return Model;
+        }
+        function FilterData() {
+            $("#monthlyHeader").hide();
+            $("#monthlyList").hide();
+            $("#loading").show();
+            //console.log(baseUrl + "Report/_MonthReconReport");
+            var loanNumber = $("#loanNumber").val();
+            var docType = $("#DocType").val();
+
+            var selectedData = $("#dates").val().split('-');
+            // console.log(selectedData);
+            var startDate = moment(selectedData[0].trim()).format("MM/DD/YY");
+            var endDate = moment(selectedData[1].trim()).format("MM/DD/YY");
+            var el = $('#monthlyList');
+            $("#headerdate").html(startDate + " to " + endDate + " EST");
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "Report/_MonthReconReport",
+                data: JSON.stringify({ loanNumber: loanNumber, docType: docType, startDate: startDate, endDate: endDate, channel: $("#Channel").val() }),
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    //console.log(response);
+                    if (response.Success) {
+                        if (response.Object != null) {
+                            $("#loading").hide();
+                            $("#monthlyHeader").show();
+                            $("#monthlyList").show();
+                            if (response.Object.model.length > 0) {
+                                var data = FormatObject(response.Object.model);
+                                $("#monthlyList").html("");
+                                BindTemplate(data, "#monthlyBody", "#monthlybodyContent", "#monthlyTableContent", "#monthlyList");
+                                 window.clui.tooltipInit();
+                            }
+                            else {
+                                $("#monthlyList").html(" <div style='margin-bottom:10px;' class='alert alert-yellow'><span class='sbold'>@AM.Services.Config.Web_Msg_NoRecordFound</span></div>")
+                            }
+                        }
+                    } else {
+                        $("#loading").hide();
+                        $("#monthlyHeader").show();
+                        $("#monthlyList").show();
+                        $("#monthlyList").html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + response.ErrorMessage + "</span></div>");
+                    }
+
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    $("#loading").hide();
+                    $("#monthlyHeader").show();
+                    $("#monthlyList").show();
+
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    $("#monthlyList").html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + msg + "</span></div>");
+                }
+
+            });
+        }
+        $("#filterData").click(function () {
+            var selectedData = $("#dates").val().split('-');
+            var buid = $("#businessIdentifierName").val().trim();
+            var startDate = moment(selectedData[0].trim()).format("MM/DD/YY");
+            var endDate = moment(selectedData[1].trim()).format("MM/DD/YY");
+            var url = baseUrl + "Report/DownloadMonthlyReconReport?startDate=<startDate>&endDate=<endDate>&channel=<channel>&fileName=<fileName>&timezoneOffset=<timezoneOffset>&buId=<buid>".replace("<startDate>", startDate).replace("<endDate>", endDate).replace("<channel>", $("#Channel").val()).replace("<fileName>", "MonthlyReconReport").replace("<timezoneOffset>", new Date().getTimezoneOffset()).replace("<buid>", buid);
+            window.location = url;
+            //FilterData();
+        });
+
+    </script>
+}

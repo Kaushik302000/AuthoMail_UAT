@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" href="~/clui/dist/img/favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuthoMail</title>
+    @Styles.Render("~/Content/clcss")
+    @Scripts.Render("~/bundles/modernizr")
+    <style>
+        #mainlink:hover {
+            color: lightgray;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="mobile-overlay"></div>
+        <div class="container-fluid">
+            <div class="navbar-collapse-btn">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#example-navbar-collapse-3">
+                    <span class="sr-only">Toggle navigation</span>
+                    <i class="fa fa-bars" aria-hidden="true"></i>
+                </button>
+            </div>
+            @if (User.Identity.IsAuthenticated)
+            {
+                <div class="navbar-header">
+                    <div class="navbar-logo"></div>
+
+                    <div class="application-name">
+                        <h1 style="line-height:50px;">@Html.ActionLink("AuthoMail", "Index", "Home", new { area = "" }, new { @class = "text-white ", @id = "mainlink" }) <span style="font-size:15px !important;" id="ClientName"></span></h1>
+                    </div>
+
+                </div>
+                <div class="collapse navbar-collapse" id="example-navbar-collapse-3">
+
+                    <ul class="nav navbar-nav navbar-right">
+
+                        <li>@Html.ActionLink("Home", "Index", "Home")</li>
+                        @if (User.IsInRole(AM.Entities.AMRoles.Admin) || User.IsInRole(AM.Entities.AMRoles.BA) || User.IsInRole(AM.Entities.AMRoles.BAOffShore))
+                        {
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Clients <span class="caret"></span></a>
+                                <ul class="dropdown-menu" id="clientmenu"></ul>
+                            </li>
+                        }
+
+                        <li>@Html.ActionLink("Search", "Search", "Home")</li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Manage Loans<span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li>@Html.ActionLink("Request Pullback ", "PullBack", "RequestPullBack")</li>
+                                @*<li>@Html.ActionLink("Single Loan Entry", "SingleLoanEntry", "Support")</li>*@
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Reports <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+
+                                <li>@Html.ActionLink("Daily Detail Operations Report", "DailyDetailOperationsReport", "Report")</li>
+                                <li>@Html.ActionLink("Errors Report", "ErrorsReport", "Report")</li>
+                                <li>@Html.ActionLink("Summary Control Report", "SummaryControlReport", "Report")</li>
+                                <li>@Html.ActionLink("Errors Report - SLA", "ErrorSLAReport", "Report")</li>
+                                <li>@Html.ActionLink("Monthly Recon Report", "MonthlyReconReport", "Report")</li>
+                                <li>@Html.ActionLink("Pullback Request Report", "PullbackRequestReport", "Report")</li>
+                                <li>@Html.ActionLink("Duplicate Report", "DuplicateReport", "Report")</li>
+                            </ul>
+                        </li>
+                        @Html.Partial("_LoginPartial")
+                    </ul>
+                    <i class="fa fa-times"></i>
+                </div>
+            }
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        @RenderBody()
+        <footer>
+            <div>
+                2021 Copyright CoreLogic. All Rights Reserved.
+            </div>
+            <div>
+                <ol>
+                    <li><a href="http://www.corelogic.com/about-us/our-company.aspx" target="_blank">About Our Company</a></li>
+                    <li><a href="http://www.corelogic.com/about-us/contact-us.aspx" target="_blank">Contact Us</a></li>
+                    <li><a href="http://www.corelogic.com/privacy.aspx" target="_blank">Policies</a></li>
+                </ol>
+            </div>
+        </footer>
+    </div>
+
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/cljs")
+    @Scripts.Render("~/bundles/clselect2")
+    @Scripts.Render("~/bundles/clcomponetjs")
+
+    @RenderSection("scripts", required: false)
+    <script>
+        var baseUrl = '@Url.Content("~/")';
+        $(document).ready(function () {
+
+            init();
+
+        });
+
+
+        $(document).ajaxSuccess(function (event, xhr, settings) {
+            //console.log("Server Result:" + cnt++);
+            //console.log(xhr.responseText);
+            if (xhr.responseText == "") {
+                window.location.reload();
+            }
+        });
+
+
+        $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
+            if (jqxhr.status == 200) {
+                window.location.reload();
+            }
+
+        });
+
+    </script>
+</body>
+</html>

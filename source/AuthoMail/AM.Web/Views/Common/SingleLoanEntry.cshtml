@@ -1,0 +1,166 @@
+﻿@model AM.Entities.MailPiece
+
+@{
+    ViewBag.Title = "SinglePackageEntry";
+}
+
+@if (ViewBag.msg != null)
+{
+    <div class="alert alert-green text-center"><span id="copyClientBatchId">@(ViewBag.msg)</span> <i class="fa fa-copy" style="font-size: 18px; margin-left: 10px; cursor: pointer;" onclick="copyClientBatchId()"></i></div>
+    <br />
+}
+
+<style>
+    #businessIddiv .bootstrap-select {
+        width: 165px !important;
+    }
+
+    #businessIddiv .form-control {
+        height: 30px !important;
+    }
+
+    .bootstrap-select.btn-group .btn {
+        height: 30px !important;
+    }
+
+    .panel-group {
+        margin-bottom: 8px;
+    }
+
+    .panel .panel-body {
+        padding: 7px 15px;
+    }
+</style>
+
+<form class="panel panel-default" method="post" enctype="multipart/form-data">
+    <div class="panel-heading" id="headingOne">
+        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#metaItem1">
+            <div class="panel-title">
+                Single Package Entry
+            </div>
+        </a>
+    </div>
+    <div class="panel-body">
+        @Html.AntiForgeryToken()
+
+        <div class="for">
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            <div class="clearfix"></div>
+            @Html.Partial("_RecipientInfo", Model)
+            <div class="clearfix"></div>
+            <!--Return info-->
+            @Html.Partial("_ReturnInfo")
+            <div class="clearfix"></div>
+            <div class="panel-group">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <div class="panel-title">
+                            <label class="control-label col-md-2">Upload PDF <span class='fa fa-info-circle' data-toggle="tooltip" data-html="true" title="Please follow the naming convention while uploading multiple pdfs such as <b><i>'1_{name}.pdf', '2_{name}.pdf'</i></b>, and so on, to merge the pdfs in order."></span></label>
+                            <input type="file" name="pdffile" class="form-control" multiple />
+                        </div>
+                    </div>
+                </div>
+                @if (ViewBag.ClientCode == "LOANCARE")
+                {
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <div class="panel-title">
+                                <label class="control-label col-md-2">ProductCode </label>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="ProductCode" id="radioALM" value="ALM">
+                                    <label class="form-check-label" for="radioALM">ALM</label>
+
+                                    <input class="form-check-input" type="radio" name="ProductCode" id="radioNonALM" value="NonALM">
+                                    <label class="form-check-label" for="radioNonALM">Non-ALM</label>
+                                </div>
+
+                            </div>
+                            <div class="panel-title">
+                                <label class="control-label col-md-2">Comment </label>
+                                <textarea class="form-control" name="Comment" rows="3" cols="10"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            </div>
+        </div>
+        <div class="panel-footer text-center">
+            <input type="submit" value="Save" class="btn btn-success" />
+            <input type="reset" value="Clear" class="btn btn-danger" />
+        </div>
+</form>
+
+@section Scripts{
+    @Styles.Render("~/bundles/datatablescss")
+    @Scripts.Render("~/bundles/datatables")
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#eDelivery_IsEDelivery').change(function (e) {
+                e.preventDefault();
+                if ($(this).is(':checked')) {
+                    $('*[data-valmsg-for="RecipientInfo.Recipient.EmailAddress"]').html('Required')
+                    $('*[data-valmsg-for="eDelivery.ExpiryDate"]').html('Required')
+                    $(this).val(true);
+                } else {
+                    $('*[data-valmsg-for="RecipientInfo.Recipient.EmailAddress"]').html('')
+                    $('*[data-valmsg-for="eDelivery.ExpiryDate"]').html('')
+                    $(this).val(false);
+                }
+            });
+            $("#ExpiryDate").daterangepicker({
+                minDate: new Date(),
+                autoApply: true,
+                singleDatePicker: true,
+                showDropdowns: true,
+                showCustomRangeLabel: false,
+                autoUpdateInput: false
+            }, function (startDate) {
+                $("#ExpiryDate").val(startDate.format('MM-DD-YYYY'));
+            });
+        });
+
+        function copyClientBatchId() {
+            // Get the text field
+            var copyText = document.getElementById("copyClientBatchId");
+            // Select the text field
+            var stringData = copyText.innerText.split(" ");
+
+            var clientBatchId = stringData[stringData.length - 1];
+
+            // Copy the text inside the text field
+            navigator.clipboard.writeText(clientBatchId);
+        }
+
+        function GetReturnAddressInfo() {
+            var doctypeName = $("#ddlDocType").val();
+            $.ajax(
+                {
+                    type: "GET",
+                    url: baseUrl + "Common/GetReturnAddressInfoByDocTypeName",
+                    data: {
+                        doctypeName: doctypeName
+                    },
+                    success: function (response) {
+                        console.log(response);
+                        if (response.Success) {
+                            var data = response.Object;
+                            $('#ReturnInfo_Recipient_Organization').val(data.RetRcptOrganization);
+                            $('#ReturnInfo_Recipient_FirstName').val(data.RetRcptFirstName);
+                            $('#ReturnInfo_Recipient_MiddleName').val(data.RetRcptMiddleName);
+                            $('#ReturnInfo_Recipient_LastName').val(data.RetRcptLastName);
+                            $('#ReturnInfo_Address_Street').val(data.RetRcptAddressStreet);
+                            $('#ReturnInfo_Address_City').val(data.RetRcptAddressCity);
+                            $('#ReturnInfo_Address_State').val(data.RetRcptAddressState);
+                            $('#ReturnInfo_Address_Zip').val(data.RetRcptAddressZIP);
+                        }
+                    },
+                    error: function () {
+                        //alert("error");
+                    }
+                });
+        }
+    </script>
+}

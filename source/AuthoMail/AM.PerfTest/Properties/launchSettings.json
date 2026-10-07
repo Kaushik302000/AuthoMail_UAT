@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "AM.PerfTest": {
+      "commandName": "Project",
+      "commandLineArgs": "perf 1 1"
+    }
+  }
+}

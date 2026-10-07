@@ -1,0 +1,33 @@
+﻿@model AM.Services.ClientDomains
+
+    <h2 id="myModalLabel">@(string.IsNullOrWhiteSpace(Model.AllowedDomain) ? Html.Raw("Add Domain Details") : Html.Raw("Edit Domain Details"))</h2>
+
+    <hr />
+    <form id="domainform" action="#">
+        <input type="hidden" value="@Model.AllowedDomain" name="OldDomain" id="OldDomain" />
+        @if (string.IsNullOrWhiteSpace(Model.AllowedDomain))
+        {
+            <div class="form-group">
+                <label for="Clients">Clients</label>
+                @Html.DropDownListFor(model => model.ClientId, ViewBag.Clients as SelectList, "Select Client", htmlAttributes: new { @class = " form-control selectpicker", @data_live_search = "true", @data_live_search_placeholder = "Search Client" })
+            </div>
+        }
+        else
+        {
+            <div class="form-group">
+                <label for="Clients">Clients</label>
+                @Html.DropDownListFor(model => model.ClientId, ViewBag.Clients as SelectList, "Select Client", htmlAttributes: new { @class = " form-control selectpicker", @data_live_search = "true", @data_live_search_placeholder = "Search Client", @disabled = "disabled" })
+            </div>
+        }
+        
+        <div class="form-group">
+            <label for="Description">Domain Name</label>
+            <div class="input-group">
+                <input type="text" id="domain" class="form-control" name="domain" value="@Model.AllowedDomain" />
+            </div>
+
+        </div>
+        <hr />
+        <button type="submit" class="btn btn-primary" id="Save"><i class="fa fa-save"></i> Save</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Cancel</button>
+    </form>

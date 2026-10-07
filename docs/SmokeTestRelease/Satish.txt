@@ -1,0 +1,13 @@
+UI Changes
+	New UI Added
+	-Registration 
+	-Sign Up Request Approved/Rejected
+	-System Settings
+	-Manage Domain
+	-Manage Business Units
+	-Manage Clients
+	-Manage SFT Channel
+	-Manage Document Type
+	-AM Users 
+	
+	

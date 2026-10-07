@@ -1,0 +1,147 @@
+﻿@model AM.Services.Clients
+
+<h2 id="myModalLabel">@(Model.Id == 0 ? Html.Raw("Add Client Details") : Html.Raw("Edit Client Details"))</h2>
+
+<hr />
+<form id="clientform" action="#" method="post">
+    <input type="hidden" name="Id" id="Id" value="@Model.Id" />
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="Value">Client Name</label>
+                <div class="input-group">
+                    <input type="text" name="Name" value="@Model.Name" placeholder="Client Name" class="form-control" id="Name" maxlength="255" />
+                </div>
+
+            </div>
+            <div class="form-group">
+                <label for="Description">App Code</label>
+                <div class="input-group">
+                    <input type="text" name="AppCode" value="@Model.AppCode" placeholder="App Code" class="form-control" id="AppCode" maxlength="255" />
+                </div>
+
+            </div>
+            <div class="form-group">
+                <label for="Description">Business Unit</label>
+                <div class="input-group">
+                    @Html.DropDownListFor(model => model.BusinessUnit, ViewBag.BusinessUnitList as SelectList, "Select Business Unit", new { @class = " form-control selectpicker", @data_live_search = "true", @data_live_search_placeholder = "Search Business Unit" })
+                </div>
+                <span for="BusinessUnit" class="error" style="display:none;">This field is required.</span>
+            </div>
+            <div class="form-group">
+                <label for="Description">Timezone</label>
+                <div class="input-group">
+                    @Html.DropDownListFor(model => model.TimeZone, ViewBag.TimeZoneList as SelectList, "Select Time Zone", new { @class = " form-control selectpicker", @data_live_search = "true", @data_live_search_placeholder = "Search Time Zone" })
+                </div>
+                <span for="TimeZone" class="error" style="display:none;">This field is required.</span>
+            </div>
+            <div class="form-group">
+                <label for="Description">Contact1 Name</label>
+                <div class="input-group">
+                    <input type="text" name="Contact1Name" value="@Model.Contact1Name" placeholder="Contact1 Name" class="form-control" id="Contact1Name" maxlength="255" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="Description">Contact1 Phone</label>
+                <div class="input-group">
+                    <input type="text" name="Contact1Phone" value="@Model.Contact1Phone" placeholder="Contact1 Phone" class="form-control" id="Contact1Phone" maxlength="255" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="Description">Contact1 Email</label>
+                <div class="input-group">
+                    <input type="text" name="Contact1Email" value="@Model.Contact1Email" placeholder="Contact1 Email" class="form-control" id="Contact1Email" maxlength="255" />
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="Description">Contact2 Name</label>
+                <div class="input-group">
+                    <input type="text" name="Contact2Name" value="@Model.Contact2Name" placeholder="Contact2 Name" class="form-control" id="Contact2Name" maxlength="255" />
+                </div>
+
+            </div>
+            <div class="form-group">
+                <label for="Description">Contact2 Phone</label>
+                <div class="input-group">
+                    <input type="text" name="Contact2Phone" value="@Model.Contact2Phone" placeholder="Contact2 Phone" class="form-control" id="Contact2Phone" maxlength="255" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="Description">Contact2 Email</label>
+                <div class="input-group">
+                    <input type="text" name="Contact2Email" value="@Model.Contact2Email" placeholder="Contact2 Email" class="form-control" id="Contact2Email" maxlength="255" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="Description">Contact3 Name</label>
+                <div class="input-group">
+                    <input type="text" name="Contact3Name" value="@Model.Contact3Name" placeholder="Contact3 Name" class="form-control" id="Contact3Name" maxlength="255" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="Description">Contact3 Phone</label>
+                <div class="input-group">
+                    <input type="text" name="Contact3Phone" value="@Model.Contact3Phone" placeholder="Contact3 Phone" class="form-control" id="Contact3Phone" maxlength="255" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="Description">Contact3 Email</label>
+                <div class="input-group">
+                    <input type="text" name="Contact3Email" value="@Model.Contact3Email" placeholder="Contact1 Email" class="form-control" id="Contact3Email" maxlength="255" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="Description">IT Contact Name</label>
+                <div class="input-group">
+                    <input type="text" name="ITContactName" value="@Model.ITContactName" placeholder="IT Contact Name" class="form-control" id="ITContactName" maxlength="255" />
+                </div>
+
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="Description">IT Contact Phone</label>
+                <div class="input-group">
+                    <input type="text" name="ITContactPhone" value="@Model.ITContactPhone" placeholder="IT Contact Phone" class="form-control" id="ITContactPhone" maxlength="255" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="Description">IT Contact Email</label>
+                <div class="input-group">
+                    <input type="text" name="ITContactEmail" value="@Model.ITContactEmail" placeholder="IT Contact Email" class="form-control" id="ITContactEmail" maxlength="255" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="Description">Billing Contact Name</label>
+                <div class="input-group">
+                    <input type="text" name="BillingContactName" value="@Model.BillingContactName" placeholder="Billing Contact Name" class="form-control" id="BillingContactName" maxlength="255" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="Description">Billing Contact Phone</label>
+                <div class="input-group">
+                    <input type="text" name="BillingContactPhone" value="@Model.BillingContactPhone" placeholder="Billing Contact Phone" class="form-control" id="BillingContactPhone" maxlength="255" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="Description">Billing Contact Email</label>
+                <div class="input-group">
+                    <input type="text" name="BillingContactEmail" value="@Model.BillingContactEmail" placeholder="Billing Contact Email" class="form-control" id="BillingContactEmail" maxlength="255" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="Description">Address</label>
+                <div class="input-group">
+                    <input type="text" name="Address" value="@Model.Address" placeholder="Address" class="form-control" id="Address"  />
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <hr />
+    <button type="submit" class="btn btn-primary" id="Save"><i class="fa fa-save"></i> Save</button>
+    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Cancel</button>
+</form>

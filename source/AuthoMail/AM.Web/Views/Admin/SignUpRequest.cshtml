@@ -1,0 +1,459 @@
+﻿@{
+    ViewBag.Title = "SingUpRequest";
+}
+<link href="~/clui/dist/css/datatablecustom.css" rel="stylesheet" />
+
+<style>
+    #alertContainer {
+        z-index: 1101;
+    }
+
+    .btnsize {
+        padding: 4px 12px !important;
+    }
+
+    .dataTables_wrapper {
+        margin-top: -1.5% !important;
+    }
+</style>
+<div class="panel panel-default">
+    <div class='alert alert-blue text-center' id="loading" style="display:none"><span> Loading... </span></div>
+    <div class="panel-heading" id="signUpHeader">
+        <div class="panel-title">
+            <i class="fa fa-lock"></i>
+            Client sign up request.
+        </div>
+    </div>
+    <div class="panel-body" id="signUpRequestList">
+
+    </div>
+</div>
+<!-- table html template code -->
+<div id="signUpTableContent" style="display:none">
+    <table class="table table-responsive" style="overflow-x:scroll">
+        <thead>
+            <tr>
+                <th>Action</th>
+                <th>User Name</th>
+                <th>Email</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Display Name</th>
+                <th>Email Confirmed</th>
+                <th>Received Date <span class="fontcapitalize">(Local)</span></th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="signUpbodyContent"></tbody>
+    </table>
+</div>
+<div style="display:none">
+    <table>
+        <tbody id="signUpBody">
+            <tr class="row-small">
+                <td style="padding-right:0px !important;"><span>{button}</span></td>
+                <td><span>{UserName}</span></td>
+                <td><span>{Email}</span></td>
+                <td><span>{FirstName}</span></td>
+                <td><span>{LastName}</span></td>
+                <td><span>{DisplayName}</span></td>
+                <td><span>{IsConfirmed}</span></td>
+                <td><span>{RequestedOnFormatted}</span></td>
+                <td><span class="label medium label-blue">{Status}</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<!-- end table template code -->
+
+<div class="modal fade" id="approveModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-userid="" data-status="">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header" style="margin-top:2%;margin-bottom:2%;">
+                @*<h2 id="myModalLabel">Are you sure you want to approve client sign up request? </h2>*@
+                <h2>Please select Role & AppCode(s).</h2>
+            </div>
+            <div class="modal-body">
+                <div class="errormsg"></div>
+                <input type="hidden" id="auserId" name="auserId" />
+                <input type="hidden" id="astatus" name="astatus" />
+                <div id="RoleAreaDiv"></div>
+                <div id="AppCodeAreaDiv">
+                    <div class="form-group">
+                        <label class="control-label">AppCode</label>
+                        <select data-live-search="true" data-live-search-placeholder="Select AppCode" class="form-control selectpicker" multiple="multiple" id="appcodeselect" title="AppCode">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="approved"><i class="fa fa-check"></i> Approve</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Cancel</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="rejectModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-userid="" data-status="">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header" style="margin-top:2%;margin-bottom:2%;">
+                <h2 id="myModalLabel"> Are you sure you want to reject client sign up request?</h2>
+                <input type="hidden" id="ruserId" name="ruserId" />
+                <input type="hidden" id="rstatus" name="rstatus" />
+                <div class="errormsg"></div>
+                <hr />
+                <button type="button" class="btn btn-primary" id="rejected"><i class="fa fa-check"></i> Yes</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header">
+                <h1 id="myModalLabel">Sign Up Response</h1>
+
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    @Styles.Render("~/bundles/datatablescss")
+    @Scripts.Render("~/bundles/datatables")
+    <script>
+        $(document).ready(function () {
+            window.clui.dateTimePickerInit();
+            FilterData();
+        });
+
+        function applyDataTable() {
+            $('[data-toggle="popover"]').popover({
+                'trigger': 'hover',
+                'placement': 'auto left',
+                'container': 'body'
+            });
+            var table = $('#sample_2');
+            //var filename = "ErrorReportsignUp";
+            //var title = "Error Report - signUp ";
+            var oTable = table.dataTable({
+
+                "language": {
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    },
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "No entries found",
+                    "infoFiltered": "(filtered1 from _MAX_ total entries)",
+                    "lengthMenu": "_MENU_ entries",
+                    "search": "<b>Search:</b>",
+                    "zeroRecords": "No matching records found"
+                },
+                "columnDefs": [
+                        {
+                            "targets": ["BatchId"],
+                            "visible": false,
+                            "searchable": true
+                        },
+                ],
+
+                "scrollX": true,
+                buttons: [
+                    //{
+                    //    extend: 'colvis',
+                    //    text: 'Select Fields',
+                    //    className: 'btn purple pull-left',
+                    //    columns: ':not(.noVis)'
+                    //},
+                //{
+                //    extend: 'excel',
+                //    text: '<i class="fa fa-file-excel-o fa-2x"></i>',
+                //    className: 'btn btn-primary',
+                //    filename: filename,
+                //    title: title,
+                //    exportOptions: {
+                //        columns: "thead th:not(.BatchId)",//[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+                //    }
+
+                //}
+
+
+
+                ],
+
+                "order": [
+                    [0, 'asc']
+                ],
+                "lengthMenu": [
+                    [5, 10, 25, 50, 100, -1],
+                    [5, 10, 25, 50, 100, "All"] // change per page values here
+                ],
+                // set the initial value
+                "pageLength": 5,
+
+                "dom": "<'row' <'col-md-12'B>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
+
+
+            });
+            //$('.selectpicker').selectpicker('refresh');
+            //$('#BatchList').on('change', function () {
+            //    var oTable = $('#sample_2').dataTable();
+            //    var filterColumn = oTable.api().column(".BatchId").index();
+            //    var selected = $(this).find("option:selected").val();
+            //    if (!selected) {
+
+            //        oTable.fnFilter('', filterColumn, true);
+            //    } else {
+            //        oTable.fnFilter("^" + parseInt(selected) + "$", filterColumn, true); //Exact value, column, reg
+            //    }
+            //});
+        }
+        function FilterData() {
+            $("#signUpHeader").hide();
+            $("#signUpRequestList").hide();
+            var el = $('#signUpRequestList');
+            //var date = $("#date").val();
+            //$("#headerdate").html(date + " EST");
+            $("#loading").show();
+            var el = $('#signUpRequestList');
+            // el.html("<div class='alert alert-blue text-center'><span> Loading... </span></div>");
+            $.ajax({
+                type: "GET",
+                url: baseUrl + "Admin/GetSingUpRequestedList",
+                //data: JSON.stringify({ date: date, filterBy: $("#filterBy").val(), docType: $("#DocType").val() }),
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    //console.log(response);
+                    if (response.Success) {
+                        if (response.Object != null) {
+                            $("#loading").hide();
+                            $("#signUpHeader").show();
+                            $("#signUpRequestList").show();
+                            //console.log(response.Object.model.length);
+                            if (response.Object.model.length > 0) {
+                                var data = FormatObject(response.Object.model);
+                                $("#signUpRequestList").html("");
+                                //this.RequestedOnFormatted = moment(this.ReceivedOn).format("MM/DD/YY HH:mm:ss");
+                                BindTemplate(data, "#signUpBody", "#signUpbodyContent", "#signUpTableContent", "#signUpRequestList");
+                            }
+                            else {
+                                $("#signUpRequestList").html(" <div style='margin-bottom:10px;' class='alert alert-yellow'><span class='sbold'>@AM.Services.Config.Web_Msg_NoRecordFound</span></div>")
+                            }
+                        }
+                    } else {
+                        $("#loading").hide();
+                        $("#signUpHeader").show();
+                        $("#signUpRequestList").show();
+                        $("#signUpRequestList").html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + response.ErrorMessage + "</span></div>");
+                    }
+
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    $("#loading").hide();
+                    $("#signUpHeader").show();
+                    $("#signUpRequestList").show();
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    $("#signUpRequestList").html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + msg + "</span></div>");
+                }
+
+            });
+        }
+        function FormatObject(Model) {
+            $(Model).each(function () {
+                this.RequestedOnFormatted = moment(this.RequestedOn).format("MM/DD/YY HH:mm:ss");
+                this.IsConfirmed = this.EmailConfirmed ? '<span  class="label medium label-green">Yes</span>' : '<span class="label medium label-yellow">No</span>';
+                this.button = '<a style="cursor: pointer;font-size:1.5em;" onclick="ApproveUser(this)" data-userid="' + this.Id + '" data-status="@AM.Entities.AMUserStatus.Approved"><i class="fa fa-check text-green" aria-hidden="true" title="Approve"></i><span class="sr-only">Approve</span></a><a style="cursor: pointer;font-size:1.5em;" onclick="RejectUserRequest(this)" data-userid="' + this.Id + '" data-status="@AM.Entities.AMUserStatus.Rejected"><i class="padding-left-15 fa fa-times text-red" aria-hidden="true" title="Reject"><span class="sr-only">Reject</span></i></a>';
+
+            });
+            return Model;
+        }
+
+        function ApproveUser(val) {
+            $("#approveModal").find("#auserId").val("");
+            $("#approveModal").find("#astatus").val("");
+            $("#approveModal").find("#auserId").val($(val).data("userid"));
+            $("#approveModal").find("#astatus").val($(val).data("status"));
+            BindRole($(val).data("userid"));
+            $("#approveModal").modal("show");
+        }
+        function BindRole(userId) {
+            $.ajax({
+                type: "GET",
+                url: baseUrl + "Admin/GetRoleAndAppCode",
+                data: {userId:userId},
+                dataType: "json",
+                success: function (response) {
+                    debugger;
+                    $('#RoleAreaDiv').html('');
+                    $('#appcodeselect').find('option').remove();
+                    if (response.Success) {
+                            var roleRadio = '<div class="form-group"> <label class="control-label" style="margin-right:10px">Select Role</label>';
+                        $.each(response.Object.roles, function (i, v) {
+                            var isChecked = response.Object.isCL ? '' : 'checked';
+                            roleRadio += '<input type="radio" ' + isChecked + ' class="radiobtn roleradiocls" name="roleradio" value=' + v + ' />' + ' <label style="margin-right:10px">'+v+'</label>';
+                            });
+                            roleRadio+='</div>';
+
+                        $('#RoleAreaDiv').html(roleRadio);
+                        if (response.Object.isCL) {
+                            $('#appcodeselect').append('<option value="all">All</option>');
+                            $("#RoleAreaDiv").show();
+                        }
+                        else {
+                            $("#RoleAreaDiv").hide();
+                        }
+
+                        var data = response.Object.appCodes;
+                        var groupedData = _.groupBy(data, function (d) { return d.GroupAlias });
+                        var $select = $('#appcodeselect');
+
+                        $.each(groupedData, function (key, value) {
+                            var group = $('<optgroup label="' + key + '" />');
+                            $.each(value, function (k, v) {
+                                $('<option value="' + v.Id + '" />').html(v.Name).appendTo(group);
+                            });
+                            group.appendTo($select);
+                        });
+                        //$.each(response.Object.appCodes, function (i, v) {
+                        //    $('#appcodeselect').append('<option value="' + v.Id + '">' + v.NameAppCode+'</option>');
+                        //});
+                        $('#appcodeselect').selectpicker('refresh');
+                        BindRoleEvent();
+                    }
+                    else {
+                        $('#RoleAreaDiv').html('<div class="alert laert-danger text-center"><b>'+response.ErrorMessage+'</b></div>');
+                    }
+                }
+            });
+        }
+        function BindRoleEvent() {
+            $('.radiobtn').unbind('change');
+            $('.radiobtn').bind('change', function (e) {
+                var role = $(this).val();
+                if (role.toLowerCase() == 'client') {
+                    $('#AppCodeAreaDiv').show();
+                }
+                else {
+                    $('#AppCodeAreaDiv').hide();
+                }
+            });
+        }
+        function RejectUser(val) {
+            $("#rejectModal").find("#ruserId").val("");
+            $("#rejectModal").find("#rstatus").val("");
+            $("#rejectModal").find("#ruserId").val($(val).data("userid"));
+            $("#rejectModal").find("#rstatus").val($(val).data("status"));
+            $("#rejectModal").modal("show");
+        }
+        $("#approved").click(function () {
+            var role = $("input[name=roleradio]:checked").val();
+            var appcode = $('#appcodeselect').val();
+            if (role == undefined || role == null || role == "") {
+                alertMessage("red", "Please select role.")
+                return false;
+            }
+            //if (appcode == undefined || appcode == null || appcode == "") {
+            //    alertMessage("red", "Please select AppCode.");
+            //    return false;
+            //}
+            UpdateUserStatus("approveModal",$("#approveModal").find("#auserId").val(), $("#approveModal").find("#astatus").val(),appcode, role);
+        });
+        $("#rejected").click(function () {
+            //$("#rejectModal").modal("hide");
+            UpdateUserStatus("rejectModal",$("#rejectModal").find("#ruserId").val(), $("#rejectModal").find("#rstatus").val(), null, null);
+        });
+
+        function UpdateUserStatus(modalid,userId, status,clientIds,role) {
+            //console.log(userId+" "+status)
+            $("#approved").attr('disabled', 'disabled');
+            $("#rejected").attr('disabled', 'disabled');
+            var el = $("#" + modalid).find(".errormsg");
+            el.html('<div class="alert alert-blue text-center"><b>Please wait...</b></div>');
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "Admin/UpdateUsersRequestSignUp",
+                data: JSON.stringify({ userId: userId, status: status, clientIds: clientIds, role: role}),
+                contentType: "application/json; charset=utf-8",
+                dataType: "JSON",
+                success: function (response) {
+                    //console.log(response);
+                    //Spinners("#pullback", "fa-reply");
+                    if (response.Success) {
+                        if (response.Object != null) {
+                            if (response.Object.Key) {
+                                el.html("<div class='alert alert-green'>" + response.Object.Value + "</div>");
+                                $("#" + modalid).modal("hide");
+                                alertMessage('green', response.Object.Value);
+                            }
+                            else {
+                                el.html("<div class='alert alert-red'>" + response.Object.Value + "</div>");
+                            }
+                        }
+                        FilterData();
+                    }
+                    else {
+                        //console.log(response.ErrorMessage);
+                        el.html("<div class='alert alert-red'>" + response.ErrorMessage + "</div>");
+
+                    }
+                    $("#approved").removeAttr('disabled');
+                    $("#rejected").removeAttr('disabled');
+                    //$("#myModal").modal("show");
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+
+                    //Spinners(".spinnericon", "faspinner");
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    el.html("<div class='alert alert-red'><span>" + msg + "</span></div>");
+                    $("#myModal").modal("show");
+                }
+
+            });
+        }
+
+        function RejectUserRequest(val) {
+             
+                var isConfirm = confirm("Are you sure to reject the request?");
+                if (isConfirm) {
+                    var userId = $(val).data('userid');
+                    var status = $(val).data('status');
+                    $.ajax({
+                        type: "POST",
+                        url: baseUrl + "Admin/UpdateUsersRequestSignUp",
+                        data: JSON.stringify({userId: userId, status: status, clientIds: null, role: null}),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "JSON",
+                        success: function (response) {
+                            if (response.Success) {
+                                alertMessage('green', 'Request has been rejected.');
+                                FilterData();
+                            }
+                            else {
+                                alertMessage('red', response.ErrorMessage);
+                            }
+                        }, error: function (err) {
+                            console.log(err);
+                        }
+                    });
+                }
+            
+        }
+        
+    </script>
+}

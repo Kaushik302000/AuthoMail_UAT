@@ -1,0 +1,56 @@
+﻿@{
+    ViewBag.Title = "Email confirmed";
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+}
+
+<div style="margin-top:2%">
+
+</div>
+@if (ViewBag.Success)
+{
+    <div class="title col-md-12" style="margin-bottom:2%;">
+        <h1>Email confirmed.</h1>
+        <div class="alert alert-green">
+            <div class="row">
+                <i class="fa fa-check fa-2x"></i>
+                @ViewBag.Message
+            </div>
+        </div>
+    </div>
+}
+else
+{
+
+    <div class="alert alert-red text-center">
+        <div>@Html.Raw(ViewBag.Message)</div>
+    </div>
+    @section Scripts {
+        @Scripts.Render("~/bundles/jqueryval")
+        <script type="text/javascript">
+        $(document).ready(function () {
+            var email = '@ViewBag.confirmationlink';
+            if (email != null || email != "") {
+                $('.resendemaillink').click(function (e) {
+                    e.preventDefault();
+                    var context = $(this);
+                    $(this).attr('disabled', 'disabled');
+                    context.addClass('disabled');
+                    $.ajax({
+                        type: "POST",
+                        url: "/Account/ResendConfirmation",
+                        data: { email: email },
+                        dataType: "json",
+                        success: function (response) {
+                            context.attr('disabled', 'disabled');
+                            context.addClass('disabled');
+                        }, error: function (err) {
+                            console.log(JSON.stringify(err));
+                        }
+                    });
+
+                });
+            }
+        });
+        </script>
+    }
+}

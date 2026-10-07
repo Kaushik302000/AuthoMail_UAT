@@ -1,0 +1,94 @@
+﻿@model AM.Services.DocTypePrintTrailMaps
+
+<h2 id="myModalLabel">Print Trail Mapping for <span id="docTypePrintModal"></span></h2>
+<style>
+    hr {
+        margin-top: 2% !important;
+        margin-bottom: 2% !important;
+    }
+</style>
+<hr />
+<form id="doctypeform" action="#" enctype="multipart/form-data">
+    <input type="hidden" name="DocTypeId" id="DocTypeId" value="@Model.DocTypeId" />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group">
+                <label for="Clients">Clients</label>
+                @Html.DropDownListFor(model => model.PrintTrailId, ViewBag.PrintTrail as SelectList, "Select Print Trail", htmlAttributes: new { @class = " form-control selectpicker", @data_live_search = "true", @data_live_search_placeholder = "Search Print Trail" })
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="BizDayStartTime">Bizday Start Time</label>
+                <div class="input-group">
+                    <input type="text" id="BizDayStartTime" value="@Model.BizDayStartTime" class="form-control timespan" placeholder="Bizday Start Time" name="BizDayStartTime" />
+                </div>
+
+            </div>
+            <div class="form-group">
+                <label for="BizDayEndTime">Bizday End Time</label>
+                <div class="input-group">
+                    <input type="text" id="BizDayEndTime" value="@Model.BizDayEndTime" class="form-control timespan" placeholder="Bizday End Time" name="BizDayEndTime" />
+                </div>
+
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="SatStartTime">Sat Start Time</label>
+                <div class="input-group">
+                    <input type="text" id="SatStartTime" value="@Model.SatStartTime" class="form-control timespan" placeholder="Sat Start Time" name="SatStartTime" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="Description">Sat End Time</label>
+                <div class="input-group">
+                    <input type="text" id="SatEndTime" value="@Model.SatEndTime" class="form-control timespan" placeholder="Sat End Time" name="SatEndTime" />
+                </div>
+
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="SunStartTime">Sun Start Time</label>
+                <div class="input-group">
+                    <input type="text" id="SunStartTime" value="@Model.SunStartTime" class="form-control timespan" placeholder="Sun Start Time" name="SunStartTime" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="SunEndTime">Sun End Time</label>
+                <div class="input-group">
+                    <input type="text" id="SunEndTime" value="@Model.SunEndTime" class="form-control timespan" placeholder="Sun End Time" name="SunEndTime" />
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <hr />
+    <button type="button" class="btn btn-primary" id="Save"><i class="fa fa-save"></i> Save</button>
+    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Cancel</button>
+</form>
+
+<script>
+    $(document).ready(function () {
+        if ($("#Id").val() == "0") {
+            $(".daytimespan").val("00:00:00:00");
+            $(".timespan").val("00:00:00");
+        }
+        $(".daytimespan").inputmask('datetime', {
+            mask: "X:h:s:s",
+            placeholder: "dd:hh:mm:ss",
+            separator: ':',
+            hourFormat: "24"
+        });
+        $(".timespan").inputmask('datetime', {
+            mask: "h:s:s",
+            placeholder: "hh:mm:ss",
+            separator: ':',
+            hourFormat: "24"
+        });
+
+
+    });
+
+</script>

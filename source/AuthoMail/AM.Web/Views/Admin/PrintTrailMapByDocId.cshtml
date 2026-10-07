@@ -1,0 +1,369 @@
+﻿@model Tuple<AM.Entities.DocType, List<AM.Entities.DocType>>
+@{
+    ViewBag.Title = "Print Trail Mapping";
+}
+
+<link href="~/clui/dist/css/datatablecustom.css" rel="stylesheet" />
+<style>
+    #printTrailTBody .bootstrap-select {
+        width: 100% !important;
+    }
+
+
+
+    .dataTables_wrapper {
+        margin-top: -1.5% !important;
+    }
+
+    .popover-content {
+        word-wrap: break-word;
+        color: red;
+    }
+
+    .tooltip-inner {
+        /*max-width: 453px !important;*/
+        word-wrap: break-word !important;
+    }
+</style>
+<div class="panel panel-default">
+
+    <div class="panel-heading" id="clientHeader">
+        <div class="panel-title">
+            <i class="fa fa-print"></i>  Print trail mapping for @Model.Item1.DocTypeName
+            <span class="pull-right">
+                <button type="button" data-id="0" class="btn btn-primary addnew"><i class="fa fa-plus"></i> Add New</button>
+            </span>
+        </div>
+    </div>
+    <div class="panel-body">
+        <input type="hidden" id="docTypeId" value="@Model.Item1.Id" />
+        <table class="table table-bordered table-responsive" style="overflow-x:scroll">
+            <thead>
+                <tr>
+                    <th>Action</th>
+                    <th>Print Trail</th>
+                    <th>Biz Day Start Time</th>
+                    <th>Biz Day End Time</th>
+                    <th>Sat Start Time</th>
+                    <th>Sat End Time</th>
+                    <th>Sun Start Time</th>
+                    <th>Sun End Time</th>
+                </tr>
+            </thead>
+            <tbody id="printTrailTBody">
+                @if (Model.Item2.Count == 0)
+                {
+                    <tr class="norecord">
+                        <td colspan="8">
+                            <div class="alert alert-yellow"> @AM.Services.Config.Web_Msg_NoRecordFound</div>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var printTrail in Model.Item2)
+                    {
+                        <tr id="tr_@(printTrail.PrintTrailId)" data-printid="@printTrail.PrintTrailId">
+                            <td>
+                                <span style="cursor: pointer;font-size:1.2em;" class="deletept"><i class="fa fa-trash text-red" aria-hidden="true" title="Delete"><span class="sr-only">Delete</span></i></span>
+                            </td>
+                            <td>
+                                <select name="PrintTrailId" class="form-control selectpicker" data-live-search="true" data-live-search-placeholder="Search Print Trail">
+                                    @foreach (var data in ViewBag.PrintTrailId)
+                                    {
+                                        string selected = printTrail.PrintTrailId == data.Id ? "selected='selected'" : "";
+                                        <option @selected value="@data.Id">@data.TrailName</option>
+                                    }
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control timespan" name="BizDayStartTime" value="@printTrail.BizDayStartTime" />
+                            </td>
+                            <td>
+                                <input type="text" class="form-control timespan" name="BizDayEndTime" value="@printTrail.BizDayEndTime" />
+                            </td>
+                            <td>
+                                <input type="text" class="form-control timespan" name="SatStartTime" value="@printTrail.SatStartTime" />
+                            </td>
+                            <td>
+                                <input type="text" class="form-control timespan" name="SatEndTime" value="@printTrail.SatEndTime" />
+                            </td>
+                            <td>
+                                <input type="text" class="form-control timespan" name="SunStartTime" value="@printTrail.SunStartTime" />
+                            </td>
+                            <td>
+                                <input type="text" class="form-control timespan" name="SunEndTime" value="@printTrail.SunEndTime" />
+                            </td>
+                        </tr>
+                    }
+                }
+
+            </tbody>
+        </table>
+        <br />
+        <div class="row text-center">
+            <button type="submit" class="btn btn-primary" id="Save"><i class="fa fa-save"></i> Save</button>
+            <button type="button" class="btn btn-default" id="Reset"><i class="fa fa-undo"></i> Reset</button>
+        </div>
+        <br />
+    </div>
+</div>
+
+<div style="display:none">
+    <table>
+        <tbody id="tbodyAddNew">
+        </tbody>
+    </table>
+</div>
+
+<div style="display:none;">
+    <table>
+        <tbody id="norecordFoundTR">
+            <tr class="norecord">
+                <td colspan="8">
+                    <div class="alert alert-yellow"> @AM.Services.Config.Web_Msg_NoRecordFound</div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header" style="margin-top:2%;margin-bottom:2%;">
+                <h2 id="myModalLabel">Are you sure you want to delete this print trail?</h2>
+                <input type="hidden" id="trId" />
+                <hr />
+                <button type="button" class="btn btn-default" id="yesRemove"><i class="fa fa-check"></i> Yes</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal"><i class="fa fa-close"></i> No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts{
+    @Styles.Render("~/bundles/datatablescss")
+    @Scripts.Render("~/bundles/datatables")
+    <script src="~/Scripts/jquery.inputmask.js"></script>
+    <script src="~/Scripts/jquery.inputmask.date.extensions.js"></script>
+    <script src="~/Scripts/jquery.inputmask.extensions.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            //if ($("#Id").val() == "0") {
+            //    $(".daytimespan").val("00:00:00:00");
+            //    $(".timespan").val("00:00:00");
+            //}
+            window.clui.selectInit();
+            $(".daytimespan").inputmask('datetime', {
+                mask: "X:h:s:s",
+                placeholder: "dd:hh:mm:ss",
+                separator: ':',
+                hourFormat: "24"
+            });
+            $(".timespan").inputmask('datetime', {
+                mask: "h:s:s",
+                placeholder: "hh:mm:ss",
+                separator: ':',
+                hourFormat: "24"
+            });
+            $(document).on("click", ".addnew", function () {
+                if ($("#printTrailTBody > tr").hasClass("norecord")) {
+                    $("#printTrailTBody tr.norecord").remove();
+                    $("#Save").removeAttr("disabled");
+                }
+                $.ajax({
+                    type: "GET",
+                    url: baseUrl + "Admin/_AddNewRowPrintTrail",
+                    success: function (response) {
+                        $("#printTrailTBody").append(response);
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        cosole.log("no record found.");
+
+                    }
+                });
+
+                // window.clui.selectInit();
+            });
+            $(document).on("click", ".deletept", function () {
+                if ($(this).parent().parent().attr("id") == "tr_0") {
+                    $(this).parent().parent().remove();
+                    if ($("#printTrailTBody tr").length == 0) {
+                        $("#Save").attr("disabled", true);
+                        $("#printTrailTBody").append($("#norecordFoundTR").html());
+                        return false;
+                    }
+                } else {
+                    $("#trId").val("");
+                    $("#confirmModal").modal("show");
+                    $("#trId").val($(this).parent().parent().attr("id"));
+                }
+            });
+
+            $(document).on("click", "#yesRemove", function () {
+                $("#" + $("#trId").val()).remove();
+                $("#confirmModal").modal("hide");
+                if ($("#printTrailTBody tr").length == 0) {
+                    $("#Save").attr("disabled", true);
+                    $("#printTrailTBody").append($("#norecordFoundTR").html());
+                    return false;
+                }
+            });
+            $(document).on("click", "#Reset", function () {
+                window.location.reload();
+            });
+            $(document).on("click", "#Save", function () {
+
+                var printTrailList = [];
+                $("#printTrailTBody tr").each(function () {
+                    var docPrintTrail = new DocTypePrintTrailMap($("#docTypeId").val(), $(this).find("select[name='PrintTrailId']").val(), $(this).find("input[name='BizDayStartTime']").val(), $(this).find("input[name='BizDayEndTime']").val(), $(this).find("input[name='SatStartTime']").val(), $(this).find("input[name='SatEndTime']").val(), $(this).find("input[name='SunStartTime']").val(), $(this).find("input[name='SunEndTime']").val());
+                    printTrailList.push(docPrintTrail);
+                });
+                $.ajax({
+                    type: "POST",
+                    url: baseUrl + "Admin/SaveDocTypePrintTrail",
+                    data: {
+                        docTypePrintTrailMapList: printTrailList,
+                    },
+                    success: function (response) {
+                        //console.log(response);
+                        if (response.Success) {
+                            if (response.Object != null) {
+                                if (response.Object.model != null) {
+                                    if (response.Object.model.Key) {
+                                        alertMessage('green', response.Object.model.Value);
+                                    } else {
+                                        alertMessage('red', response.Object.model.Value);
+                                    }
+                                }
+                                else {
+                                    alertMessage('red', '@AM.Services.Config.Web_Msg_Ajax_CommonError');
+                                }
+                            }
+                        } else {
+                            alertMessage('red', response.ErrorMessage);
+                        }
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alertMessage('red', '@AM.Services.Config.Web_Msg_Ajax_CommonError');
+                    }
+
+                });
+            });
+
+
+        });
+        function DeleteConfrim(obj) {
+
+        }
+        function DocTypePrintTrailMap(DocTypeId, PrintTrailId, BizDayStartTime, BizDayEndTime, SatStartTime, SatEndTime, SunStartTime, SunEndTime) {
+            this.DocTypeId = DocTypeId;
+            this.PrintTrailId = PrintTrailId;
+            this.BizDayStartTime = BizDayStartTime;
+            this.BizDayEndTime = BizDayEndTime;
+            this.SatStartTime = SatStartTime;
+            this.SatEndTime = SatEndTime;
+            this.SunStartTime = SunStartTime;
+            this.SunEndTime = SunEndTime;
+        }
+        function shortDir(str) {
+            if (typeof str != 'undefined' && str != null && str != "")
+                return str.length > 31 ? str.substring(0, 31) + '...' : str;
+        }
+
+        function applyDataTable() {
+            $('[data-toggle="popover"]').popover({
+                'trigger': 'hover',
+                'placement': 'auto left',
+                'container': 'body'
+            });
+            window.clui.tooltipInit();
+            var table = $('#sample_2');
+            var filename = "SummaryControlReport";
+            var title = "Summary Control Report";
+            var oTable = table.dataTable({
+
+                "language": {
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    },
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "No entries found",
+                    "infoFiltered": "(filtered1 from _MAX_ total entries)",
+                    "lengthMenu": "_MENU_ entries",
+                    "search": "<b>Search:</b>",
+                    "zeroRecords": "No matching records found"
+                },
+                "columnDefs": [
+                        {
+                            "targets": ["ErrorText", "BatchId"],
+                            "visible": false,
+                            "searchable": true
+
+                        },
+                ],
+                "scrollX": true,
+                buttons: [
+                    //{
+                    //    extend: 'colvis',
+                    //    text: 'Select Fields',
+                    //    className: 'btn purple pull-left',
+                    //    columns: ':not(.noVis)'
+                    //},
+                //{
+                //    extend: 'excel',
+                //    text: '<i class="fa fa-file-excel-o fa-2x"></i>',
+                //    className: 'btn btn-primary',
+                //    filename: filename,
+                //    title: title,
+                //    exportOptions: {
+                //        columns: ["thead th:not(.BatchId)", ".ErrorCode", ".ErrorText"],//0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 23]
+                //    }
+
+                //}
+
+
+
+                ],
+
+                "order": [
+                    [3, 'asc'],
+                    [4, 'asc']
+                ],
+                "lengthMenu": [
+                    [5, 10, 25, 50, 100, -1],
+                    [5, 10, 25, 50, 100, "All"] // change per page values here
+                ],
+                // set the initial value
+                "pageLength": 5,
+
+                "dom": "<'row' <'col-md-12'B>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
+
+
+            });
+            $('.selectpicker').selectpicker('refresh');
+            $('#BatchList').on('change', function () {
+                var oTable = $('#sample_2').dataTable();
+                var filterColumn = oTable.api().column(".BatchId").index();
+                var selected = $(this).find("option:selected").val();
+                if (!selected) {
+
+                    oTable.fnFilter('', filterColumn, true);
+                } else {
+                    oTable.fnFilter("^" + parseInt(selected) + "$", filterColumn, true); //Exact value, column, reg
+                }
+            });
+        }
+
+    </script>
+}
+
+
+
+

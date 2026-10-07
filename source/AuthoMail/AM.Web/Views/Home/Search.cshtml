@@ -1,0 +1,1277 @@
+﻿@{
+    ViewBag.Title = "Search";
+}
+
+<link href="~/clui/dist/css/datatablecustom.css" rel="stylesheet" />
+<style>
+    .col-md-1, .col-md-2, .col-md-3 {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    #businessIddiv .bootstrap-select {
+        width: 165px !important;
+    }
+
+    .popover-content {
+        word-wrap: break-word;
+        color: red;
+    }
+
+    .tooltip-inner {
+        /*max-width: 453px !important;*/
+        word-wrap: break-word !important;
+    }
+
+    .show-calendar {
+        width: 484px !important;
+    }
+
+    hr {
+        margin-top: 20px;
+        margin-bottom: 4px;
+    }
+
+    .margin-bottom-2 {
+        margin-bottom: 2px !important;
+    }
+
+    .label.label-Edelivery {
+        background-color: #20c997;
+    }
+
+    .label.label-Esign {
+        background-color: #6f42c1;
+    }
+</style>
+<div class="panel-group">
+    <div class="panel panel-default">
+        <div class="panel-heading" id="headingOne">
+            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
+                <div class="panel-title">
+
+                    <i class="fa fa-search"></i> Search
+                    <div class="collapsed-icon pull-right">
+                        <i class="fa fa-caret-left"></i>
+                    </div>
+                    <div class="expanded-icon pull-right">
+                        <i class="fa fa-caret-down"></i>
+                    </div>
+
+                </div>
+            </a>
+
+        </div>
+        <div id="collapseThree" class="panel-collapse collapse in">
+            <div class="panel-body">
+                <form action="#" id="searchform">
+                    <div class="row">
+                        <div class="col-md-@(ViewBag.BusinessId.Count > 1?"4":"3")" id="businessIddiv">
+                            @if (ViewBag.BusinessId.Count == 1)
+                            {
+                                <label for="BusinessFriendlyIdValue">@ViewBag.BusinessId[0]</label>
+                                <div class="input-group">
+                                    <i class="fa fa-search left-icon"></i>
+                                    <input class="form-control" name="BusinessFriendlyIdValue" value="@ViewBag.BusinessFriendlyIdValue" placeholder="@ViewBag.BusinessId[0]" id="BusinessFriendlyIdValue">
+                                    <input type="hidden" value="@ViewBag.BusinessId[0]" name="BusinessFriendlyIdName" id="BusinessFriendlyIdName" />
+                                </div>
+                                <div class="text-red pull-left" style="display:none" id="BusinessFriendlyIdValueError">This field is required.</div>
+                            }
+                            else if (ViewBag.BusinessId.Count > 1)
+                            {
+                                <label for="BusinessFriendlyIdName">Select Business ID</label>
+                                <div class="input-group">
+
+                                    <select id="BusinessFriendlyIdName" class="selectpicker" data-live-search="true" data-live-search-placeholder="Search Business ID">
+                                        <option value="">Select BusinessId</option>
+                                        @foreach (var item in ViewBag.BusinessId)
+                                        {
+                                            <option value="@item.ToString()">@item.ToString()</option>
+                                        }
+                                    </select>
+                                    <input class="form-control" name="BusinessFriendlyIdValue" placeholder="" id="BusinessFriendlyIdValue">
+
+                                </div>
+                            }
+                            else
+                            {
+                                <br />
+                                <div class='alert alert-yellow'><div>No business friendly id found!</div></div>
+                            }
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="DocType">Document Type</label>
+                                @Html.DropDownList("DocType", ViewBag.DocType as SelectList, htmlAttributes: new { @class = "selectpicker", @multiple = "multiple", @data_live_search = "true", @data_live_search_placeholder = "Search Document Type" })
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label for="Status">Status</label>
+                                <select class="selectpicker" id="Status" data-live-search="true" data-live-search-placeholder="Search Status">
+                                    <option value="">
+                                        Select Status
+                                    </option>
+                                    <option value="InProgress">In Progress</option>
+                                    <option value="PulledBack">Pulledback</option>
+                                    <option value="Error">Error</option>
+                                    <option value="Shipped">Shipped</option>
+                                    <option value="eDelivered">E-Delivered</option>
+                                    <option value="eSigned">E-Signed</option>
+                                </select>
+                            </div>
+
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label for="Channel">Channel</label>
+                                @Html.Action("_Channel", "Common")
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="receivedOn">Received  On (EST)</label>
+                                <div class="input-group " id="datepicker4">
+                                    <input type="text" class="form-control" autocomplete="off" placeholder="Select Date" id="receivedOn">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="TrackingNumber">Tracking Number</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="TrackingNumber" placeholder="Tracking Number" id="TrackingNumber">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="ErrorCode">Error Code</label>
+                                <select class="selectpicker" id="ErrorCode" multiple="multiple">
+                                    <option value="Invalid_XML_File">Invalid_XML_File</option>
+                                    <option value="Missing_PDF_File">Missing_PDF_File</option>
+                                    <option value="Invalid_PackageType">Invalid_PackageType</option>
+                                    <option value="Mailing_Address_Missing_Or_Invalid">Mailing_Address_Missing_Or_Invalid</option>
+                                    <option value="Recipient_Details_Missing_Or_Invalid">Recipient_Details_Missing_Or_Invalid</option>
+                                    <option value="Unknown_Error">Unknown_Error</option>
+                                    <option value="Invalid_PackageType">Invalid_PackageType</option>
+                                    <option value="Invalid_ShippingDetail">Invalid_ShippingDetail</option>
+                                    <option value="Invalid_DuplicateKey">Invalid_DuplicateKey</option>
+                                    <option value="Mailing_Address_Missing_Or_Invalid">Mailing_Address_Missing_Or_Invalid</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="MailPieceUniqueId">MailPiece Unique Id</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="MailPieceUniqueId" placeholder="Mail Piece Unique Id" id="MailPieceUniqueId">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        @if (User.IsInRole(AM.Entities.AMRoles.Admin) || User.IsInRole(AM.Entities.AMRoles.BA) || User.IsInRole(AM.Entities.AMRoles.BAOffShore))
+                        {
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="BatchId">Client Batch Id</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" name="ClientBatchId" placeholder="Client Batch Id" id="ClientBatchId">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class=" col-md-1" style="width:10%">
+                                <div class="form-group">
+                                    <label for="BatchName">Batch Id</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control batchidnumber" name="BatchId" placeholder="Batch Id" id="BatchId">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class=" col-md-1" style="width:10%">
+                                <div class="form-group">
+                                    <label for="MailPiece">MailPiece Id</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" name="MailPieceId" placeholder="MailPiece Id" id="MailPieceId">
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <input class="form-control" value="" type="hidden" name="ClientBatchId" id="ClientBatchId">
+                            <input class="form-control" value="" name="BatchId" type="hidden" id="BatchId">
+                            <input class="form-control" value="" name="MailPieceId" type="hidden" id="MailPieceId">
+                        }
+                    </div>
+                    <div class="row">
+                        <div class="col-md-1">
+                            <div class="form-group " style="padding-top:27px;">
+                                <label for="filterData">  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                                <button type="button" id="filterData" class="btn btn-primary" title="Search">
+                                    <span class="sr-only">Filter</span>
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-1" style="margin-left: -2%;">
+                            <div class="form-group " style="padding-top:27px;">
+                                <label for="filterData"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                                <button type="button" id="downloadFilter" title="Download Search Output" class="btn btn-primary">
+                                    <i class="fa fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-1" style="margin-left: -2%;">
+                            <div class="form-group " style="padding-top:27px;">
+                                <label for="filterData"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                                <button type="button" id="resetFilter" title="Reset" class="btn btn-transparent-blue">
+                                    <i class="fa fa-undo"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="panel panel-default">
+    <div class='alert alert-blue text-center' id="loading" style="display:none"><span> Loading... </span></div>
+    <div class="panel-heading" id="searchHeader">
+        <div class="panel-title">
+            Search Details : <span class="normaltext" id="headerdate"></span>
+
+        </div>
+    </div>
+    <div class="panel-body" id="searchMailPieceList" style="margin-top:20px;"></div>
+</div>
+<!--Search table html template code -->
+<div id="SearchTableContent" style="display:none">
+    <table class="table table-responsive" style="overflow-x:scroll">
+        <thead>
+            <tr>
+                @if (!User.IsInRole(AM.Entities.AMRoles.BAOffShore))
+                {
+                    <th>File</th>
+
+                }
+                <th>@Html.Action("GetHeadingForBusinessId", "Common")</th>
+                <th>Status</th>
+                @if (!User.IsInRole(AM.Entities.AMRoles.BAOffShore))
+                {
+                    <th>Borrower Name</th>
+                    <th>Street</th>
+                    <th>City/State/Zip</th>
+                }
+                <th class="TrackingNoHide">Tracking Number</th>
+                <th class="TrackingNo">Tracking Number</th>
+                <th>Received <span class="fontcapitalize">(Local)</span></th>
+                <th>Due <span class="fontcapitalize">(Local)</span></th>
+                <th>Shipped <span class="fontcapitalize">(Local)</span></th>
+                <th>Esigned <span class="fontcapitalize">(Local)</span></th>
+                <th>PickedUp <span class="fontcapitalize">(Local)</span></th>
+                <th>Shipment Status</th>
+                <th>Document Type</th>
+                <th class="cl_eSignRequest">IsEsignRequested</th>
+                <th>Delivery Type</th>
+                <th>Channel</th>
+                <th>Impression Count</th>
+                <th>Shipping Method<span class="fa fa-question-circle" title="Shipping Carrier / Service type"></span></th>
+                <th class="ErrorCode">Error Code</th>
+                <th class="ErrorText">Error Text</th>
+            </tr>
+        </thead>
+        <tbody id="SearchbodyContent"></tbody>
+    </table>
+</div>
+<div style="display:none">
+    <table>
+        <tbody id="SearchBody">
+            <tr class="row-small">
+                @if (!User.IsInRole(AM.Entities.AMRoles.BAOffShore))
+                {
+                    <td><span>{FileFormatted}</span></td>
+
+                }
+                <td data-businessidvalue="{LoanNumber}"><span>{View}</span></td>
+                <td><span>{ShippingStatusFormatted}</span></td>
+                @if (!User.IsInRole(AM.Entities.AMRoles.BAOffShore))
+                {
+                    <td><span>{RcptNameFormatted}</span></td>
+                    <td><span>{RcptAddress}</span></td>
+                    <td><span>{CityFormatted}</span></td>
+                }
+                <td><span>{TrackingNo}</span></td>
+                <td><span>{TrackingNoFormatted}</span></td>
+                <td><span>{ReceivedOnFormatted}</span></td>
+                <td><span>{DueDateFormatted}</span></td>
+                <td><span>{ShippedOnFormatted}</span></td>
+                <td><span>{EsignedOnFormatted}</span></td>
+                <td><span>{PickedUpOnFormatted}</span></td>
+                <td><span>{ShipmentStatus}</span></td>
+                <td><span>{DocType}</span></td>
+                <td class="cl_eSignRequest"><span>{IsESignRequestedFormatted}</span></td>
+                <td><span>{IsEDeliveryRequestedFormatted}</span></td>
+                <td><span>{Channel}</span></td>
+                <td><span>{ImpressionCount}</span></td>
+                <td>{ShippingCarrierOrMethod}</td>
+                <td>{ErrorCode}</td>
+                <td>{ErrorDesc}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<!-- end table template code -->
+<!-- Modal -->
+<div class="modal fade" id="TrackingInfo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg col-md-10" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header">
+                <h1 id="myModalLabel">Tracking Details</h1>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                @*<button type="button" class="btn btn-primary">View All</button>*@
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ViewInfo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg col-md-12" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header">
+                <h1 id="myModalLabel">MailPiece Details</h1>
+                <hr />
+            </div>
+            <div class="modal-body">
+                <div id="showerror" style="display:none"></div>
+                <div class='alert alert-blue text-center' id="loadingModal" style="display:none"><span> Loading... </span></div>
+                <div class="row" id="databind">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <hr />
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="templatemodal" style="display:none">
+    <div class="col-md-12">
+        <div class="col-md-4">
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="">MPId &nbsp; </label>
+                    <span class="form-control-static">{MailPieceId}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="">Mail Batch Id:&nbsp; </label>
+                    <span class="form-control-static">{MailBatchId}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Batch Name:&nbsp; </label>
+                    <span class="form-control-static" data-toggle="tooltip" data-container="body" data-placement="bottom" title='{BatchName}'>{ShortBatchName}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">MailPiece Id:&nbsp; </label>
+                    <span class="form-control-static">{UniqueId}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Client Code:&nbsp; </label>
+                    <span class="form-control-static">{AppCode}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">{BusinessFriendlyIdName}:&nbsp; </label>
+                    <span class="form-control-static">{BusinessFriendlyIdValue}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">File Name:&nbsp; </label>
+                    <span class="form-control-static" data-toggle="tooltip" data-container="body" data-placement="bottom" title='{FileName}'>{ShortFileName}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Document Or Package Type:&nbsp; </label>
+                    <span class="form-control-static">{DocumentOrPackageType}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Delivery Type:&nbsp; </label>
+                    <span class="form-control-static">{IsEDeliveryRequestedFormatted}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">SLA Days:&nbsp; </label>
+                    <span class="form-control-static">{SLADays}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Due Date:&nbsp; </label>
+                    <span class="form-control-static">{DueDateFormatted}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Shipping Status:&nbsp; </label>
+                    <span class="form-control-static">{ShippingStatus}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Printed On:&nbsp; </label>
+                    <span class="form-control-static">{PrintedOnFormatted}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Shipped On:&nbsp; </label>
+                    <span class="form-control-static">{ShippedOnFormatted}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Esigned On:&nbsp; </label>
+                    <span class="form-control-static">{EsignedOnFormatted}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">PickedUp On:&nbsp; </label>
+                    <span class="form-control-static">{PickedUpOnFormatted}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Shipping Cost:&nbsp; </label>
+                    <span class="form-control-static">{ShippingCost}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Printed:&nbsp; </label>
+                    <span class="form-control-static">{IsPrinted}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">ReceivedOn:&nbsp; </label>
+                    <span class="form-control-static">{ReceivedOnFormatted}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">SFT Channel:&nbsp; </label>
+                    <span class="form-control-static">{SFTChannels}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Shipped:&nbsp; </label>
+                    <span class="form-control-static">{IsShipped}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Weight:&nbsp; </label>
+                    <span class="form-control-static">{Weight}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">QC Requested:&nbsp; </label>
+                    <span class="form-control-static">{IsQCRequested}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">QC Performed:&nbsp; </label>
+                    <span class="form-control-static">{IsQCPerformed}</span>
+                </div>
+            </div>
+            @*<div class="form-group margin-bottom-2">
+                    <div class="input-group">
+                        <label for="BusinessFriendlyIdValue">Document Type Code:&nbsp; </label>
+                        <span class="form-control-static">{DocTypeCode}</span>
+                    </div>
+                </div>*@
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">PullBack Requested:&nbsp; </label>
+                    <span class="form-control-static">{IsPullBackRequested}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">PullBack RequestedOn:&nbsp; </label>
+                    <span class="form-control-static">{PullBackRequestedOnFormatted}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">PulledBack:&nbsp; </label>
+                    <span class="form-control-static">{IsPulledBack}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">PulledBackOn:&nbsp; </label>
+                    <span class="form-control-static">{PulledBackOnFormatted}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">PulledBack Requested By:&nbsp; </label>
+                    <span class="form-control-static">{PulledBackRequestedBy}</span>
+                </div>
+            </div>
+
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Total Sheets:&nbsp; </label>
+                    <span class="form-control-static">{TotalSheets}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Error Code:&nbsp; </label>
+                    <span class="form-control-static">{ErrorDescPopover}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Total Pages:&nbsp; </label>
+                    <span class="form-control-static">{TotalPages}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Total Blank Pages:&nbsp; </label>
+                    <span class="form-control-static">{TotalBlankPages}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Blank Page Numbers:&nbsp; </label>
+                    <span class="form-control-static">{BlankPageNumbers}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Recipient Info Specified:&nbsp; </label>
+                    <span class="form-control-static">{IsRcptInfoSpecified}</span>
+                </div>
+            </div>
+            @if (!User.IsInRole(AM.Entities.AMRoles.BAOffShore))
+            {
+                <div class="form-group margin-bottom-2">
+                    <div class="input-group">
+                        <label for="BusinessFriendlyIdValue">Recipient Name:&nbsp; </label>
+                        <span class="form-control-static">{RcptName}</span>
+                    </div>
+                </div>
+                <div class="form-group margin-bottom-2">
+                    <div class="input-group">
+                        <label for="BusinessFriendlyIdValue">Recipient Address:&nbsp; </label>
+                        <span class="form-control-static">{RcptAddress}</span>
+                    </div>
+                </div>
+                <div class="form-group margin-bottom-2">
+                    <div class="input-group">
+                        <label for="BusinessFriendlyIdValue">Recipient Country:&nbsp; </label>
+                        <span class="form-control-static">{RcptAddressCountry}</span>
+                    </div>
+                </div>
+            }
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="PrintLocation">Print File Name:&nbsp; </label>
+                    <span class="form-control-static" data-toggle="tooltip" data-container="body" data-placement="bottom" title='{PrintFileName}'>{ShortPrintFileName}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="PrintLocation">Print Location:&nbsp; </label>
+                    <span class="form-control-static">{PrintLocation}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Recipient Phone:&nbsp; </label>
+                    <span class="form-control-static">{RcptPhone}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Recipient Organization:&nbsp; </label>
+                    <span class="form-control-static">{RcptOrganization}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Recipient Email:&nbsp; </label>
+                    <span class="form-control-static">{RcptEmailId}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Co-Recipient Name:&nbsp; </label>
+                    <span class="form-control-static">{CoRcptName}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Co-Recipient Phone:&nbsp; </label>
+                    <span class="form-control-static">{CoRcptPhone}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Co-Recipient Organization:&nbsp; </label>
+                    <span class="form-control-static">{CoRcptOrganization}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Tracking Number:&nbsp; </label>
+                    <span class="form-control-static">{TrackingNoFormatted}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">E-Sign Tracking:&nbsp; </label>
+                    <span class="form-control-static">{ESignTrackingFormatted}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Return Recipient Name:&nbsp; </label>
+                    <span class="form-control-static">{RetRcptName}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Return Recipient Address:&nbsp; </label>
+                    <span class="form-control-static">{RetRcptAddress}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Shipment Status:&nbsp; </label>
+                    <span class="form-control-static">{ShipmentStatus}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Shipment Status Updated On:&nbsp; </label>
+                    <span class="form-control-static">{ShipmentStatusUpdatedOnFormatted}</span>
+                </div>
+            </div>
+            <div class="form-group margin-bottom-2">
+                <div class="input-group">
+                    <label for="BusinessFriendlyIdValue">Inserts:&nbsp; </label>
+                    <span class="form-control-static">{Inserts}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    @Styles.Render("~/bundles/datatablescss")
+    @Scripts.Render("~/bundles/datatables")
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            //window.clui.dateTimePickerInit();
+            var dateTemplate = '<div class="daterangepicker dropdown-menu">' + '<div class="calendar left">' + '<div class="calendar-table"></div>' + '</div>' + '<div class="calendar right">' + '<div class="calendar-table"></div>' + '</div>' + '<div class="ranges">' + '<div class="range_inputs">' + '<button class="applyBtn" disabled="disabled" type="button"></button> ' + '<button class="cancelBtn" type="button"></button>' + '</div>' + '</div>' + '</div>';
+            $("#receivedOn").daterangepicker({
+                autoApply: true,
+                template: dateTemplate,
+                showCustomRangeLabel: false,
+                autoUpdateInput: false
+            });
+
+            $('#receivedOn').on('apply.daterangepicker', function (ev, picker) {
+                $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+            });
+
+            FilterData();
+            $('#searchform').validate({ // initialize the plugin
+                errorElement: "span",
+                rules: {
+                    BatchId: {
+                        number: true,
+                        min: 1,
+                        maxlength: 8
+                    },
+                    MailPieceId: {
+                        number: true,
+                        min: 1,
+                        maxlength: 8
+                    }
+                }
+            });
+            // JSON.useDateParser(false);
+        });
+
+        function ViewDetails(obj) {
+            //alert("call");
+            var mailPieceId = $(obj).data("mailpieceid");
+            //console.log(mailPieceId);
+            $("#databind").html("");
+            $("#ViewInfo").modal("show");
+            $("#loadingModal").show();
+            $.ajax({
+                type: "GET",
+                url: baseUrl + "Home/GetMailPieceByUniqueId",
+                data: {
+                    mailPieceId: mailPieceId
+                },
+                //contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    //console.log(response);
+                    if (response.Success) {
+                        if (response.Object != null) {
+                            if (response.Object.model != null) {
+                                $("#loadingModal").hide();
+                                var data = FormatMailPieceObject(response.Object.model);
+                                var bodyHtml = $("#templatemodal").html();
+                                $("#databind").html("");
+                                bodyHtml = bodyHtml.supplant(data);
+                                $("#databind").html(bodyHtml);
+                                $('[data-toggle="popover"]').popover({
+                                    'trigger': 'hover',
+                                    'placement': 'auto left',
+                                    'container': 'body'
+                                });
+                                window.clui.tooltipInit();
+                            }
+                            else {
+                                $("#loadingModal").hide();
+                                $("#databind").html("");
+                                $("#showerror").show();
+                                $("#showerror").html(" <div style='margin-bottom:10px;' class='alert alert-yellow'><span class='sbold'>@AM.Services.Config.Web_Msg_NoRecordFound</span></div>");
+
+                            }
+                        }
+                    } else {
+                        $("#loadingModal").hide();
+                        $("#databind").html("");
+                        $("#showerror").show();
+                        $("#searchMailPieceList").show();
+                        $("#showerror").html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + response.ErrorMessage + "</span></div>");
+                        // $("#ViewInfo").modal("show");
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    $("#showerror").show();
+                    $("#loadingModal").hide();
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    $("#showerror").html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + msg + "</span></div>");
+                    $("#ViewInfo").modal("show");
+                }
+
+            });
+        }
+        function shortName(str) {
+            //console.log(str);
+            if (typeof str != 'undefined' && str != null && str != "")
+                return str.length > 31 ? str.substring(0, 31) + '...' : str;
+        }
+        function MakeYesNoLabel(isbool) {
+            var val = (isbool == true || isbool == 1) ? '<span  class="label medium label-yellow">Yes</span>' : '<span class="label medium label-success">No</span>';
+            return val;
+        }
+        function FormatMailPieceObject(Model) {
+            console.log(Model);
+            $(Model).each(function () {
+                this.ReceivedOnFormatted = moment(this.ReceivedOn).format("MM/DD/YY HH:mm:ss");
+                this.IsPrinted = MakeYesNoLabel(this.IsPrinted);
+                this.IsShipped = MakeYesNoLabel(this.IsShipped);
+                this.IsQCRequested = MakeYesNoLabel(this.IsQCRequested);
+                this.IsQCPerformed = MakeYesNoLabel(this.IsQCPerformed);
+                this.IsPullBackRequested = MakeYesNoLabel(this.IsPullBackRequested);
+                this.IsPulledBack = MakeYesNoLabel(this.IsPulledBack);
+                this.IsRcptInfoSpecified = MakeYesNoLabel(this.IsRcptInfoSpecified);
+                this.SLADays = parseInt(this.SLADays / 86400);
+                this.ShortBatchName = shortName(this.BatchName);
+                this.ShortFileName = shortName(this.FileName);
+                this.ShortPrintFileName = shortName(this.PrintFileName);
+                //this.ShippedOnFormatted = this.ShippedOn == null ? "--" : moment(this.ShippedOn).format("MM/DD/YY HH:mm:ss");
+
+                this.PickedUpOnFormatted = this.PickedUpOn == null ? "--" : moment(this.PickedUpOn).format("MM/DD/YY HH:mm:ss");
+                //this.PrintedOnFormatted = this.PrintedOn == null ? "--" : moment(this.PrintedOn).format("MM/DD/YY HH:mm:ss");
+                this.DueDateFormatted = this.DueDate == null ? "--" : moment(this.DueDate).format("MM/DD/YY HH:mm:ss");
+                this.PulledBackOnFormatted = this.PulledBackOn == null ? "--" : moment(this.PulledBackOn).format("MM/DD/YY HH:mm:ss");
+                this.ShipmentStatusUpdatedOnFormatted = this.ShipmentStatusUpdatedOn == null ? "--" : moment(this.ShipmentStatusUpdatedOn).format("MM/DD/YY HH:mm:ss");
+                this.RcptName = this.RcptName == null || this.RcptName == "" ? "--" : this.RcptName.trim();
+                var cityStateZip = this.RcptAddressCity + " " + this.RcptAddressState + " " + this.RcptAddressZIP;
+                this.RcptAddress = this.RcptAddress == null || this.RcptAddress.trim() == "" ? "--" : this.RcptAddress.trim() + (cityStateZip != "" ? ", " + cityStateZip : "");
+                this.RcptCountry = this.Country == null || this.Country.trim() == "" ? "--" : this.Country.trim();
+
+                var returnCityStateZip = this.RetRcptAddressCity + " " + this.RetRcptAddressState + " " + this.RetRcptAddressZIP;
+                this.RetRcptName = this.RetRcptName == null || this.RetRcptName.trim() == "" ? "--" : this.RetRcptName.replace(/null/g, "").trim();
+                this.RetRcptAddress = this.RetRcptAddress == null || this.RetRcptAddress.trim() == "" ? "--" : this.RetRcptAddress.replace(/null/g, "").trim() + (returnCityStateZip != "" ? ", " + returnCityStateZip : "");
+
+                var shippedOnDate = "";
+                var esignedOnDate = "";
+                if (this.ShippedOn == null || this.ShippingStatus == 'eSigned') {
+                    shippedOnDate = "--";
+                }
+                else {
+                    shippedOnDate = moment(this.ShippedOn).format("MM/DD/YY HH:mm:ss");
+                    esignedOnDate = "--";
+                }
+
+                if (this.ShippingStatus == 'eSigned') {
+                    esignedOnDate = moment(this.ShippedOn).format("MM/DD/YY HH:mm:ss");
+                }
+                else {
+                    esignedOnDate = "--";
+                }
+
+                this.ShippedOnFormatted = shippedOnDate;
+                this.PrintedOnFormatted = shippedOnDate;
+                this.EsignedOnFormatted = esignedOnDate;
+
+
+                switch (this.ShippingStatus) {
+
+                    case "PulledBack":
+                        status = '<span class="label medium label-yellow">' + this.ShippingStatus + '</span>';
+                        break;
+                    case "Error":
+                        status = '<span class="label medium label-red">' + this.ShippingStatus + '</span>';
+                        break;
+                    case "Shipped":
+                        status = '<span class="label medium label-success">' + this.ShippingStatus + '</span>';
+                        break;
+                    case "InProgress":
+                        status = '<span class="label medium label-blue">' + this.ShippingStatus + '</span>';
+                        break;
+                    case "eDelivered":
+                        status = '<span class="label medium label-Edelivery">' + this.ShippingStatus + '</span>';
+                        break;
+                    case "eSigned":
+                        status = '<span class="label medium label-Esign">' + this.ShippingStatus + '</span>';
+                        break;
+                }
+                this.ShippingStatus = status;
+
+                this.IsEDeliveryRequestedFormatted = this.IsEDeliveryRequested && !this.IsESignRequested ? '<span class="label medium label-success">E-Delivery</span>' : this.IsEDeliveryRequested && this.IsESignRequested ? '<span class="label medium label-success">E-Sign</span>' : '<span class="label medium label-blue">P&S</span>';
+
+
+
+                var trackingNo = "";
+                if (this.TrackingNo == null || this.TrackingNo == "") {
+                    trackingNo = "--";
+                }
+                else {
+                    trackingNo = '<a id="' + this.TrackingNo + '" style="width:185px;" class="btn btn-transparent-blue btn-sm" href="/track/' + this.TrackingNo + '" target="_blank"><i class="fa faspinner"></i> ' + this.TrackingNo + '</a>';
+                }
+                this.TrackingNoFormatted = trackingNo;
+
+                var eSignTracking = "";
+                if (this.ExpiryDate == null || this.ExpiryDate == "") {
+                    eSignTracking = "--";
+
+                }
+                else {
+                    eSignTracking = '<a id="' + this.MailBatchId + '" style="width:185px;" class="btn btn-transparent-blue btn-sm" href="/track?id=' + this.MailBatchId + '&IsEdelivery=true" target="_blank"><i class="fa faspinner"></i> ' + this.MailBatchId + '</a>';
+                }
+                this.ESignTrackingFormatted = eSignTracking;
+
+                var eddDesc = '<span id="popoverError" data-toggle="popover" data-original-title="Error Code: <ErrorCode>" data-html="true" data-content="<dataContent>" data-placement="left"><a> <ErrorCode> </a></span>'.replace(/<ErrorCode>/g, this.ErrorCode).replace("<dataContent>", this.ErrorDesc == null ? "--" : this.ErrorDesc);
+                this.ErrorDescPopover = this.ErrorCode == "No_Error" ? '<span>' + this.ErrorCode + '</span>' : eddDesc;
+            });
+            //console.log(Model);
+            return Model;
+        }
+        function FormatObject(Model) {
+            //console.log(Model);
+            $(Model).each(function () {
+                this.ReceivedOnFormatted = moment(this.ReceivedOn).format("MM/DD/YY HH:mm:ss");
+                this.PickedUpOnFormatted = this.PickedUpOn == null ? "--" : moment(this.PickedUpOn).format("MM/DD/YY HH:mm:ss");
+                this.DueDateFormatted = this.DueDate == null ? "--" : moment(this.DueDate).format("MM/DD/YY HH:mm:ss");
+                this.RcptNameFormatted = (this.FirstName==null || this.FirstName=="" ? "--" : this.FirstName) + " " +(this.LastName==null || this.LastName=="" ? "" : this.LastName);
+                this.CityFormatted =(this.City==null || this.City=="" ? "--" : this.City) + " " + (this.State==null || this.State==""?"":this.State) + " " + (this.ZIP==null || this.ZIP=="" ?"":this.ZIP);
+                var status = "";
+                this.View = (this.LoanNumber != null ? '<a class="viewdetails" style="cursor:pointer" onclick="ViewDetails(this)" data-mailpieceid="' + this.UniqueId + '">' + this.LoanNumber + '</a>' : "--");
+                this.ErrorDesc = this.ErrorDesc != null ? this.ErrorDesc.replace(/"/g, '\'') : "";
+                switch (this.Status) {
+
+                    case "PulledBack":
+                        status = '<span class="label medium label-yellow">' + this.Status + '</span>';
+                        break;
+                    case "Error":
+                        status = '<span class="label medium label-red" data-toggle="popover" data-original-title="Error Code: ' + this.ErrorCode + '" data-html="true" data-content="' + this.ErrorDesc + '" data-placement="left">' + this.Status + '</span>';
+                        break;
+                    case "Shipped":
+                        status = '<span class="label medium label-success">' + this.Status + '</span>';
+                        break;
+                    case "InProgress":
+                        status = '<span class="label medium label-blue">' + this.Status + '</span>';
+                        break;
+                    case "eDelivered":
+                        status = '<span class="label medium label-Edelivery">' + this.Status + '</span>';
+                        break;
+                    case "eSigned":
+                        status = '<span class="label medium label-Esign">' + this.Status + '</span>';
+                        break;
+                }
+                this.ShippingStatusFormatted = status;
+
+                var shippedOnDate = "";
+                var esignedOnDate = "";
+                if (this.ShippedOn == null || this.Status == 'eSigned') {
+                    shippedOnDate = "--";
+                }
+                else {
+                    shippedOnDate = moment(this.ShippedOn).format("MM/DD/YY HH:mm:ss");
+                    esignedOnDate = "--";
+                }
+
+                if (this.Status == 'eSigned') {
+                    esignedOnDate = moment(this.ShippedOn).format("MM/DD/YY HH:mm:ss");
+                }
+                else {
+                    esignedOnDate = "--";
+                }
+
+                this.ShippedOnFormatted = shippedOnDate;
+                this.EsignedOnFormatted = esignedOnDate;
+
+                var trackingNo = "";
+                if ((this.TrackingNo == null || this.TrackingNo == "") && this.IsEDeliveryRequested == true && this.IsESignRequested == false && this.ShippingStatus != "Error") {
+                    trackingNo = '<a id="' + this.MailBatchId + '" style="width:185px;" class="btn btn-transparent-blue btn-sm" href="/track?id=' + this.MailBatchId + '&IsEdelivery=true" target="_blank"><i class="fa faspinner"></i> E-Delivery</a>';
+                }
+                else if ((this.TrackingNo == null || this.TrackingNo == "") && this.IsEDeliveryRequested == true && this.IsESignRequested == true && this.ShippingStatus != "Error")
+                {
+                    trackingNo = '<a id="' + this.MailBatchId + '" style="width:185px;" class="btn btn-transparent-blue btn-sm" href="/track?id=' + this.MailBatchId + '&IsEdelivery=true" target="_blank"><i class="fa faspinner"></i> E-Sign</a>';
+                }
+                else if (this.TrackingNo == null || this.TrackingNo == "") {
+                    trackingNo = "--";
+                }
+                else {
+                    trackingNo = '<a id="' + this.TrackingNo + '" data-toggle="tooltip" data-container="body" data-placement="top" title="' + this.TrackingNo + '" class="btn btn-transparent-blue btn-sm" href="/track/' + this.TrackingNo + '" target="_blank"><i style="margin-top: 2px;" class="fa fa-map-marker fa-2x"></i> </a>';
+                }
+                this.TrackingNoFormatted = trackingNo;
+
+                if (this.IsEDeliveryEnabled) {
+                    $('.cl_eSignRequest').show();
+                }
+                else {
+                    $('.cl_eSignRequest').hide();
+                }
+                this.IsESignRequestedFormatted = this.ExpiryDate == null ? '<span class="label medium label-red">False</span>' : '<span class="label medium label-success">True</span>';
+
+                this.IsEDeliveryRequestedFormatted = this.IsEDeliveryRequested && !this.IsESignRequested ? '<span class="label medium label-success">E-Delivery</span>' : this.IsEDeliveryRequested && this.IsESignRequested ? '<span class="label medium label-success">E-Sign</span>' : '<span class="label medium label-blue">P&S</span>';
+
+                this.FileFormatted = this.IsWithinRetentionPeriod && this.RequestedPdf != null ? '<a href="' + baseUrl + 'Common/DownloadPdf?uniqueId=' + this.UniqueId + '"  style="cursor: pointer;font-size:1.2em;margin-right:10%;" class="btn btn-transparent-red btn-sm" data-filename="' + this.RequestedPdf + '" ><i class=" fa fa-file-pdf-o"></i> </a>' : '--';
+                
+
+            });
+            return Model;
+    }
+        function applyDataTable() {
+            $('[data-toggle="popover"]').popover({
+                'trigger': 'hover',
+                'placement': 'auto right',
+                'container': 'body'
+            });
+            var table = $('#sample_2');
+            var filename = "Search";
+            var title = "Search";
+            var oTable = table.dataTable({
+
+                "language": {
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    },
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "No entries found",
+                    "infoFiltered": "(filtered1 from _MAX_ total entries)",
+                    "lengthMenu": "_MENU_ entries",
+                    "search": "<b>Search:</b>",
+                    "zeroRecords": "No matching records found"
+                },
+                "columnDefs": [
+                       {
+                           "targets": ["TrackingNoHide", "ErrorCode", "ErrorText", "BatchId"],
+                           "visible": false,
+                           "searchable": true
+                       },
+                ],
+                buttons: [],
+
+                "scrollX": true,
+
+                "order": [
+                    [1, 'asc']
+                ],
+                "lengthMenu": [
+                    [5, 10, 25, 50, 100, -1],
+                    [5, 10, 25, 50, 100, "All"] // change per page values here
+                ],
+                // set the initial value
+                "pageLength": 5,
+
+                "dom": "<'row' <'col-md-12'B>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
+
+
+            });
+
+
+        }
+
+
+
+        function FilterData() {
+            $("#searchHeader").hide();
+            $("#searchMailPieceList").hide();
+            var el = $('#searchMailPieceList');
+            var startDate = "";
+            var endDate = "";
+            if ($("#receivedOn").val() != "") {
+                var selectedData = $("#receivedOn").val().split('-');
+                startDate = moment(selectedData[0].trim()).format("MM/DD/YY");
+                endDate = moment(selectedData[1].trim()).format("MM/DD/YY");
+                //console.log(selectedData)
+                $("#headerdate").html(startDate + " to " + endDate + " EST");
+            } else {
+                $("#receivedOn").val("");
+                $("#headerdate").empty();
+                startDate = "";
+                endDate = "";
+            }
+            $("#loading").show();
+            //$("#headerdate").html(startDate + " to " + endDate + " EST");
+
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "Home/_GetSearchData",
+                data: JSON.stringify({
+                    BusinessFriendlyIdName: $("#BusinessFriendlyIdName").val(),
+                    BusinessFriendlyIdValue: $("#BusinessFriendlyIdValue").val(),
+                    MailPieceUniqueId: $("#MailPieceUniqueId").val(),
+                    DocType: $("#DocType").val(),
+                    Status: $("#Status").val(),
+                    Channel: $("#Channel").val(),
+                    receivedOnStart: startDate,
+                    receivedOnEnd: endDate,
+                    trackingNumber: $("#TrackingNumber").val(),
+                    clientBatchId: $("#ClientBatchId").val(),
+                    batchId: $("#BatchId").val(),
+                    mailPieceId:$("#MailPieceId").val(),
+                    errorCode: $("#ErrorCode").val()
+                }),
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    // //console.log(response);
+                    if (response.Success) {
+                        $("#loading").hide();
+                        $("#searchHeader").show();
+                        $("#searchMailPieceList").show();
+                        if (response.Object != null) {
+                            //console.log(response.Object.model);
+                            if (response.Object.model.Key <= '@(AM.Services.Config.Web_Search_DisplayLimit)') {
+                                if (response.Object.model.Value.length > 0) {
+                                    $("#searchMailPieceList").html("");
+                                    var data = FormatObject(response.Object.model.Value);
+                                    $.each(data, function (index, value) {
+                                        if (value.ShippingCarrier == "E-Delivery") {
+                                            value.ShippingCarrierOrMethod = value.ShippingCarrier;
+                                        }
+                                        else {
+                                            value.ShippingCarrierOrMethod = value.ShippingCarrier+" / "+ value.ShippingMethod;
+                                        }
+                                    });
+                                    BindTemplate(data, "#SearchBody", "#SearchbodyContent", "#SearchTableContent", "#searchMailPieceList");
+                                    window.clui.tooltipInit();
+                                    $("#downloadFilter").removeAttr("disabled");
+                                }
+                                else {
+                                    $("#searchMailPieceList").html(" <div style='margin-bottom:10px;' class='alert alert-yellow'><span class='sbold'>@AM.Services.Config.Web_Msg_NoRecordFound</span></div>");
+                                }
+                            } else if (response.Object.model.Key > '@(AM.Services.Config.Web_Search_DisplayLimit)' && response.Object.model.Key <= '@(AM.Services.Config.Web_Search_DownloadLimit)') {
+                                $("#searchMailPieceList").html(" <div style='margin-bottom:10px;' class='alert alert-blue'><span class='sbold'>Your query is returning " + response.Object.model.Key + " records which is more than the display limit of '@(AM.Services.Config.Web_Search_DisplayLimit)' records. You may click on <span  title='Download'  style='width: 4%;padding-left: 15px;pointer-events: none;' class='btn btn-primary btn-sm'><i class='fa fa-download'></i></span> to download results.</span></div>");
+                                $("#downloadFilter").removeAttr("disabled");
+                            } else {
+                                $("#downloadFilter").attr("disabled", true);
+                                $("#searchMailPieceList").html(" <div style='margin-bottom:10px;' class='alert alert-blue'><span class='sbold'>Your query is returning " + response.Object.model.Key + " records which is more than the display limit of '@(AM.Services.Config.Web_Search_DisplayLimit)' and download limit of '@(AM.Services.Config.Web_Search_DownloadLimit)'. Please use more filters or fine tune your query.</span></div>");
+                            }
+
+                        }
+                    } else {
+                        $("#loading").hide();
+                        $("#searchHeader").show();
+                        $("#searchMailPieceList").show();
+                        $("#searchMailPieceList").html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + response.ErrorMessage + "</span></div>");
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    $("#loading").hide();
+                    $("#searchHeader").show();
+                    $("#searchMailPieceList").show();
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    $("#searchMailPieceList").html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + msg + "</span></div>");
+                }
+
+            });
+        }
+
+        $("#filterData").click(function () {
+            if ($("#BatchId").val().trim() != "") {
+                if ($("#searchform").valid()) {
+                    FilterData();
+                }
+                else {
+                    return false;
+                }
+
+            }
+            else {
+                FilterData();
+
+            }
+        });
+        $("#resetFilter").click(function () {
+            $("#Status").val("");
+            $("#DocType").val("");
+            $("#Channel").val("");
+            $("#BusinessFriendlyIdValue").val("");
+            $("#ClientBatchId").val("");
+            $("#BatchId").val("");
+            $("#MailPieceId").val("");
+            $("#TrackingNumber").val("");
+            $("#ErrorCode").val("");
+            $('.selectpicker').selectpicker('refresh');
+            $("#receivedOn").val("");
+        });
+        $("#downloadFilter").click(function () {
+            var startDate = "";
+            var endDate = "";
+            if ($("#receivedOn").val() != "") {
+                var selectedData = $("#receivedOn").val().split('-');
+                startDate = moment(selectedData[0].trim()).format("MM/DD/YY");
+                endDate = moment(selectedData[1].trim()).format("MM/DD/YY");
+            } else {
+                $("#receivedOn").val("");
+                startDate = "";
+                endDate = "";
+            }
+
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "Home/_DownloadSearchData",
+                data: JSON.stringify({
+                    BusinessFriendlyIdName: $("#BusinessFriendlyIdName").val(),
+                    BusinessFriendlyIdValue: $("#BusinessFriendlyIdValue").val(),
+                    DocType: $("#DocType").val(),
+                    Status: $("#Status").val(),
+                    Channel: $("#Channel").val(),
+                    receivedOnStart: startDate,
+                    receivedOnEnd: endDate,
+                    trackingNumber: $("#TrackingNumber").val(),
+                    clientBatchId: $("#ClientBatchId").val(),
+                    batchId: $("#BatchId").val(),
+                    mailPieceId: $("#MailPieceId").val(),
+                    errorCode: $("#ErrorCode").val(),
+                    timezoneOffset: new Date().getTimezoneOffset(),
+                    clientName: $("#ClientName").text().trim()
+                }),
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    //console.log(response);
+                    if (response.Success) {
+                        if (response.Object != null) {
+                              const fileName = encodeURIComponent(response.Object.model.FileName);
+                              window.location = baseUrl + 'Home/DownloadSearch?fileGuid=' + response.Object.model.FileGuid
+                            + '&filename=' + fileName;
+                        }
+                        else {
+                            window.clui.globalAlert({
+                                message: "@AM.Services.Config.Web_Msg_NoRecordFound",
+                                alertType: 'red',
+                                timeout: 5000
+                            });
+                        }
+                    } else {
+
+                        if (isNaN(response.ErrorMessage)) {
+                            window.clui.globalAlert({
+                                message: response.ErrorMessage,
+                                alertType: 'red',
+                                timeout: 5000
+                            });
+                        }
+                        else {
+                            var key = parseInt(response.ErrorMessage);
+                            if (key <= 0) {
+                                $("#searchMailPieceList").html(" <div style='margin-bottom:10px;' class='alert alert-yellow'><span class='sbold'>@AM.Services.Config.Web_Msg_NoRecordFound</span></div>");
+                            }
+                            else if (key > '@(AM.Services.Config.Web_Search_DisplayLimit)' && key <= '@(AM.Services.Config.Web_Search_DownloadLimit)') {
+                                $("#searchMailPieceList").html(" <div style='margin-bottom:10px;' class='alert alert-blue'><span class='sbold'>Your query is returning " + key + " records which is more than the display limit of '@(AM.Services.Config.Web_Search_DisplayLimit)' records. You may click on <span  title='Download'  style='width: 4%;padding-left: 15px;pointer-events: none;' class='btn btn-primary btn-sm'><i class='fa fa-download'></i></span> to download results.</span></div>");
+                            }
+                            else {
+                                $("#searchMailPieceList").html(" <div style='margin-bottom:10px;' class='alert alert-blue'><span class='sbold'>Your query is returning " + key + " records which is more than the display limit of '@(AM.Services.Config.Web_Search_DisplayLimit)' and download limit of '@(AM.Services.Config.Web_Search_DownloadLimit)'. Please use more filters or fine tune your query.</span></div>");
+                            }
+                        }
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    window.clui.globalAlert({
+                        message: "@AM.Services.Config.Web_Msg_Ajax_CommonError",
+                        alertType: 'red',
+                        timeout: 5000
+                    });
+
+                }
+
+            });
+        });
+    </script>
+}
+
+

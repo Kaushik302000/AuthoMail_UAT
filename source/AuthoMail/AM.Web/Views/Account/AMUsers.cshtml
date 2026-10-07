@@ -1,0 +1,553 @@
+﻿@{
+    ViewBag.Title = "AMUsers";
+}
+
+<style>
+    #alertContainer {
+        z-index: 1101;
+    }
+</style>
+<link href="~/clui/dist/css/datatablecustom.css" rel="stylesheet" />
+
+<div class="panel panel-default">
+    <div class='alert alert-blue text-center' id="loading" style="display:none"><span> Loading... </span></div>
+    <div class="panel-heading" id="AMUsersHeader">
+        <div class="panel-title">
+            <i class="fa fa-users"></i>
+            AuthoMail Users
+            <div class="pull-right">
+                <button class="btn btn-sm btn-primary" type="button" id="usersexcelbtn"><i class="fa fa-file-excel-o fa-2x"></i></button>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body" id="AMUsersList">
+
+    </div>
+</div>
+<!-- table html template code -->
+<div id="AMUsersTableContent" style="display:none">
+    <table class="table table-responsive" style="overflow-x:scroll">
+        <thead>
+            <tr>
+                <th>User Name</th>
+                <th>Email</th>
+                <th>Email Confirmed</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Display Name</th>
+                <th>Last Login Time</th>
+                <th>Requested On</th>
+                <th>Client(s)</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="AMUsersbodyContent"></tbody>
+    </table>
+</div>
+<div style="display:none">
+    <table>
+        <tbody id="AMUsersBody">
+            <tr class="row-small">
+                <td><span>{LockoutEndDateUtc}{UserName}</span></td>
+                <td><span>{Email}</span></td>
+                <td><span>{EmailConfirmed}</span></td>
+                <td><span>{FirstName}</span></td>
+                <td><span>{LastName}</span></td>
+                <td><span>{DisplayName}</span></td>
+                <td><span>{LastLoginTimeUTC}</span></td>
+                <td><span>{RequestedOn}</span></td>
+                <td><span>{Clients}</span></td>
+                <td><span>{Roles}</span></td>
+                <td><span>{Status}</span></td>
+                <td style="padding-right:0px !important;"><span>{button}</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header">
+                <h1 id="myModalLabel">Sign Up Response</h1>
+
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="statusModal" tabindex="-1" role="dialog" aria-labelledby="statusModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 id="statusModalLabel">User Status</h1>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <div class="form-control" id="usernamemodal"></div>
+                </div>
+                <div class="form-group">
+                    <select id="statusmodalselect" class="form-control"></select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="ChangeStatusBtn" disabled>Ok</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="EditRoleClientModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-userid="" data-status="">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header" style="margin-top:2%;margin-bottom:2%;">
+                <h2>Please select Role & AppCode(s).</h2>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="useridmodal" />
+                <div class="errormsg"></div>
+                <div id="RoleAreaDiv"></div>
+                <div id="AppCodeAreaDiv">
+                    <div class="form-group">
+                        <label class="control-label">AppCode</label>
+                        <select data-live-search="true" data-live-search-placeholder="Select AppCode" class="form-control selectpicker" multiple="multiple" id="appcodeselect" title="AppCode">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="saveeditroleclient"><i class="fa fa-check"></i> Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Cancel</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section Scripts{
+    @Styles.Render("~/bundles/datatablescss")
+    @Scripts.Render("~/bundles/datatables")
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            FilterData();
+
+            function base64ToArrayBuffer(base64) {
+                var binaryString = window.atob(base64);
+                var binaryLen = binaryString.length;
+                var bytes = new Uint8Array(binaryLen);
+                for (var i = 0; i < binaryLen; i++) {
+                    var ascii = binaryString.charCodeAt(i);
+                    bytes[i] = ascii;
+                }
+                return bytes;
+            }
+            //save Byte[] array and download
+            function saveByteArray(reportName, byte) {
+                var blob = new Blob([byte]);
+                var link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                var fileName = reportName + ".xlsx";
+                link.download = fileName;
+                link.click();
+            }
+            function DownloadUserReport() {
+                $('#usersexcelbtn').unbind('click');
+                $('#usersexcelbtn').bind('click', function (e) {
+                    e.preventDefault();
+                    $('#usersexcelbtn').attr('disabled', 'disabled');
+                    $('#usersexcelbtn').html('<i class="fa fa-refresh fa-spin fa-2x"></i>');
+                    var timezoneOffset = new Date().getTimezoneOffset();
+                    $.ajax({
+                        type: "GET",
+                        url: baseUrl + "Account/GetAllUserToDownExcel",
+                        data: { timezoneOffset: timezoneOffset },
+                        dataType: "json",
+                        success: function (response) {
+                            var users = base64ToArrayBuffer(response.Object);
+                            saveByteArray("AuthoMailUsers", users);
+                            $('#usersexcelbtn').removeAttr('disabled');
+                            $('#usersexcelbtn').html('<i class="fa fa-file-excel-o fa-2x"></i>');
+                        },
+                        error: function (err) {
+                            console.log(err);
+                            $('#usersexcelbtn').removeAttr('disabled');
+                            $('#usersexcelbtn').html('<i class="fa fa-file-excel-o fa-2x"></i>');
+                            //alertMessage('red','Error');
+                        }
+                    });
+                });
+            }
+
+            DownloadUserReport();
+            //setTimeout(function () {
+            //    EditRoleClientEvent();
+            //}, 3000);
+
+        });
+
+        var applyDataTable = function () {
+            $('[data-toggle="popover"]').popover({
+                'trigger': 'hover',
+                'placement': 'auto left',
+                'container': 'body'
+            });
+            var table = $('#sample_2');
+            //var filename = "ErrorReportsignUp";
+            //var title = "Error Report - signUp ";
+            var oTable = table.dataTable({
+
+                "language": {
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    },
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "No entries found",
+                    "infoFiltered": "(filtered1 from _MAX_ total entries)",
+                    "lengthMenu": "_MENU_ entries",
+                    "search": "<b>Search:</b>",
+                    "zeroRecords": "No matching records found"
+                },
+                "columnDefs": [
+                        {
+                            "visible": false,
+                            "searchable": true
+                        },
+                ],
+
+                "scrollX": true,
+                buttons: [
+
+                ],
+
+                "order": [
+                    [0, 'asc']
+                ],
+                "lengthMenu": [
+                    [5, 10, 25, 50, 100, -1],
+                    [5, 10, 25, 50, 100, "All"] // change per page values here
+                ],
+                // set the initial value
+                "pageLength": 5,
+
+                "dom": "<'row' <'col-md-12'B>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
+
+
+            });
+
+        }
+
+        var FilterData = function () {
+            $("#AMUsersHeader").hide();
+            $("#AMUsersList").hide();
+            var el = $('#AMUsersList');
+
+            $("#loading").show();
+            var el = $('#AMUsersList');
+
+            $.ajax({
+                type: "GET",
+                url: baseUrl + "Account/GetAllUsers",
+                //data: JSON.stringify({ date: date, filterBy: $("#filterBy").val(), docType: $("#DocType").val() }),
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    //console.log(response);
+                    if (response.Success) {
+                        if (response.Object != null) {
+
+                            $("#loading").hide();
+                            $("#AMUsersHeader").show();
+                            $("#AMUsersList").show();
+                            //console.log(response.Object.model.length);
+                            if (response.Object.model.length > 0) {
+                                var data = FormatObject(response.Object.model);
+                                $("#AMUsersList").html("");
+                                //this.ReceivedOnFormatted = moment(this.ReceivedOn).format("MM/DD/YY HH:mm:ss");
+
+                                BindTemplate(data, "#AMUsersBody", "#AMUsersbodyContent", "#AMUsersTableContent", "#AMUsersList");
+                            }
+                            else {
+                                $("#AMUsersList").html(" <div style='margin-bottom:10px;' class='alert alert-yellow'><span class='sbold'>@AM.Services.Config.Web_Msg_NoRecordFound</span></div>")
+                            }
+                        }
+                    } else {
+                        $("#loading").hide();
+                        $("#AMUsersHeader").show();
+                        $("#AMUsersList").show();
+                        $("#AMUsersList").html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + response.ErrorMessage + "</span></div>");
+                    }
+
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    $("#loading").hide();
+                    $("#AMUsersHeader").show();
+                    $("#AMUsersList").show();
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    $("#AMUsersList").html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + msg + "</span></div>");
+                }
+
+            });
+        }
+        var FormatObject = function (Model) {
+            $(Model).each(function () {
+                var userStatus = this.Status;
+                var statuscolor = "info";
+                statuscolor = this.Status == 'Approved' ? 'primary' : this.Status == 'Rejected' ? "warning" : this.status == 'InActive' ? 'danger' : statuscolor;
+                this.Status = this.Status == 'Open' ? '<label class="label label-' + statuscolor + '">' + this.Status + '</label>' : '<button class="btn btn-primary btn-xs statuschange" type="button" onclick="StatusChangeEventLoadOption(this);" data-curstatus=' + this.Status + ' data-unm=' + this.UserName + ' title="click here to change status">' + this.Status + '</button>';
+                //this.ReceivedOnFormatted = moment(this.ReceivedOn).format("MM/DD/YY HH:mm:ss");
+                //this.IsConfirmed = this.EmailConfirmed ? '<span  class="label medium label-green">Yes</span>' : '<span class="label medium label-yellow">No</span>';
+                this.LockoutEndDateUtc = this.LockoutEndDateUtc == null || this.LockoutEndDateUtc == "" ? '' : '<i class="fa fa-lock text-red"/>';
+                this.LastLoginTimeUTC = this.LastLoginTimeUTC == null ? '--' : moment(this.LastLoginTimeUTC).format("MM/DD/YY HH:mm:ss");
+                this.RequestedOn = this.RequestedOn == null ? '--' : moment(this.RequestedOn).format("MM/DD/YY HH:mm:ss");
+                this.EmailConfirmed = this.EmailConfirmed == true ? '<i class="fa fa-check text-green"/>' : '<i class="fa fa-times text-red"/>';
+                @*this.button = '<a style="cursor: pointer;font-size:1.5em;" onclick="ApproveUser(this)" data-userid="' + this.Id + '" data-status="@AM.Entities.AMUserStatus.Approved"><i class="fa fa-check text-green" aria-hidden="true" title="Approve"></i><span class="sr-only">Approve</span></a><a style="cursor: pointer;font-size:1.5em;" onclick="RejectUser(this)" data-userid="' + this.Id + '" data-status="@AM.Entities.AMUserStatus.Rejected"><i class="padding-left-15 fa fa-times text-red" aria-hidden="true" title="Reject"><span class="sr-only">Reject</span></i></a>';*@
+                var unlockbtn = this.LockoutEndDateUtc == null || this.LockoutEndDateUtc == "" ? '' : '<a style="cursor: pointer;font-size:1.5em;" onclick="UnlockUser(this)" data-userid="' + this.Id + '"<i class="fa fa-unlock text-green" aria-hidden="true" title="Unlock"></i><span class="sr-only">Unlock</span></a>';
+                var editRoleClient = userStatus == 'Approved' && this.IsBAOrClient ? '<button class="btn btn-xs btn-primary editroleclient" data-id="' + this.Id + '" onclick="EditRoleClientEvent(this)"><i class="fa fa-edit"></i></button>':'--';
+                this.button = unlockbtn + ' ' + editRoleClient;
+
+            });
+            return Model;
+        }
+        var UnlockUser = function (val) {
+            var el = $("#myModal").find(".modal-body");
+            el.empty();
+
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "Account/UnlockUser",
+                data: { userId: $(val).data("userid") },
+                dataType: "JSON",
+                success: function (response) {
+                    if (response.Success) {
+                        if (response.Object != null) {
+                            if (response.Object.Key) {
+                                el.html("<div class='alert alert-green'>" + response.Object.Value + "</div>");
+                            }
+                            else {
+                                el.html("<div class='alert alert-red'>" + response.Object.Value + "</div>");
+                            }
+                        }
+                        FilterData();
+                    }
+                    else {
+                        el.html("<div class='alert alert-red'>" + response.ErrorMessage + "</div>");
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    el.html("<div class='alert alert-red'><span>" + msg + "</span></div>");
+                }
+            });
+        }
+        var statusunm = "";
+
+        var StatusChangeEventLoadOption = function (obj) {
+            //$('.statuschange').unbind("click");
+            //$('.statuschange').bind("click", function (e) {
+            var curstatus = $(obj).data("curstatus")
+            var statusList = { '@(AM.Entities.AMUserStatus.Approved)': 'Approve', '@(AM.Entities.AMUserStatus.Rejected)': 'Reject', '@(AM.Entities.AMUserStatus.InActive)': 'InActive' };
+            $('#usernamemodal').html($(obj).data("unm") + ' <label class="label label-default" title="Current Status">' + curstatus + '</label>');
+            $('#statusmodalselect').empty();
+            statusunm = $(obj).data('unm');
+            var keys = Object.keys(statusList);
+            for (var i = 0; i < keys.length; i++) {
+                var sel = curstatus == keys[i] ? "disabled selected" : "";
+                $('#statusmodalselect').append('<option ' + sel + ' value=' + keys[i] + '>' + statusList[keys[i]] + '</option>');
+            }
+            $('#statusModal').modal({
+                backdrop: 'static',
+                keyboard: false
+            });
+
+            statusmodalselectChangeEvent();
+            StatusChangeEvent();
+            //});
+        }
+        var StatusChangeEvent = function () {
+            $('#ChangeStatusBtn').unbind('click');
+            $('#ChangeStatusBtn').bind('click', function (e) {
+                $.ajax({
+                    type: "POST",
+                    url: baseUrl + "Account/ChangeUserStatus",
+                    data: { userName: statusunm, status: $('#statusmodalselect').val() },
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.Success) {
+                            window.clui.globalAlert({
+                                message: response.Message,
+                                alertType: 'green',
+                                timeout: 5000
+                            });
+                            window.location.reload();
+                        }
+                        else {
+                            window.clui.globalAlert({
+                                message: response.ErrorMessage,
+                                alertType: 'red',
+                                timeout: 5000
+                            });
+                        }
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                        window.clui.globalAlert({
+                            message: msg,
+                            alertType: 'red',
+                            timeout: 5000
+                        });
+                    }
+                });
+            });
+        }
+        var statusmodalselectChangeEvent = function () {
+            $('#statusmodalselect').change(function (e) {
+                e.preventDefault();
+                $('#ChangeStatusBtn').removeAttr('disabled');
+            });
+        }
+        StatusChangeEvent();
+        //function EditRoleClientEvent() {
+        //    $('table tbody').on('click', '.editroleclient', function () {
+        //        console.log('call');
+        //        var userId = $(this).data('id');
+        //        $('#useridmodal').val(userId);
+        //        BindRole(userId);
+        //        $('#EditRoleClientModal').modal('show');
+        //    });
+
+        //}
+        function EditRoleClientEvent(obj) {
+            var userId = $(obj).data('id');
+            $('#useridmodal').val(userId);
+            BindRole(userId);
+            $('#EditRoleClientModal').modal('show');
+        }
+
+        function BindRole(userId) {
+            $.ajax({
+                type: "GET",
+                url: baseUrl + "Admin/EditGetRoleAndAppCode",
+                data: { userId: userId },
+                dataType: "json",
+                success: function (response) {
+                    console.log(response);
+                    $('#RoleAreaDiv').html('');
+                    $('#appcodeselect').find('option').remove();
+                    $('#AppCodeAreaDiv').show();
+                    $("#RoleAreaDiv").show();
+                    if (response.Success) {
+                        var roleRadio = '<div class="form-group"> <label class="control-label" style="margin-right:10px">Select Role</label>';
+                        $.each(response.Object.roles, function (i, v) {
+                            var isChecked = response.Object.userRole == v ? 'checked' : '';
+                            roleRadio += '<input type="radio" ' + isChecked + ' class="radiobtn roleradiocls" name="roleradio" value=' + v + ' />' + ' <label style="margin-right:10px">' + v + '</label>';
+                        });
+                        roleRadio += '</div>';
+
+                        $('#RoleAreaDiv').html(roleRadio);
+
+                        //else {
+                        //    $("#RoleAreaDiv").hide();
+                        //}
+                        if (response.Object.userRole == 'BA' || response.Object.userRole == 'BA-OffShore') {
+                            $('#AppCodeAreaDiv').hide();
+                        }
+                        else {
+                            $('#AppCodeAreaDiv').show();
+                            $("#RoleAreaDiv").hide();
+                        }
+                        if (response.Object.isCL) {
+                            //$('#appcodeselect').append('<option value="all">All</option>');
+                            $("#RoleAreaDiv").show();
+                        }
+                        var selectedAppcodeArr = $(response.Object.approveAppCode).toArray();
+
+                        var data = response.Object.domainAppCode;
+                        var groupedData = _.groupBy(data, function (d) { return d.GroupAlias });
+                        var $select = $('#appcodeselect');
+
+                        $.each(groupedData, function (key, value) {
+                            var group = $('<optgroup label="' + key + '" />');
+                            $.each(value, function (k, v) {
+                                var sel = selectedAppcodeArr.indexOf(v.Id) == -1 ? "" : "selected";
+                                $('<option ' + sel + ' value="' + v.Id + '" />').html(v.Name).appendTo(group);
+                            });
+                            group.appendTo($select);
+                        });
+
+                        //$.each(response.Object.domainAppCode, function (i, v) {
+                        //    var sel = selectedAppcodeArr.indexOf(v.Id) == -1 ? "" : "selected";
+                        //    $('#appcodeselect').append('<option value="' + v.Id + '" '+sel+'>' + v.NameAppCode + '</option>');
+                        //});
+
+                        $('#appcodeselect').selectpicker('refresh');
+                        BindRoleEvent();
+                    }
+                    else {
+                        $('#RoleAreaDiv').html('<div class="alert laert-danger text-center"><b>' + response.ErrorMessage + '</b></div>');
+                    }
+                }
+            });
+        }
+        function BindRoleEvent() {
+            $('.radiobtn').unbind('change');
+            $('.radiobtn').bind('change', function (e) {
+                var role = $(this).val();
+                if (role.toLowerCase() == 'client') {
+                    $('#AppCodeAreaDiv').show();
+                }
+                else {
+                    $('#AppCodeAreaDiv').hide();
+                }
+            });
+        }
+
+        function SaveEditRoleClient() {
+            $('#saveeditroleclient').unbind('click');
+            $('#saveeditroleclient').bind('click', function (e) {
+                var userId = $('#useridmodal').val();
+                var role = $("input[name=roleradio]:checked").val();
+                var clientIds = $('#appcodeselect').val();
+                if (role == undefined || role == null || role == "") {
+                    alertMessage("red", "Please select role.")
+                    return false;
+                }
+                $('#saveeditroleclient').attr('disabled','disabled');
+                $.ajax({
+                    type: "POST",
+                    url: baseUrl + "Admin/SaveEditRoleClient",
+                    data: { userId: userId, clientIds: clientIds, role: role },
+                    dataType: "json",
+                    success: function (response) {
+                        console.log(response);
+                        if (response.Success) {
+                            alertMessage('green', response.Object);
+                            window.location.reload();
+                        }
+                        else {
+                            alertMessage('red', response.ErrorMessage);
+                            $('#saveeditroleclient').removeAttr('disabled');
+                        }
+                    },
+                    error: function (err) {
+                        console.log(err);
+                        $('#saveeditroleclient').removeAttr('disabled');
+                }
+                });
+            });
+        }
+        SaveEditRoleClient();
+    </script>
+}

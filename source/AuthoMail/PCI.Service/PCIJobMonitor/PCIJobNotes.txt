@@ -1,0 +1,15 @@
+﻿JobName				Operations
+======================================================
+PnSJobMonitor	1	\*.go
+PnSCoreService	2	IsDownloaded && !IsPrepped
+PCIJobMonitor	3	IsPrepped && !IsSubmitted
+PCIJobMonitor	4	\*.out
+PnSCoreService	5	IsMRDFReceived && !IsReportPrepped
+PnSJobMonitor   6	IsReportPrepped && !IsReportedBack
+
+======================================================
+======================================================
+1. if final XML report is ready to submit to SFT site; then upload it.
+2. ping to PCI interface to check availability of .OUT response MRDF file containing printing and shipping details.
+
+

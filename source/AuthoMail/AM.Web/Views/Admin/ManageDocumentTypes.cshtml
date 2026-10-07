@@ -1,0 +1,830 @@
+﻿@{
+    ViewBag.Title = "ManageDocTypes";
+}
+
+
+<link href="~/clui/dist/css/datatablecustom.css" rel="stylesheet" />
+<style>
+    #dateFilter .bootstrap-select {
+        width: 100% !important;
+    }
+
+    .dataTables_wrapper {
+        margin-top: -1.5% !important;
+    }
+
+    .popover-content {
+        word-wrap: break-word;
+        color: red;
+    }
+
+    .tooltip-inner {
+        /*max-width: 453px !important;*/
+        word-wrap: break-word !important;
+    }
+
+    .table-header th {
+        width: auto;
+        text-align: center;
+    }
+</style>
+<div class="panel panel-default">
+    <div class="panel-heading" id="clientHeader">
+        <div class="panel-title">
+            <i class="fa fa-file"></i> Document Type Details
+            <span class="pull-right">
+                <a href="/Admin/_DownloadDocTypeLists" type="button" class="btn btn-primary"><i class="fa fa-download"></i> Download Document List</a>
+            </span>
+        </div>
+    </div>
+    <div class="panel-body" id="DocTypeList">
+        <div class='alert alert-blue text-center' id="loading" style="display:none;margin-bottom:10px;"><span> Loading... </span></div>
+    </div>
+</div>
+<div id="DocTypeTableContent" style="display:none">
+    <table class="table table-responsive" style="overflow-x:scroll">
+        <thead class="table-header">
+            <tr>
+                <th>Print Configuration</th>
+                <th>IsActive</th>
+                <th>Document Type</th>
+                <th>Client Name</th>
+                <th>Is BRE Applicable</th>
+                <th>BRE Name & Part Number</th>
+                <th>Print Format</th>
+                <th>Paper Type</th>
+                <th>QC Percent</th>
+                <th>Allow Inserts Only</th>
+                <th>IsReturn Info Specified</th>
+                <th>RetRcpt Prefix</th>
+                <th>RetRcpt First Name</th>
+                <th>RetRcpt Middle Name</th>
+                <th>RetRcpt Last Name</th>
+                <th>RetRcpt Suffix</th>
+                <th>RetRcpt Phone</th>
+                <th>RetRcpt Organization</th>
+                <th>RetRcpt AddrLine 1 Above Street</th>
+                <th>RetRcpt AddrLine 2 Above Street</th>
+                <th>RetRcpt Addr Street</th>
+                <th>RetRcpt Addr Apt Or Suite</th>
+                <th>RetRcpt AddrLine 1 Below Street</th>
+                <th>RetRcpt AddrLine 2 Below Street</th>
+                <th>RetRcpt City</th>
+                <th>RetRcpt State</th>
+                <th>RetRcpt Zipcode</th>
+                <th>Client Emails</th>
+                <th>Client Contact No.</th>
+                <th>Support Emails</th>
+                <th>Support Contact No.</th>
+            </tr>
+        </thead>
+        <tbody id="DocTypebodyContent"></tbody>
+    </table>
+</div>
+<div style="display:none">
+    <table>
+        <tbody id="DocTypeBody">
+            <tr class="row-small">
+                <td style="text-align:center;">{ConfigurationView}</td>
+                <td><span>{IsActiveFormatted}</span></td>
+                <td><span>{DocTypeName}</span></td>
+                <td><span>{AppCode}</span></td>
+                <td><span>{IsBRE}</span></td>
+                <td><span>{BREEnvelopeName_PartNumber}</span></td>
+                <td><span>{PrintFormat}</span></td>
+                <td><span>{PaperType}</span></td>
+                <td><span>{QCPercent}</span></td>
+                <td><span>{AllowInsertsOnly}</span></td>
+                <td><span>{IsReturnInfoSpecified}</span></td>
+                <td><span>{RetRcptPrefix}</span></td>
+                <td><span>{RetRcptFirstName}</span></td>
+                <td><span>{RetRcptMiddleName}</span></td>
+                <td><span>{RetRcptLastName}</span></td>
+                <td><span>{RetRcptSuffix}</span></td>
+                <td><span>{RetRcptPhone}</span></td>
+                <td><span>{RetRcptOrganization}</span></td>
+                <td><span>{RetRcptAddrOptionalLine1AboveStreet}</span></td>
+                <td><span>{RetRcptAddrOptionalLine2AboveStreet}</span></td>
+                <td><span>{RetRcptAddressStreet}</span></td>
+                <td><span>{RetRcptAddressAptOrSuiteOrOther}</span></td>
+                <td><span>{RetRcptAddrOptionalLine1BelowStreet}</span></td>
+                <td><span>{RetRcptAddrOptionalLine2BelowStreet}</span></td>
+                <td><span>{RetRcptAddressCity}</span></td>
+                <td><span>{RetRcptAddressState}</span></td>
+                <td><span>{RetRcptAddressZIP}</span></td>
+                <td><span>{ClientEmails}</span></td>
+                <td><span>{ClientContactNo}</span></td>
+                <td><span>{SupportEmails}</span></td>
+                <td><span>{SupportContactNo}</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+<div class="modal fade" id="AddEditModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document" style="width:90%;">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header" style="margin-top:2%;margin-bottom:2%;">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="RemoveCoverLetterModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header" style="margin-top:2%;margin-bottom:2%;">
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="PrintTrailMappingModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog col-md-12" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header" style="margin-top:2%;margin-bottom:2%;">
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header" style="margin-top:2%;margin-bottom:2%;">
+                <h2 id="myModalLabel">Are you sure you want to delete this file?</h2>
+                <input type="hidden" id="docTypeId" />
+                <input type="hidden" id="seqId" />
+                <input type="hidden" id="fileName" />
+                <hr />
+                <button type="button" class="btn btn-default" id="yesRemove"><i class="fa fa-check"></i> Yes</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal"><i class="fa fa-close"></i> No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header">
+                <h1 id="myModalLabel">Document Type Details</h1>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    @Styles.Render("~/bundles/datatablescss")
+    @Scripts.Render("~/bundles/datatables")
+    <script src="~/Scripts/jquery.inputmask.js"></script>
+    <script src="~/Scripts/jquery.inputmask.date.extensions.js"></script>
+    <script src="~/Scripts/jquery.inputmask.extensions.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            GetDocTypes();
+
+        });
+        function shortDir(str) {
+            if (typeof str != 'undefined' && str != null && str != "")
+                return str.length > 31 ? str.substring(0, 31) + '...' : str;
+        }
+
+        function DocTypes(Id, DocTypeCode, Description, ClientId, PrintSize, ContentScalePercent, PrintFormat, PaperType, QCPercent, BizdaySLAType, BizdayCutOff, BizdayTimeSpan, SatSLAType, SatCutOff, SatTimeSpan, SunSLAType, SunCutOff, SunTimeSpan, ShippingCarrier, ShippingServiceType, ShippingAccountCode, IsReturnInfoSpecified, RetRcptPrefix, RetRcptFirstName, RetRcptMiddleName, RetRcptLastName, RetRcptSuffix, RetRcptPhone, RetRcptOrganization, RetRcptAddrOptionalLine1AboveStreet, RetRcptAddrOptionalLine2AboveStreet, RetRcptAddressStreet, RetRcptAddressAptOrSuiteOrOther, RetRcptAddrOptionalLine1BelowStreet, RetRcptAddrOptionalLine2BelowStreet, RetRcptAddressCity, RetRcptAddressState, RetRcptAddressZIP, ClientEmails, ClientContactNo, SupportEmails, SupportContactNo, ShippingSpecialService, IsBRE, EnvelopeId, BREEnvelopeId, NoOfCopies) {
+            this.Id = Id;
+            this.DocTypeCode = DocTypeCode;
+            this.Description = Description;
+            this.ClientId = ClientId;
+            this.PrintSize = PrintSize;
+            this.ContentScalePercent = ContentScalePercent;
+            this.PrintFormat = PrintFormat;
+            this.PaperType = PaperType;
+            this.QCPercent = QCPercent;
+            this.BizdaySLAType = BizdaySLAType;
+            this.BizdayCutOff = BizdayCutOff;
+            this.BizdayTimeSpan = BizdayTimeSpan;
+            this.SatSLAType = SatSLAType;
+            this.SatCutOff = SatCutOff;
+            this.SatTimeSpan = SatTimeSpan;
+            this.SunSLAType = SunSLAType;
+            this.SunCutOff = SunCutOff;
+            this.SunTimeSpan = SunTimeSpan;
+            //            this.SLADays = SLADays;
+            //          this.SLACutOffTime = SLACutOffTime;
+            this.ShippingCarrier = ShippingCarrier;
+            this.ShippingServiceType = ShippingServiceType;
+            this.ShippingAccountCode = ShippingAccountCode;
+            this.IsReturnInfoSpecified = IsReturnInfoSpecified;
+            this.RetRcptPrefix = RetRcptPrefix;
+            this.RetRcptFirstName = RetRcptFirstName;
+            this.RetRcptMiddleName = RetRcptMiddleName;
+            this.RetRcptLastName = RetRcptLastName;
+            this.RetRcptSuffix = RetRcptSuffix;
+            this.RetRcptPhone = RetRcptPhone;
+            this.RetRcptOrganization = RetRcptOrganization;
+            this.RetRcptAddrOptionalLine1AboveStreet = RetRcptAddrOptionalLine1AboveStreet;
+            this.RetRcptAddrOptionalLine2AboveStreet = RetRcptAddrOptionalLine2AboveStreet;
+            this.RetRcptAddressStreet = RetRcptAddressStreet;
+            this.RetRcptAddressAptOrSuiteOrOther = RetRcptAddressAptOrSuiteOrOther;
+            this.RetRcptAddrOptionalLine1BelowStreet = RetRcptAddrOptionalLine1BelowStreet;
+            this.RetRcptAddrOptionalLine2BelowStreet = RetRcptAddrOptionalLine2BelowStreet;
+            this.RetRcptAddressCity = RetRcptAddressCity;
+            this.RetRcptAddressState = RetRcptAddressState;
+            this.RetRcptAddressZIP = RetRcptAddressZIP;
+            this.ClientEmails = ClientEmails;
+            this.ClientContactNo = ClientContactNo;
+            this.SupportEmails = SupportEmails;
+            this.SupportContactNo = SupportContactNo;
+            this.ShippingSpecialService = ShippingSpecialService;
+            this.IsBRE = IsBRE;
+            this.EnvelopeId = EnvelopeId;
+            this.BREEnvelopeId = BREEnvelopeId;
+            this.NoOfCopies = NoOfCopies;
+        }
+        //function ShowHideReturnInfo(obj) {
+        //    if ($(obj).hasClass("collapsed"))
+        //    {
+        //        $(obj).addClass("collapse");
+        //        $(obj).addClass("collapsed");
+        //        $("#tabreturninfo").addClass("in");
+        //    }
+        //    else {
+        //        $(obj).addClass("collapsed");
+        //       // $(obj).removeClass("collapse");
+        //        $("#tabreturninfo").removeClass("in");
+        //    }
+
+        //}
+        function IsRequired() {
+            return $("#tabreturninfo").find("input").filter(function () {
+                return $.trim($(this).val()).length != 0
+            }).length > 1;
+
+        }
+
+        function DocReady() {
+            $(document).ready(function () {
+
+                $('#doctypeform').validate({ // initialize the plugin
+                    errorElement: "span",
+                    rules: {
+                        DocTypeCode: {
+                            required: true,
+                            doctypecode: true,
+                            maxlength: 29
+
+                        },
+                        Description: {
+                            required: true
+                        },
+                        ClientId: {
+                            required: true
+                        },
+                        PrintSize: {
+                            required: true
+                        },
+                        ContentScalePercent: {
+                            required: true,
+                            min: 0,
+                            //max: 100
+                        },
+                        PrintFormat: {
+                            required: true,
+                            //lettersonly: true,
+                        },
+                        PaperType: {
+                            //required: true,
+                            //lettersonly: true,
+                        },
+                        IsCoverLetter: {
+                            required: true,
+                        },
+                        QCPercent: {
+                            required: true,
+                            min: 0,
+                            max: 100
+                        },
+                        BizdayCutOff: {
+                            required: true,
+                        },
+                        BizdayTimeSpan: {
+                            required: true,
+                        },
+                        SatCutOff: {
+                            required: true,
+                        },
+                        SatTimeSpan: {
+                            required: true,
+                        },
+                        SunCutOff: {
+                            required: true,
+                        },
+                        SunTimeSpan: {
+                            required: true,
+                        },
+                        ShippingCarrier: {
+                            required: true
+                            //lettersonly: true,
+                        },
+                        ShippingServiceType: {
+                            required: true,
+                            //lettersonly: true,
+                        },
+                        ShippingAccountCode: {
+                            //required: true
+                        },
+
+                    }
+                });
+
+
+            });
+        }
+        function ValidateDocType() {
+            $("#Save").click(function () {
+                if (IsRequired()) {
+                    $("#RetRcptPrefix").rules('add', {
+
+                        required: true
+                    });
+                    $("#RetRcptFirstName").rules('add', {
+                        lettersonly: true,
+                        required: true
+                    });
+                    $("#RetRcptMiddleName").rules('add', {
+                        lettersonly: true,
+                        required: true
+                    });
+                    $("#RetRcptLastName").rules('add', {
+                        lettersonly: true,
+                        required: true
+                    });
+                    $("#RetRcptSuffix").rules('add', {
+                        required: true
+                    });
+                    $("#RetRcptPhone").rules('add', {
+                        required: true,
+
+                    });
+                    $("#RetRcptOrganization").rules('add', {
+                        required: true
+                    });
+                    $("#RetRcptAddrOptionalLine1AboveStreet").rules('add', {
+                        required: true
+                    });
+                    $("#RetRcptAddrOptionalLine2AboveStreet").rules('add', {
+                        //required: true
+                    });
+                    $("#RetRcptAddressStreet").rules('add', {
+                        required: true
+                    });
+                    $("#RetRcptAddressAptOrSuiteOrOther").rules('add', {
+                        required: true
+                    });
+                    $("#RetRcptAddrOptionalLine1BelowStreet").rules('add', {
+                        required: true
+                    });
+                    $("#RetRcptAddrOptionalLine2BelowStreet").rules('add', {
+                        // required: true
+                    });
+                    $("#RetRcptAddressCity").rules('add', {
+                        required: true
+                    });
+                    $("#RetRcptAddressState").rules('add', {
+                        required: true
+                    });
+                    $("#RetRcptAddressZIP").rules('add', {
+                        required: true,
+                        zipcodeUS: true
+
+                    });
+                    $("#ClientEmails").rules('add', {
+                        required: true,
+                        email: true
+                    });
+                    $("#ClientContactNo").rules('add', {
+                        required: true,
+                        phoneUS: true
+                    });
+                    $("#SupportEmails").rules('add', {
+                        required: true,
+                        email: true
+                    });
+                    $("#SupportContactNo").rules('add', {
+                        required: true,
+                        phoneUS: true
+                    });
+                    $("#IsReturnInfoSpecified").val(true);
+                }
+                else {
+                    $(".returninfovalidate").each(function () {
+                        $(this).rules("remove");
+                    })
+                    $("#IsReturnInfoSpecified").val(false);
+                }
+                if ($("#doctypeform").valid()) {
+                    var isBRE = $("#IsBRE").is(':checked') ? true : false;
+                    var objDocType = new DocTypes($("#Id").val(), $("#DocTypeCode").val(), $("#Description").val(), parseInt($("#ClientId").val()), $("#PrintSize").val(), $("#ContentScalePercent").val(), $("#PrintFormat").val(), $("#PaperType").val(), $("#QCPercent").val(), $("#BizdaySLAType").val(), $("#BizdayCutOff").val(), $("#BizdayTimeSpan").val(), $("#SatSLAType").val(), $("#SatCutOff").val(), $("#SatTimeSpan").val(), $("#SunSLAType").val(), $("#SunCutOff").val(), $("#SunTimeSpan").val(), $("#ShippingCarrier").val(), $("#ShippingServiceType").val(), $("#ShippingAccountCode").val(), $("#IsReturnInfoSpecified").val(), $("#RetRcptPrefix").val(), $("#RetRcptFirstName").val(), $("#RetRcptMiddleName").val(), $("#RetRcptLastName").val(), $("#RetRcptSuffix").val(), $("#RetRcptPhone").val(), $("#RetRcptOrganization").val(), $("#RetRcptAddrOptionalLine1AboveStreet").val(), $("#RetRcptAddrOptionalLine2AboveStreet").val(), $("#RetRcptAddressStreet").val(), $("#RetRcptAddressAptOrSuiteOrOther").val(), $("#RetRcptAddrOptionalLine1BelowStreet").val(), $("#RetRcptAddrOptionalLine2BelowStreet").val(), $("#RetRcptAddressCity").val(), $("#RetRcptAddressState").val(), $("#RetRcptAddressZIP").val(), $("#ClientEmails").val(), $("#ClientContactNo").val(), $("#SupportEmails").val(), $("#SupportContactNo").val(), $("#ShippingSpecialService").val(), isBRE, $("#EnvelopeId").val(), $("#BREEnvelopeId").val(), $("#NoOfCopies").val());
+
+                    $("#AddEditModal").modal("hide");
+                    var el = $("#myModal").find(".modal-body");
+                    el.empty();
+                    $.ajax({
+                        type: "POST",
+                        url: baseUrl + "Admin/CreateOrEditDocType",
+                        data: JSON.stringify({ docType: objDocType }),
+                        contentType: "application/json; charset=utf-8",
+                        success: function (response) {
+                            //console.log(response);
+                            if (response.Success) {
+                                if (response.Object != null) {
+                                    if (response.Object.Key) {
+                                        el.html("<div class='alert alert-green'>" + response.Object.Value + "</div>");
+                                    }
+                                    else {
+                                        el.html("<div class='alert alert-red'>" + response.Object.Value + "</div>");
+                                    }
+                                }
+                                GetDocTypes();
+                            }
+                            else {
+                                el.html("<div class='alert alert-red'>" + response.ErrorMessage + "</div>");
+
+                            }
+                            $("#myModal").modal("show");
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            el.show();
+                            $("#loading").hide();
+                            var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                            el.html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + msg + "</span></div>");
+                        }
+
+                    });
+                }
+                else {
+                    return false;
+                }
+            });
+        }
+        var GetDocTypes = function () {
+            //$("#DocTypeList").hide();
+            var el = $('#DocTypeList');
+            $("#loading").show();
+            $.ajax({
+                type: "GET",
+                url: baseUrl + "Admin/GetDocTypes",
+                //data: JSON.stringify({}),
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    //console.log(response);
+                    $("#loading").hide();
+                    if (response.Success) {
+                        el.show();
+                        if (response.Object != null) {
+                            if (response.Object.length > 0) {
+                                el.html("");
+                                var data = FormatObject(response.Object);
+                                BindTemplate(data, "#DocTypeBody", "#DocTypebodyContent", "#DocTypeTableContent", "#DocTypeList");
+                                window.clui.tooltipInit();
+                            }
+                            else {
+                                el.html(" <div style='margin-bottom:10px;' class='alert alert-yellow'><span class='sbold'>@AM.Services.Config.Web_Msg_NoRecordFound</span></div>")
+                            }
+                        }
+                    } else {
+
+                        el.show();
+                        el.html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + response.ErrorMessage + "</span></div>");
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    el.show();
+                    $("#loading").hide();
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    el.html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + msg + "</span></div>");
+                }
+
+            });
+        }
+
+        function RemoveCoverLetter(docTypeId, seqId, fileName)
+        {
+            //$("#RemoveCoverLetterModal").modal("hide");
+            $("#confirmModal").modal("show");
+            $("#confirmModal").find("#docTypeId").val(docTypeId);
+            $("#confirmModal").find("#seqId").val(seqId);
+            $("#confirmModal").find("#fileName").val(fileName);
+        }
+        $("#yesRemove").click(function () {
+            $("#RemoveCoverLetterModal").modal("hide");
+            $("#confirmModal").modal("hide");
+           var docTypeId= $("#confirmModal").find("#docTypeId").val();
+           var seqId= $("#confirmModal").find("#seqId").val();
+           var fileName = $("#confirmModal").find("#fileName").val();
+           var el = $("#myModal").find(".modal-body");
+           //console.log(docTypeId + " " + fileName + " " + seqId);
+           el.empty();
+           $.ajax({
+               type: "POST",
+               url: baseUrl + "Admin/RemoveCoverLetter",
+               dataType: 'json',
+               data: JSON.stringify({ docTypeId: docTypeId, seqId: seqId, fileName: fileName}),
+               contentType: "application/json; charset=utf-8",
+               success: function (response) {
+                   if (response.Success) {
+                       if (response.Object != null) {
+                           if (response.Object.Key) {
+                               el.html("<div class='alert alert-green'>" + response.Object.Value + "</div>");
+                           }
+                           else {
+                               el.html("<div class='alert alert-red'>" + response.Object.Value + "</div>");
+                           }
+                       }
+
+                   }
+                   else {
+                       el.html("<div class='alert alert-red'>" + response.ErrorMessage + "</div>");
+
+                   }
+                   $("#myModal").modal("show");
+               },
+               error: function (xhr, ajaxOptions, thrownError) {
+                   el.show();
+                   $("#loading").hide();
+                   var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                   el.html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + msg + "</span></div>");
+                   $("#myModal").modal("show");
+               }
+
+           });
+        });
+        function GetPrintTrailMaps(obj){
+            //docTypePrintModal//
+            var Id = $(obj).data("id");
+            var docTypeCode = $(obj).data("doctypecode");
+            var el = $("#PrintTrailMappingModal").find(".modal-header");
+            el.empty();
+            $.ajax({
+                type: "GET",
+                url: baseUrl + "Admin/_GetPrintTrailMappingDetails",
+                data: { Id: Id },
+                success: function (response) {
+                    el.html(response);
+                    $("#docTypePrintModal").text(docTypeCode);
+                    $("#PrintTrailMappingModal").modal("show");
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+
+                    //Spinners(".spinnericon", "faspinner");
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    el.html("<div class='alert alert-red'><span>" + msg + "</span></div>");
+                    $("#RemoveCoverLetterModal").modal("show");
+                }
+            });
+        }
+
+        function GetPrintConfigurationByPnSConfigId(obj){
+            //docTypePrintModal//
+            var pnsConfigId = $(obj).data("pnsconfigid");
+            var docTypeName = $(obj).data("doctypename");
+            var el = $("#PrintTrailMappingModal").find(".modal-header");
+            el.empty();
+            $.ajax({
+                type: "GET",
+                url: baseUrl + "Admin/_PrintConfigurationByPnSConfigId",
+                data: { PnSConfigId: pnsConfigId, documentType: docTypeName },
+                success: function (response) {
+                    el.html(response);
+                    $("#docTypePrintModal").text(docTypeName);
+                    $("#PrintTrailMappingModal").modal("show");
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+
+                    //Spinners(".spinnericon", "faspinner");
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    el.html("<div class='alert alert-red'><span>" + msg + "</span></div>");
+                    $("#RemoveCoverLetterModal").modal("show");
+                }
+            });
+        }
+
+        function GetCoverLetterFiles(obj) {
+            var Id = $(obj).data("id");
+            var docTypeCode = $(obj).data("doctypecode");
+            var el = $("#RemoveCoverLetterModal").find(".modal-header");
+            el.empty();
+            $.ajax({
+                type: "GET",
+                url: baseUrl + "Admin/_GetCoverLetterFiles",
+                data: { Id: Id },
+                success: function (response) {
+                    el.html(response);
+                    $("#docTypeCodeModal").text(docTypeCode);
+                    $("#RemoveCoverLetterModal").modal("show");
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+
+                    //Spinners(".spinnericon", "faspinner");
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    el.html("<div class='alert alert-red'><span>" + msg + "</span></div>");
+                    $("#RemoveCoverLetterModal").modal("show");
+                }
+            });
+
+        }
+        function AddEditDocType(obj) {
+            var Id = $(obj).data("id");
+            var el = $("#AddEditModal").find(".modal-header");
+            el.empty();
+            $.ajax({
+                type: "GET",
+                url: baseUrl + "Admin/GetDocTypeById",
+                data: { Id: Id },
+                success: function (response) {
+                    el.html(response);
+                    $("#AddEditModal").modal("show");
+                    window.clui.selectInit();
+                    DocReady();
+                    ValidateDocType();
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+
+                    //Spinners(".spinnericon", "faspinner");
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    el.html("<div class='alert alert-red'><span>" + msg + "</span></div>");
+                    $("#AddEditModal").modal("show");
+                }
+            });
+
+        }
+        function FormatObject(Model) {
+            $(Model).each(function () {
+                this.IsActiveFormatted = this.IsActive ? '<div class="toggle-container"><input id="isactive' + this.Id + '" onclick="MakeActiveOrDeactive(this)" data-id="' + this.Id + '" data-isam="1"  data-currentvalue="' + this.IsActive + '" class="cl-toggle toggle-orange" type="checkbox" checked="checked" name="toggle-demo"/><label for="isactive' + this.Id + '">Is Active</label></div>' : '<div class="toggle-container"><input id="isactive' + this.Id + '" onclick="MakeActiveOrDeactive(this)" data-currentvalue="' + this.IsActive + '" data-id="' + this.Id + '" data-isam="1" class="cl-toggle toggle-orange" type="checkbox" name="toggle-demo"/><label for="isactive' + this.Id + '">Is Active</label></div>';
+                this.IsReturnInfoSpecified = this.IsReturnInfoSpecified ? '<span id="IsReturnInfoSpecified' + this.Id + '"><span class="label medium label-success">Yes</span></span>' : '<span id="IsReturnInfoSpecified' + this.Id + '"><span class="label medium label-red">NA</span></span>';
+                this.IsBRE = this.IsBRE ? '<span id="IsBRE' + this.Id + '"><span  class="label medium label-success">Yes</span></span>' : '<span id="IsBRE' + this.Id + '"><span class="label medium label-yellow">No</span></span>';
+                this.AllowInsertsOnly = this.AllowInsertsOnly ? '<span id="AllowInsertsOnly' + this.Id + '"><span  class="label medium label-success">Yes</span></span>' : '<span id="AllowInsertsOnly' + this.Id + '"><span class="label medium label-yellow">No</span></span>';
+                this.SLACutOffTime = moment(this.SLACutOffTime).format("HH:mm:ss");
+                this.CreatedOn = moment(this.CreatedOn).format("MM/DD/YY HH:mm:ss");
+                this.ModifiedOn = moment(this.ModifiedOn).format("MM/DD/YY HH:mm:ss");
+                this.Action = '<a style="cursor: pointer;font-size:1.2em;" a href="/Admin/CreateOrEditDocType?id='+this.ClientDocTypeId+'" ><i class="fa fa-edit text-blue" aria-hidden="true" title="Edit"><span class="sr-only">Edit</span></i></a>';
+                this.CoverLetter = '<span style="cursor: pointer;font-size:1.2em;margin-right:10%;" onclick="GetCoverLetterFiles(this)" data-id="' + this.Id + '" data-doctypecode="' + this.ClientDocTypesName + '" ><i class=" fa fa-file-pdf-o text-red" aria-hidden="true" title="Remove Cover Letter"><span class="sr-only">Cover Letter</span></i></span>';
+                this.MappingPT = '<a href="/Admin/PrintTrailMapByDocId/' + this.Id + '" style="cursor: pointer;font-size:1.2em;margin-right:10%;"  ><i class=" fa fa-list text-blue" aria-hidden="true" title="Print Trail Mapping"><span class="sr-only">Print Trail Mapping</span></i></a>';
+                //this.ConfigurationView = '<a style="cursor: pointer;font-size:1.2em;" a href="/Admin/PrintConfigurationByPnSConfigId?pnsConfigId=' + this.PnSConfigId + '&documentType=' + this.DocTypeName + '" ><i class="fa fa-edit text-blue" aria-hidden="true" title="View Print Configuration"><span class="sr-only">Print Configuration</span></i></a>';
+                this.ConfigurationView = '<span id="IsConfigurationView' + this.Id + '" onclick="GetPrintConfigurationByPnSConfigId(this)" data-doctypename="' + this.DocTypeName + '" data-pnsconfigid="' + this.PnSConfigId + '" style="cursor:pointer;font-size: 20px;" ><i class="fa fa-eye text-blue" aria-hidden="true" title="View Print Configuration"><span class="sr-only">View Configuration</span></i></span>' ;
+            });
+            return Model;
+        }
+
+
+        function MakeActiveOrDeactive(obj) {
+            var isActive = $(obj).is(":checked");
+            var Id = $(obj).data("id");
+            var el = $("#myModal").find(".modal-body");
+            el.empty();
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "Admin/MakeActiveOrDeactiveDocType",
+                data: JSON.stringify({ isActive: isActive, Id: Id }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "JSON",
+                success: function (response) {
+                    //Spinners("#pullback", "fa-reply");
+                    if (response.Success) {
+                        if (response.Object != null) {
+                            //if (response.Object == 1 && isActive) {
+
+                            //    el.html("<div class='alert alert-green'>Document Type activated successfully.</div>");
+                            //}
+                            //if (response.Object == 1 && !isActive) {
+                            //    el.html("<div class='alert alert-green'>Document Type deactivated successfully.</div>");
+                            //}
+                        }
+                        GetDocTypes();
+                    }
+                    else {
+                        $(obj).prop('checked', !isActive);
+                        el.html("<div class='alert alert-red'>" + response.ErrorMessage + "</div>");
+                        $("#myModal").modal("show");
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    $(obj).prop('checked', !isActive);
+                    //Spinners(".spinnericon", "faspinner");
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    el.html("<div class='alert alert-red'><span>" + msg + "</span></div>");
+                    $("#myModal").modal("show");
+                }
+
+            });
+
+        }
+
+        function applyDataTable() {
+            $('[data-toggle="popover"]').popover({
+                'trigger': 'hover',
+                'placement': 'auto left',
+                'container': 'body'
+            });
+            window.clui.tooltipInit();
+            var table = $('#sample_2');
+            var filename = "SummaryControlReport";
+            var title = "Summary Control Report";
+            var oTable = table.dataTable({
+
+                "language": {
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    },
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "No entries found",
+                    "infoFiltered": "(filtered1 from _MAX_ total entries)",
+                    "lengthMenu": "_MENU_ entries",
+                    "search": "<b>Search:</b>",
+                    "zeroRecords": "No matching records found"
+                },
+                "columnDefs": [
+                        {
+                            "targets": ["ErrorText", "BatchId"],
+                            "visible": false,
+                            "searchable": true
+
+                        },
+                ],
+                "scrollX": true,
+                buttons: [
+                    //{
+                    //    extend: 'colvis',
+                    //    text: 'Select Fields',
+                    //    className: 'btn purple pull-left',
+                    //    columns: ':not(.noVis)'
+                    //},
+                //{
+                //    extend: 'excel',
+                //    text: '<i class="fa fa-file-excel-o fa-2x"></i>',
+                //    className: 'btn btn-primary',
+                //    filename: filename,
+                //    title: title,
+                //    exportOptions: {
+                //        columns: ["thead th:not(.BatchId)", ".ErrorCode", ".ErrorText"],//0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 23]
+                //    }
+
+                //}
+
+
+
+                ],
+
+                "order": [
+                    [3, 'asc'],
+                    [4, 'asc']
+                ],
+                "lengthMenu": [
+                    [5, 10, 25, 50, 100, -1],
+                    [5, 10, 25, 50, 100, "All"] // change per page values here
+                ],
+                // set the initial value
+                "pageLength": 5,
+
+                "dom": "<'row' <'col-md-12'B>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
+
+
+            });
+            $('.selectpicker').selectpicker('refresh');
+            $('#BatchList').on('change', function () {
+                var oTable = $('#sample_2').dataTable();
+                var filterColumn = oTable.api().column(".BatchId").index();
+                var selected = $(this).find("option:selected").val();
+                if (!selected) {
+
+                    oTable.fnFilter('', filterColumn, true);
+                } else {
+                    oTable.fnFilter("^" + parseInt(selected) + "$", filterColumn, true); //Exact value, column, reg
+                }
+            });
+        }
+
+    </script>
+}
+
+
+
+

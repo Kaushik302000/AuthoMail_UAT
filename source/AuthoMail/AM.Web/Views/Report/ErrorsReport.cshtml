@@ -1,0 +1,333 @@
+﻿@{
+    ViewBag.Title = "ErrorsReport";
+}
+<style>
+    #dateFilter .bootstrap-select {
+        width: 100% !important;
+    }
+
+    .bootstrap-select {
+        width: 205px !important;
+    }
+
+    .popover-content {
+        word-wrap: break-word;
+        color: red;
+    }
+</style>
+
+<link href="~/clui/dist/css/datatablecustom.css" rel="stylesheet" />
+<div class="panel-group">
+    <div class="panel panel-default">
+        <div class="panel-heading" id="headingOne">
+            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#metaItem1">
+                <div class="panel-title">
+                    Error Report
+                    <div class="collapsed-icon pull-right">
+                        <i class="fa fa-caret-left"></i>
+                    </div>
+                    <div class="expanded-icon pull-right">
+                        <i class="fa fa-caret-down"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div id="metaItem1" class="panel-collapse collapse in">
+            <div class="panel-body">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="date">Select Date (EST)</label>
+                        <div class="input-group daterange" id="datepicker4">
+                            <input type="text" class="form-control" id="date">
+                            <span class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-md-3" id="dateFilter">
+                    <div class="form-group">
+                        <label for="Channel">Channel</label>
+                        @Html.Action("_Channel", "Common")
+                    </div>
+                </div>
+                <div class="col-md-1">
+                    <div class="form-group " style="margin-top: 27px;">
+                        <label for="input1"></label>
+                        <button type="button" id="filterData" class="btn btn-primary" style=" padding-top: 6%;">
+                            <span class="sr-only">Filter</span>
+                            <i class="fa fa-arrow-right fa-2x"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="panel panel-default">
+    <div class='alert alert-blue text-center' id="loading" style="display:none"><span> Loading... </span></div>
+    <div class="panel-heading" id="errorHeader">
+        <div class="panel-title">
+            Error Details: <span class="normaltext" id="headerdate"></span>
+            <label for="labelBatch" id="labelBatch" class="normallabel"></label>
+            <span id="batchListSelect">
+
+                @*@Html.DropDownList("BatchList", ViewBag.BatchList as SelectList, "All (Time - Batch Name)", new { @class = "selectpicker" })*@
+            </span>
+        </div>
+    </div>
+    <div class="panel-body" id="errorList" style="margin-top: 10px;">
+
+
+    </div>
+
+</div>
+<!-- table html template code -->
+<div id="errorTableContent" style="display:none">
+    <table class="table table-responsive" style="overflow-x:scroll">
+        <thead>
+            <tr>
+                <th class="ClientBatchId">Batch Id</th>
+                <th class="MailPieceId">MailPiece Id</th>
+                <th class="Channel">Channel</th>
+                <th class="DocType">Document Type</th>
+                <th class="DeliveryType">Delivery Type</th>
+                <th class="LoanNumber">@Html.Action("GetHeadingForBusinessId", "Common")</th>
+                <th class="FileName">File Name</th>
+                <th class="ErrorCode">Error</th>
+                <th class="ReceivedDate">Received Date <span class="fontcapitalize">(Local)</span></th>
+                @if (!User.IsInRole(AM.Entities.AMRoles.BAOffShore))
+                {
+                    <th class="FirstName">First Name</th>
+                    <th class="LastName">Last Name</th>
+                    <th class="RecipientAddress">Recipient Street Address</th>
+                    <th class="RecipientCity">Recipient City</th>
+                    <th class="RecipientState">Recipient State</th>
+                    <th class="RecipientZip">Recipient Zip</th>
+                }
+                <th class="ErrorText">Error Text</th>
+                <th class="ShippingMethod">Shipping Method<span class="fa fa-question-circle" title="Shipping Carrier / Service type"></span></th>
+                <th class="BatchId">BatchId</th>
+
+            </tr>
+        </thead>
+        <tbody id="errorbodyContent"></tbody>
+    </table>
+</div>
+<div style="display:none">
+    <table>
+        <tbody id="errorBody">
+            <tr class="row-small">
+                <td><span>{ClientBatchId}</span></td>
+                <td><span>{UniqueId}</span></td>
+                <td><span>{Channel}</span></td>
+                <td><span>{DocType}</span></td>
+                <td><span>{IsEDeliveryRequested}</span></td>
+                <td><span>{BusinessIdValue}</span></td>
+                <td><span>{FileName}</span></td>
+                <td><span>{ErrorDescPopover}</span></td>
+                <td><span>{ReceivedOnFormatted}</span></td>
+                @if (!User.IsInRole(AM.Entities.AMRoles.BAOffShore))
+                {
+                    <td><span>{FirstName}</span></td>
+                    <td><span>{LastName}</span></td>
+                    <td><span>{Address}</span></td>
+                    <td><span>{City}</span></td>
+                    <td><span>{State}</span></td>
+                    <td><span>{ZIP}</span></td>
+                }
+                <td><span>{ErrorDesc}</span></td>
+                <td><span>{ShippingCarrierOrMethod}</span></td>
+                <td>{BatchId}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<!-- end table template code -->
+@section Scripts{
+    @Styles.Render("~/bundles/datatablescss")
+    @Scripts.Render("~/bundles/datatables")
+    <script>
+        $(document).ready(function () {
+            window.clui.dateTimePickerInit();
+
+            FilterData();
+
+        });
+        function applyDataTable() {
+            $('[data-toggle="popover"]').popover({
+                'trigger': 'hover',
+                'placement': 'auto left',
+                'container': 'body'
+            });
+            var table = $('#sample_2');
+            var selectedData = $("#date").val().split('-');
+            var startDate = moment(selectedData[0].trim()).format("MM/DD/YYYY");
+            var endDate = moment(selectedData[1].trim()).format("MM/DD/YYYY");
+            var filename = "ErrorReport_" + moment(startDate).format("MMDDYYYY") + "_To_" + moment(endDate).format("MMDDYYYY") + "_" + $("#ClientName").text();
+            var title = "Error Report";
+            var oTable = table.dataTable({
+
+                "language": {
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    },
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "No entries found",
+                    "infoFiltered": "(filtered1 from _MAX_ total entries)",
+                    "lengthMenu": "_MENU_ entries",
+                    "search": "<b>Search:</b>",
+                    "zeroRecords": "No matching records found"
+                },
+                "columnDefs": [
+                        {
+                            "targets": ["ErrorText", "BatchId"],
+                            "visible": false,
+                            "searchable": true
+                        },
+                ],
+
+                "scrollX": true,
+                buttons: [
+                    //{
+                    //    extend: 'colvis',
+                    //    text: 'Select Fields',
+                    //    className: 'btn purple pull-left',
+                    //    columns: ':not(.noVis)'
+                    //},
+                {
+                    extend: 'csv',
+                    text: '<i class="fa fa-file-excel-o fa-2x"></i>',
+                    className: 'btn btn-primary',
+                    filename: filename,
+                    title: title,
+                    exportOptions: {
+                        columns: [".ClientBatchId", ".MailPieceId", ".Channel", ".DocType",".DeliveryType", ".LoanNumber", ".FileName", ".ErrorCode", ".ErrorText", ".ReceivedDate", ".FirstName", ".LastName", ".RecipientAddress", ".RecipientCity", ".RecipientState", ".RecipientZip", ".ShippingMethod"],// [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16]
+                    }
+
+                }
+
+
+
+                ],
+
+                "order": [
+                    [0, 'asc']
+                ],
+                "lengthMenu": [
+                    [5, 10, 25, 50, 100, -1],
+                    [5, 10, 25, 50, 100, "All"] // change per page values here
+                ],
+                // set the initial value
+                "pageLength": 5,
+
+                "dom": "<'row' <'col-md-12'B>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
+
+
+            });
+            $('.selectpicker').selectpicker('refresh');
+            $('#BatchList').on('change', function () {
+                var oTable = $('#sample_2').dataTable();
+                var filterColumn = oTable.api().column(".BatchId").index();
+                var selected = $(this).find("option:selected").val();
+                if (!selected) {
+
+                    oTable.fnFilter('', filterColumn, true);
+                } else {
+                    oTable.fnFilter("^" + parseInt(selected) + "$", filterColumn, true); //Exact value, column, reg
+                }
+            });
+        }
+        function FormatObject(Model) {
+            $(Model).each(function () {
+                this.ReceivedOnFormatted = moment(this.ReceivedOn).format("MM/DD/YY HH:mm:ss");
+                this.ErrorDesc = this.ErrorDesc != null ? this.ErrorDesc.replace(/"/g, '\'') : "";
+                var eddDesc = '<span id="popoverError" data-toggle="popover" data-original-title="Error Code: <ErrorCode>" data-html="true" data-content="<dataContent>" data-placement="left"><a> <ErrorCode> </a></span>'.replace(/<ErrorCode>/g, this.ErrorCode).replace("<dataContent>", this.ErrorDesc == null ? "--" : this.ErrorDesc);
+                this.ErrorDescPopover = this.ErrorCode == "No_Error" ? '<span>' + this.ErrorCode + '</span>' : eddDesc;
+                this.IsEDeliveryRequested = this.IsEDeliveryRequested && !this.IsESignRequested ? '<span class="label medium label-success">E-Delivery</span>' : this.IsEDeliveryRequested && this.IsESignRequested ? '<span class="label medium label-success">E-Sign</span>' : '<span class="label medium label-blue">P&S</span>';
+            });
+            return Model;
+        }
+        function FilterData() {
+            $("#errorHeader").hide();
+            $("#errorList").hide();
+            //var date = $("#date").val();
+            var selectedData = $("#date").val().split('-');
+            var startDate = moment(selectedData[0].trim()).format("MM/DD/YYYY");
+            var endDate = moment(selectedData[1].trim()).format("MM/DD/YYYY");
+
+            var el = $('#errorList');
+            $("#headerdate").html(startDate +" - "+ endDate + " EST");
+            $("#loading").show();
+            //el.html("<div class='alert alert-blue text-center'><span> Loading... </span></div>");
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "Report/_GetErrorsReport",
+                data: JSON.stringify({ startDate: startDate, endDate: endDate, channel: $("#Channel").val() }),
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    //console.log(response);
+                    if (response.Success) {
+                        if (response.Object != null) {
+                            $("#loading").hide();
+                            var sel = '<select id="BatchList" class="selectpicker" data-live-search="true" data-live-search-placeholder="Search by Time/Batch Name">';
+                            sel = sel + "<option value=''>All (Time - Batch Name)</option>";
+                            $(response.Object.BatchList).each(function () {
+                                sel = sel + "<option value='" + this.Key + "'>" + this.Value + "</option>";
+                            });
+                            // console.log(sel);
+                            $("#labelBatch").html("Filter by Batch");
+                            $("#batchListSelect").html(sel);
+                            $('.selectpicker').selectpicker('refresh');
+                            $("#errorHeader").show();
+                            $("#errorList").show();
+                            //console.log(response.Object.model.length);
+                            if (response.Object.model.length > 0) {
+                                var data = FormatObject(response.Object.model);
+                                $("#errorList").html("");
+                                $.each(data, function (index, value) {
+                                    if (value.ShippingCarrier == "E-Delivery") {
+                                        value.ShippingCarrierOrMethod = value.ShippingCarrier;
+                                    }
+                                    else {
+                                        value.ShippingCarrierOrMethod = value.ShippingCarrier + " / " + value.ShippingMethod;
+                                    }
+                                });
+                                //this.ReceivedOnFormatted = moment(this.ReceivedOn).format("MM/DD/YY HH:mm:ss");
+                                BindTemplate(data, "#errorBody", "#errorbodyContent", "#errorTableContent", "#errorList");
+                            }
+                            else {
+                                $("#errorList").html(" <div style='margin-bottom:10px;' class='alert alert-yellow'><span class='sbold'>@AM.Services.Config.Web_Msg_NoRecordFound</span></div>")
+                            }
+                        }
+                    } else {
+                        $("#loading").hide();
+                        $("#errorHeader").show();
+                        $("#errorList").show();
+                        $("#errorList").html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + response.ErrorMessage + "</span></div>");
+                    }
+
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    $("#loading").hide();
+                    $("#errorHeader").show();
+                    $("#errorList").show();
+
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    $("#errorList").html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + msg + "</span></div>");
+                }
+
+            });
+
+        }
+        $("#filterData").click(function () {
+            FilterData();
+        });
+    </script>
+}

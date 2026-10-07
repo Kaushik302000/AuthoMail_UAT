@@ -1,0 +1,44 @@
+﻿
+<h2 id="myModalLabel">Add Envelope Inventory Details </h2>
+<hr />
+
+<form id="envelopeInventoryform" action="#">
+    <div class="form-group">
+        <label for="Description">Select Envelop</label>
+        <div class="input-group">
+            @Html.DropDownList("EnvelopeId", ViewBag.Envelops as SelectList, "", new { @class = " form-control selectpicker", @data_live_search = "true", @data_live_search_placeholder = "Search Envelop" })
+        </div>
+        <span for="EnvelopeId" class="error" style="display:none;">This field is required.</span>
+    </div>
+    <div class="form-group">
+        <label for="Description">Select Shipper</label>
+        <div class="input-group">
+            @Html.DropDownList("ShipperId", ViewBag.Shippers as SelectList, "", new { @class = " form-control selectpicker", @data_live_search = "true", @data_live_search_placeholder = "Search Shipper" })
+        </div>
+        <span for="ShipperId" class="error" style="display:none;">This field is required.</span>
+    </div>
+    <div class="form-group">
+        <label for="Description">Received Quantity</label>
+        <div class="input-group">
+            <input type="number" id="ReceivedQuantity" min="1" class="form-control" name="ReceivedQuantity" />
+        </div>
+    </div>
+    <input type="hidden" id="UnitPrice" class="form-control" min="1" value="1" name="UnitPrice" />
+    @*<div class="form-group">
+            <label for="Description">Unit Price</label>
+            <div class="input-group">
+                <input type="number" id="UnitPrice" class="form-control" min="1" name="UnitPrice"  />
+            </div>
+        </div>*@
+    <div class="form-group">
+        <label for="Description">Description</label>
+        <div class="input-group">
+            <textarea id="Description" name="Description" class="form-control"></textarea>
+        </div>
+    </div>
+
+    <hr />
+    <button type="submit" class="btn btn-primary" id="Save"><i class="fa fa-save"></i> Save</button>
+    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Cancel</button>
+</form>
+

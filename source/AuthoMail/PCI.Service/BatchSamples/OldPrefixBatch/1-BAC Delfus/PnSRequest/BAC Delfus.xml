@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-16"?>
+<PnSRequest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" BatchName="BAC Delfus" AppCode="BOALASDELFUS" PageSize="LETTER_IP" EnvelopeSize="CRL_OE10_SW_9203" SLADays="0" DueDate="2017-08-31" Color="N" BarcodeLocation="OnRearSide" PrintFormat="Simplex" OnValidationErrors="ProcessValidFiles" xmlns="http://schemas.corelogic.com/PnS_Request/v1.17">
+  <MailPackageData>
+    <MailPieceData PDFFileName="File_01.pdf" UniqueIdentifier="File_01" />
+    <MailPieceData PDFFileName="File_02.pdf" UniqueIdentifier="File_02" />
+    <MailPieceData PDFFileName="File_03.pdf" UniqueIdentifier="File_03" />
+    <MailPieceData PDFFileName="File_04.pdf" UniqueIdentifier="File_04" />
+    <MailPieceData PDFFileName="File_05.pdf" UniqueIdentifier="File_05" />
+    <MailPieceData PDFFileName="File_06.pdf" UniqueIdentifier="File_06" />
+    <MailPieceData PDFFileName="File_07.pdf" UniqueIdentifier="File_07" />
+    <MailPieceData PDFFileName="File_08.pdf" UniqueIdentifier="File_08" />
+    <MailPieceData PDFFileName="File_09.pdf" UniqueIdentifier="File_09" />
+    <MailPieceData PDFFileName="File_10.pdf" UniqueIdentifier="File_10" />
+    <MailPieceData PDFFileName="File_11.pdf" UniqueIdentifier="File_11" />
+    <MailPieceData PDFFileName="File_12.pdf" UniqueIdentifier="File_12" />
+    <MailPieceData PDFFileName="File_13.pdf" UniqueIdentifier="File_13" />
+    <MailPieceData PDFFileName="File_14.pdf" UniqueIdentifier="File_14" />
+    <MailPieceData PDFFileName="File_15.pdf" UniqueIdentifier="File_15" />
+    <MailPieceData PDFFileName="File_16.pdf" UniqueIdentifier="File_16" />
+    <MailPieceData PDFFileName="File_17.pdf" UniqueIdentifier="File_17" />
+    <MailPieceData PDFFileName="File_18.pdf" UniqueIdentifier="File_18" />
+    <MailPieceData PDFFileName="File_19.pdf" UniqueIdentifier="File_19" />
+    <MailPieceData PDFFileName="File_20.pdf" UniqueIdentifier="File_20" />
+  </MailPackageData>
+</PnSRequest>

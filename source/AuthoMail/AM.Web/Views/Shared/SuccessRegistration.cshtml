@@ -1,0 +1,25 @@
+﻿@{
+    ViewBag.Title = "Success Registration";
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+}
+<div style="margin-top:2%">
+
+</div>
+<div class="title col-md-12" style="margin-bottom:2%;">
+    <h1>Thank you for registration.</h1>
+    <div class="alert alert-green">
+        <div class="row">
+
+            @if (ViewBag.IsCoreLogic != null && ViewBag.IsCoreLogic)
+            {
+                <div><i class="fa fa-check fa-2x"></i> Your registration request is now awaiting approval. Please note that you may login only after your account is approved.</div>
+                <br />
+                <div>If it is taking longer, you may escalate to printandshipescalationslx@corelogic.com.</div>
+            }
+            else
+            {
+                <span><i class="fa fa-check fa-2x"></i> We have sent you an email to your account please confirm it.</span>
+            }
+        </div>
+    </div>
+</div>

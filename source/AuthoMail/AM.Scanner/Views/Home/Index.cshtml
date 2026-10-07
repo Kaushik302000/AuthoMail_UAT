@@ -1,0 +1,398 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+<link href="~/Content/module.admin.page.index.min.css" rel="stylesheet" />
+@*<link href="~/Content/dataTables.bootstrap.css" rel="stylesheet" />*@
+
+@*<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />*@
+<link href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/fixedheader/3.1.7/css/fixedHeader.bootstrap.min.css" rel="stylesheet" />
+
+<style>
+
+    tr.hide-table-padding td {
+        padding: 0;
+    }
+
+    .expand-button {
+        position: relative;
+    }
+
+    .accordion-toggle .expand-button:after {
+        position: absolute;
+        left: .75rem;
+        top: 50%;
+        transform: translate(0, -50%);
+        -webkit-transition: all 0.5s ease-in-out;
+    }
+
+
+    .accordion-toggle:hover {
+        cursor: pointer;
+    }
+
+
+    .clientCode {
+        font-size: 12px;
+    }
+
+
+
+    a:hover {
+        color: none;
+    }
+
+    .preclass {
+        padding: 4.5px;
+        display: inline-block;
+        margin: 0px;
+        font-size: 18px;
+        line-height: 1.428571429;
+        color: #333333;
+        word-break: break-all;
+        word-wrap: break-word;
+        background-color: #fffdfd;
+        border: 1px solid #cccccc;
+        border-radius: 4px;
+        min-width: 15%;
+        /*max-height: 43%;*/
+        width: 81px;
+    }
+
+        .preclass:hover {
+            background-color: #fff;
+            border: 1px solid #ff6a00;
+        }
+
+    .preclassok {
+        background-color: #72af46 !important;
+        border: 1px solid #fff !important;
+        color: #fff !important;
+    }
+
+    .report {
+        border: 1px solid #72af46;
+        color: #72af46;
+    }
+
+        .report:hover {
+            color: #FFF;
+            background: #72af46;
+        }
+
+    .reportLink {
+        padding: 5px;
+    }
+
+    .bg-primary {
+        border: 1px solid #cb4040 !important;
+        /*color: #cb4040 !important;
+        background-color: #fff !important;*/
+        color: #fff !important;
+        background-color: #cb4040 !important;
+    }
+
+    .bg-info {
+        border: 1px solid #466baf !important;
+        color: #fff !important;
+        background-color: #466baf !important;
+    }
+
+    .bg-success {
+        border: 1px solid #72af46 !important;
+        color: #fff !important;
+        background-color: #72af46 !important;
+    }
+
+    .bg-inverse {
+        border: 1px solid #424242 !important;
+        color: #fff !important;
+        background-color: #424242 !important;
+    }
+
+    .bg-warning {
+        border: 1px solid #2BBBAD !important;
+        color: #fff !important;
+        background-color: #2BBBAD !important;
+    }
+    /*rgba(255,136,0,1)*/
+    .topbordernone {
+        border-top: none !important;
+    }
+
+    .btn-warning {
+        background: #2BBBAD !important;
+        border-color: #2BBBAD !important;
+        color: #fff !important;
+    }
+
+        .btn-warning:hover {
+            background: none !important;
+            color: #2BBBAD !important;
+        }
+
+    .aligncenter {
+        text-align: center;
+        vertical-align: middle !important;
+    }
+
+    .count0 {
+        font-size: 18px;
+        font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
+        vertical-align: middle !important;
+    }
+
+    .dataTables_scrollBody::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .dataTables_scrollBody::-webkit-scrollbar-thumb {
+        background: #666;
+        border-radius: 20px;
+    }
+
+    .dataTables_scrollBody::-webkit-scrollbar-track {
+        background: #ddd;
+        border-radius: 20px;
+    }
+
+    table.dataTable.table-condensed > thead > tr > th {
+        padding-right: 0px;
+    }
+
+    .redbg {
+        background-color: #f8d7da !important;
+        color: #bd362f !important;
+    }
+
+    .noprocess {
+        /*background: #B4C6E7 !important;
+        color: #203764 !important;*/
+        background: #DBDBDB !important;
+        color: #000 !important;
+    }
+
+    .completed {
+        background: #C6EFCE !important;
+        color: #006100 !important;
+    }
+
+    .incomplete {
+        background: #FFEB9C !important;
+        color: #9C5700 !important;
+    }
+
+    .label-warning {
+        background-color: #f0ad4e !important;
+    }
+</style>
+
+<section class="">
+    <div class="col-md-12">
+        <div class="panel">
+            <div class="panel-body">
+                <div class="table-responsive" id="batchtable">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@*<input type="hidden" name="ClientCodeList" id="ClientCodeList" value="@string.Join(" ,",ClientList)" />*@
+<!-- Global -->
+@*<script src="~/Scripts/jquery-1.10.2.js"></script>*@
+@section Scripts{
+
+    @*<script src="https://code.jquery.com/jquery-3.5.1.js"></script>*@
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/fixedheader/3.1.7/js/dataTables.fixedHeader.min.js"></script>
+    <script src="~/Scripts/modernizr.js"></script>
+    <script src="~/Scripts/animations.init.js"></script>
+    <script src="~/Scripts/moment.js"></script>
+    <script src="~/Scripts/tooltip.js"></script>
+    <script>
+    var basePath = '',
+        commonPath = '../assets/',
+        rootPath = '../',
+        DEV = false,
+        componentsPath = '../assets/components/';
+
+    var primaryColor = '#cb4040',
+        dangerColor = '#b55151',
+        infoColor = '#466baf',
+        successColor = '#8baf46',
+        warningColor = '#ab7a4b',
+        inverseColor = '#45484d';
+
+    var themerPrimaryColor = primaryColor;
+
+
+    function GetAllBatchForScan() {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Content("~/api/report/GetAllBatchForScan")',
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                BuildTable(data);
+            },
+            error: function (xhr, data) {
+                console.log(xhr);
+                console.log(data);
+            }
+        });
+    }
+    function calcDataTableHeight(decreaseTableHeight) {
+        return ($(window).innerHeight() - 200) - decreaseTableHeight;
+    };
+        function BuildTable(response) {
+            debugger;
+        var table = "<table id='example' class='table table-bordered table-condensed table-striped' style='margin-bottom:5px;'>";
+       // var colorcode = ["#17a2b8!important;", "#466baf!important;", "#ffc107!important;"];
+        var colorcode = ["#ffc107!important;","#17a2b8!important;"];
+       // var colorcode = ["#ffc107!important;", "#466baf!important;"];
+       // var colorcode = ["#2BBBAD !important;", "#72af46 !important;", "#466baf !important;"];
+        var headerTable = "";
+        var thead = "<thead><tr style='font-size: x-large;background:#17a2b8;color:white;'>";
+        $.each(response.headers, function (i, v) {
+            if(i==0 || i==1)
+                thead += "<th>" + v.replace(/(\d)([A-z])/gi, '$1 $2') + "</th>";
+            else if (i == 2)
+                thead = thead;
+            else
+                thead += "<th class='aligncenter'>" + v.replace(/(\d)([A-z])/gi, '$1 $2') + "</th>";
+        });
+        thead += "<th class='aligncenter' title='Report'><i class='glyphicon glyphicon-file'></i></th>";
+        thead += "</thead>";
+        var tbody = "<tbody id='datatbody'>";
+        var colorcnt = 0;
+        //for (var x = 0; x < 3; x++) {
+
+
+            $.each(response.data, function (i, v) {
+                //"<tr class='alert alert-" + colorcode[colorcnt] + " ' style='font-size: x-large;'>";
+                var isBulk = false;
+                tbody += "<tr  style='font-size: x-large;'>";
+                for (var j = 0; j < v.length; j++) {
+                    switch (j) {
+                        case 0:
+                            //"<td style='border-bottom-color: white !important;' class='bg-inverse'> <b>" + v[j] + "</b></td>";
+                            tbody += "<td style='color:" + colorcode[colorcnt] + "'> <b >" + v[j] + "</b></td>";
+                            break;
+                        case 1:
+                            var cls = "label-info noprocess";
+                            if (v[j] == 'Production Incomplete') {
+                                cls = "label-danger incomplete";
+                            }
+                            if (v[j] == 'Production Complete') {
+                                cls = "label-success completed";
+                            }
+                            tbody += "<td><label style='font-size: small;' class=' label " + cls + "'>" + v[j] + "</label></td>";
+                            break;
+                        case 2:
+                            var dayColor = '#000';
+                            var cellBGColor = "";
+                            if (v[1] == 'Production Incomplete') {
+                                dayColor = "#9C5700";
+                                cellBGColor = "#FFEB9C";
+                            }
+                            if (v[1] == 'Production Complete') {
+                                dayColor = "#C6EFCE";
+                                cellBGColor = "#006100";
+                            }
+                            tbody += "<td class='aligncenter ' style='color:" + dayColor + ";background-color:" + cellBGColor + ";' title='" + response.headers[j+1] + " of " + v[0] + "'>" + v[j+1] + "</td>";
+                            break;
+                        case 3:
+                            debugger;
+                            isBulk = v[2] != null ? JSON.parse(v[2]):false;
+                            break;
+                        default:
+                            if (v[j] == '--') {
+                                tbody += "<td class='aligncenter'>" + v[j] + "</td>";
+                            }
+                            else {
+                                var scannedLoans = parseInt(v[j].split('/')[0]) || 0;
+                                var totalLoans = parseInt(v[j].split('/')[1]) || 0;
+                                var batchbgcolor = "";
+
+                                //style='color:" + dayColor + ";background-color:" + cellBGColor + ";'
+                                if (totalLoans == 0) {
+                                    tbody += "<td class='aligncenter count0'>" + v[j] + "</td>";
+                                } else {
+
+                                    var dayColor = '';
+                                    var cellBGColor = "";
+                                    //if (v[1] == 'Production Incomplete') {
+                                    //    dayColor = "#9C5700";
+                                    //    cellBGColor = "#FFEB9C";
+                                    //}
+                                    //if (v[1] == 'Production Complete') {
+                                    //    dayColor = "#C6EFCE";
+                                    //    cellBGColor = "#006100";
+                                    //}
+                                    if (totalLoans > 0 && scannedLoans !== totalLoans) {
+                                        batchbgcolor = "background-color:#FFEB9C !important;color:#9C5700 !important;"
+                                    }
+                                    if (scannedLoans != 0 && scannedLoans == totalLoans) {
+                                        //batchbgcolor = "background-color:#72af46 !important;color:#fff !important;"
+                                        batchbgcolor = "background-color:#C6EFCE !important;color:#006100 !important;"
+                                    }
+                                    if (isBulk) {
+                                        tbody += "<td class='aligncenter'><a title='" + v[0] + " : " + response.headers[j] + "' href='" + baseUrl + "Scan/BulkScan?clientCode=" + v[0] + "&batchName=" + response.headers[j] + "'><pre class='preclass ' style='" + batchbgcolor + ";" + cellBGColor + "' >" + v[j] + "</pre></a></td>";
+                                    } else {
+                                        tbody += "<td class='aligncenter'><a title='" + v[0] + " : " + response.headers[j] + "' href='" + baseUrl + "Scan/Index?clientCode=" + v[0] + "&batchName=" + response.headers[j] + "'><pre class='preclass ' style='" + batchbgcolor + ";" + cellBGColor + "' >" + v[j] + "</pre></a></td>";
+                                    }
+
+                                }
+
+                            }
+                            break;
+
+                    }
+
+
+                }
+                tbody += "<td class='aligncenter'><a title='" + v[0] + " Report' class='link' href='" + baseUrl +"Reports/ScanedDocuments?clientCode=" + v[0] + "'> <i class='glyphicon glyphicon-th-list'></i> </a></td>";
+                tbody += "</tr>";
+                if (colorcnt == 1) {
+                    colorcnt = -1;
+                }
+                colorcnt++;
+            });
+        //}
+        tbody += "</tbody>";
+        table+=thead;
+        table+=tbody;
+        table += '</table>';
+        //console.log(table);
+        $('#batchtable').html(table);
+        //if ($("#dashboradTable").find('tr').length > 8) {
+        //    $(".dataTables_scrollBody").css({
+        //        height: calcDataTableHeight(0), 'overflow-y': 'auto', 'width': '100.39%'
+        //    });
+        //}
+
+        $('#example').DataTable({
+            scrollY: calcDataTableHeight(0),
+            scrollCollapse: true,
+                 fixedHeader: true,
+                 paging: false,
+                 searching: false,
+                 ordering: false,
+                 info:false
+            });
+
+    }
+
+    $(document).ready(function () {
+        GetAllBatchForScan();
+        /*  Updating Batch Count on every 60 Second using Ajax */
+        window.setInterval(function () {
+            GetAllBatchForScan();
+        }, 60000);
+    });
+
+    </script>
+
+}

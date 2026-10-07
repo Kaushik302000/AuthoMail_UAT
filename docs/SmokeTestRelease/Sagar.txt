@@ -1,0 +1,2394 @@
+Smoke Test Reminder
+
+1) Added State Validation in Resource folder
+2) Removed State list from PackageInfo xsd
+3) Changes in system settings table - Update Seed Script Also
+	- Added 2 FexEx URLs in table and Keys added in Config class (Core_FedExTestService,Core_FedExProdService)
+	- Added Common_PrintLocation in Config and value ="Fort Mill, SC"
+	- Added Monitor_AMC_ReportDateFormat in Config - Value="M/d/yyyy h:mm:ss tt"
+	- Removed Keys from Config and need to update script -Core_PnS_SFT_HostURL-Core_PnS_SFT_UserName-Core_PnS_SFT_Password,Core_CustomerTransactionId
+	- Rename Monitor_Environment ==Common_Environment
+	- Remove Insert statements (seed) for removed system settings
+	
+		INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) VALUES (N'Core_FedExTestService', N'String', N'https://wsbeta.fedex.com:443/web-services/ship', NULL, 0, N'https://wsbeta.fedex.com:443/web-services/ship', NULL, GETUTCDATE())
+		GO
+		INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) VALUES (N'Core_FedExProdService', N'String', N'https://gateway.fedex.com:443/web-services', NULL, 0, N'https://gateway.fedex.com:443/web-services', NULL, GETUTCDATE())
+		GO
+		INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) VALUES (N'Common_PrintLocation', N'String', N'Fort Mill, SC', NULL, 0, N'Fort Mill, SC', NULL, GETUTCDATE())
+		GO
+		INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) VALUES (N'Monitor_AMC_ReportDateFormat', N'String', N'M/d/yyyy h:mm:ss tt', NULL, 0, N'M/d/yyyy h:mm:ss tt', NULL, GETUTCDATE())
+		GO
+		
+		DELETE FROM [Common].[SystemSettings] WHERE ID IN ('Core_PnS_SFT_HostURL','Core_PnS_SFT_UserName','Core_PnS_SFT_Password','Core_CustomerTransactionId')
+		
+4) DocTypeId FK and Nullable in class
+
+	ALTER TABLE [AM].[MailPieces]  WITH CHECK ADD  CONSTRAINT [FK_MailPiece_DocTypes] FOREIGN KEY([DocTypeId])
+	REFERENCES [AM].[DocTypes] ([Id])
+	GO
+
+	ALTER TABLE [AM].[MailPieces] CHECK CONSTRAINT [FK_MailPiece_DocTypes]
+	GO
+
+
+5) Move DocTypeId update into Validation
+6) Update Description=DocTypeCode in AM.DocTypes table and DocTypeId-52 and 53 with LoanCare_MN_U, LoanCare_MN_U of umpqua and LoanCare
+7) CREATE UNIQUE NONCLUSTERED INDEX IX_DocTypes_ClientId_Description ON [AM].[DocTypes]
+	(
+	 ClientId ,
+	 [Description]
+	) WITH( IGNORE_DUP_KEY = OFF)
+
+	CREATE UNIQUE NONCLUSTERED INDEX IX_DocTypes_ClientId_DocTypeCode ON [AM].[DocTypes]
+	(
+	 ClientId ,
+	 DocTypeCode
+	) WITH( IGNORE_DUP_KEY = OFF)
+
+8) Need to update PCI.Lib.dll in AM
+9) Add Mapping table
+	CREATE TABLE [AM].[ClientAMCCustIdMap](
+	[ClientId] [int] NOT NULL,
+	[AMCCustId] [varchar](128) NOT NULL,
+	CONSTRAINT [PK_ClientAMCCustIdMap] PRIMARY KEY CLUSTERED 
+	(
+	[ClientId] ASC,
+	[AMCCustId] ASC
+	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	) ON [PRIMARY]
+
+	GO
+
+	SET ANSI_PADDING OFF
+	GO
+
+	ALTER TABLE [AM].[ClientAMCCustIdMap] WITH CHECK ADD CONSTRAINT [FK_ClientAMCCustIdMap_Clients] FOREIGN KEY([ClientId])
+	REFERENCES [Common].[Clients] ([Id])
+	GO
+
+	ALTER TABLE [AM].[ClientAMCCustIdMap] CHECK CONSTRAINT [FK_ClientAMCCustIdMap_Clients]
+	GO
+
+10) Do DocTypeId null in place of 0 in AM.Mailpieces table
+11) Update PnS Root Path in
+
+
+For Alaska
+
+1) Need to change Description of ChangeOfCircumstances to CoC in AM.DocTypes
+2) Need to ask for Cutoff time for Alaska
+3) Change Client Time Zone of Alaska - Pacific Standard Time
+4) Create SP usp_GetDeliverableByReportType
+5) Add CoverLetter mapping data for alaska
+6) Add Deliverables data for Alaska
+7) Add EmailChannels data for Alaska
+8) Rename 90days_Certified to 90days in AM.DocTypes 
+
+For HSBC
+
+1) Change Description of all doctypes
+2) Add deliverables and email channels
+3) enable client
+4) Add task schedular for it
+
+
+=============================================================
+Deployment 06/21/2018 - AuthoMail and PnS Service
+=============================================================
+=================
+Database Changes
+=================
+	- For PnS
+		- For PackageTracking Deploy
+		1) INSERT [PnS].[Schema_MRDFResponse] ([Id], [FieldName], [Type], [StartPosition], [Length], [IsActive], [Description], [SampleValue], [DataType], [DataFormatTemplate]) VALUES (29, N'PackageTrackingNumber', N'ASCII_Number', 501, 40, 1, N'The value in this field identifies the tracking information of USPS shipping for some clients which dont have IMBarcode value.', N'00000000000', N'varchar(50)', NULL)
+		2) ALTER TABLE [PnS].[MRDFResponse] ADD PackageTrackingNumber VARCHAR(50) NULL
+		3) Update [view_MRDFResponseData]
+			USE [AuthoMail]
+			GO
+
+			/****** Object:  View [dbo].[view_MRDFResponseData]    Script Date: 6/21/2018 12:10:31 PM ******/
+			DROP VIEW [dbo].[view_MRDFResponseData]
+			GO
+
+			/****** Object:  View [dbo].[view_MRDFResponseData]    Script Date: 6/21/2018 12:10:31 PM ******/
+			SET ANSI_NULLS ON
+			GO
+
+			SET QUOTED_IDENTIFIER ON
+			GO
+
+
+			CREATE VIEW [dbo].[view_MRDFResponseData] AS
+			SELECT REQ.JobId
+			,REQ.PieceId
+			,ISNULL(REQ.ErrId,0) AS ErrId 
+			,REQ.ErrDesc
+			,RES.ProcessingTimeStamp AS ShippedOn 
+			,REQ.UniqueId
+			,REQ.PDFFileName
+			,REQ.MailPieceStatus
+			,ISNULL(RES.TotalSheets,0) AS TotalSheets
+			,REQ.DivertVS3
+			,RES.Disposition 
+			,ISNULL(RES.WeightMeasured,0.00) AS WeightMeasured 
+			,ISNULL(RES.PostageMetered,0.00) AS PostageCost 
+			,RES.PackageTrackingNumber 
+			FROM [PnS].MRDFRequest REQ
+			LEFT JOIN [PnS].MRDFResponse RES
+			ON  REQ.JobId =RES.JobId AND REQ.PieceId =RES.PieceId
+
+			GO
+		4) Update [usp_GetMRDFResponseDataByJobId]
+			USE [AuthoMail]
+			GO
+			/****** Object:  StoredProcedure [dbo].[usp_GetMRDFResponseDataByJobId]    Script Date: 6/21/2018 12:12:14 PM ******/
+			SET ANSI_NULLS ON
+			GO
+			SET QUOTED_IDENTIFIER ON
+			GO
+
+			ALTER PROCEDURE [dbo].[usp_GetMRDFResponseDataByJobId]
+			@jobId int
+			AS
+			BEGIN
+			 -- SET NOCOUNT ON added to prevent extra result sets from
+			 -- interfering with SELECT statements.
+			 SET NOCOUNT ON;
+			 
+			 SELECT JobId, PieceId, Date, Feeder2_Fed, OperatorId, MachineId, ProcessingTimeStamp, DetailedErrorId
+			 , Disposition, Input_Fed, Feeder3_Fed, Feeder4_Fed, Feeder5_Fed, ComputedWeight, MeterDate
+			 , StatusSource, PostageMetered, WeightMeasured, ExitLocation, TotalSheets, PDFFileName, PackageTrackingNumber 
+			 FROM [Pns].[MRDFResponse] MS 
+			 WHERE MS.JobId=@jobId
+			END
+		5) Update [usp_GetFinalMRDFResponseDataByJobId]
+			USE [AuthoMail]
+			GO
+			/****** Object:  StoredProcedure [dbo].[usp_GetFinalMRDFResponseDataByJobId]    Script Date: 6/21/2018 12:14:11 PM ******/
+			SET ANSI_NULLS ON
+			GO
+			SET QUOTED_IDENTIFIER ON
+			GO
+
+			ALTER PROCEDURE [dbo].[usp_GetFinalMRDFResponseDataByJobId]
+			@jobId int
+			AS
+			BEGIN
+			 -- SET NOCOUNT ON added to prevent extra result sets from
+			 -- interfering with SELECT statements.
+			 SET NOCOUNT ON;
+			 
+			 SELECT JobId, PostageCost, ErrId, ShippedOn, WeightMeasured, Disposition
+			 , PieceId, UniqueId, PDFFileName, ErrDesc, MailPieceStatus,TotalSheets,DivertVS3, PackageTrackingNumber 
+			 FROM view_MRDFResponseData V WHERE V.JobId=@jobId
+			END
+		- For Return PDFs 
+		1) Added two columns in BatchSummary and MRDFRequest
+			ALTER TABLE PnS.BatchSummary
+			ADD [IsPDFsReceived]  AS (case when [PDFsReceivedOn] IS NULL then (0) else (1) end),[PDFsReceivedOn] [datetime] NULL
+
+			ALTER TABLE PnS.MRDFRequest
+			ADD [IsPDFReceived] [bit] NULL
+			ALTER TABLE [PnS].[MRDFRequest] ADD  CONSTRAINT [DF_MRDFRequest_IsPDFReceived]  DEFAULT ((0)) FOR [IsPDFReceived]
+			GO
+		2) Added new SP [usp_GetMRDFReceivedBatches]
+			USE [AuthoMail]
+			GO
+
+			/****** Object:  StoredProcedure [dbo].[usp_GetMRDFReceivedBatches]    Script Date: 6/21/2018 12:16:05 PM ******/
+			SET ANSI_NULLS ON
+			GO
+
+			SET QUOTED_IDENTIFIER ON
+			GO
+
+
+
+			CREATE PROCEDURE [dbo].[usp_GetMRDFReceivedBatches]
+			AS
+			BEGIN
+
+			SELECT B.PrintBatch,DT.DocTypeCode,C.AppCode,BU.CustCode,CONVERT(VARCHAR(10),B.PrintBatch) as BatchCode 
+			FROM [PnS].BatchSummary B
+			INNER JOIN [AM].DocTypes DT ON DT.Id=B.DocTypeId 
+			INNER JOIN [Common].Clients C ON C.Id=B.ClientId
+			INNER JOIN [Common].BusinessUnit BU ON BU.Id=C.BusinessUnit
+			WHERE B.IsMRDFReceived=1 AND B.IsPDFsReceived=0
+			END
+
+			GO
+		3) Updated sp [usp_GetMRDFRequestDataByJobId]
+			USE [AuthoMail]
+			GO
+			/****** Object:  StoredProcedure [dbo].[usp_GetMRDFRequestDataByJobId]    Script Date: 6/21/2018 12:17:15 PM ******/
+			SET ANSI_NULLS ON
+			GO
+			SET QUOTED_IDENTIFIER ON
+			GO
+
+			ALTER PROCEDURE [dbo].[usp_GetMRDFRequestDataByJobId]
+			@jobId int,
+			@mailPieceStatus varchar(255)
+			AS
+			BEGIN
+				-- SET NOCOUNT ON added to prevent extra result sets from
+				-- interfering with SELECT statements.
+				SET NOCOUNT ON;
+				If(@mailPieceStatus='ALL')
+				BEGIN
+					SELECT JobId, PieceId, [Date], TotalSheets, InputWeight, Feeder3_Sel, Feeder4_Sel
+					, Feeder5_Sel, LowCap_Sel, NoSeal_Sel, Feeder2_Sel, ZipMark_Sel, Address1, Address2
+					, Zip5, Zip4, Zip2, DivertVS2, DivertVS3
+					, DivertVS4, ReturnLogoBitMap, ReturnLine1, ReturnLine2, ReturnLine3, ReturnLine4
+					, ReturnLine5, ReturnLine6, GroupNumber, SocialSecNumber, CheckAmount, PassThru
+					, Expansion, EndofRecord, UniqueId, PDFFileName,ErrId, ErrDesc, MailPieceStatus, IsPDFReceived 
+					FROM [PnS].[MRDFRequest] WHERE JobId = @jobId
+				END
+				ELSE If(@mailPieceStatus='INTERNAL')--This will be used for getting only submitted records to PCI
+				BEGIN
+					SELECT JobId, PieceId, [Date], TotalSheets, InputWeight, Feeder3_Sel, Feeder4_Sel
+					, Feeder5_Sel, LowCap_Sel, NoSeal_Sel, Feeder2_Sel, ZipMark_Sel, Address1, Address2
+					, Zip5, Zip4, Zip2, DivertVS2, DivertVS3
+					, DivertVS4, ReturnLogoBitMap, ReturnLine1, ReturnLine2, ReturnLine3, ReturnLine4
+					, ReturnLine5, ReturnLine6, GroupNumber, SocialSecNumber, CheckAmount, PassThru
+					, Expansion, EndofRecord, UniqueId, PDFFileName,ErrId, ErrDesc, MailPieceStatus, IsPDFReceived 
+					FROM [PnS].[MRDFRequest] WHERE JobId = @jobId AND ErrId NOT IN (-1,-2,-3)
+				END
+				ELSE
+				BEGIN
+					SELECT JobId, PieceId, [Date], TotalSheets, InputWeight, Feeder3_Sel, Feeder4_Sel
+					, Feeder5_Sel, LowCap_Sel, NoSeal_Sel, Feeder2_Sel, ZipMark_Sel, Address1, Address2
+					, Zip5, Zip4, Zip2, DivertVS2, DivertVS3
+					, DivertVS4, ReturnLogoBitMap, ReturnLine1, ReturnLine2, ReturnLine3, ReturnLine4
+					, ReturnLine5, ReturnLine6, GroupNumber, SocialSecNumber, CheckAmount, PassThru
+					, Expansion, EndofRecord, UniqueId, PDFFileName,ErrId, ErrDesc, MailPieceStatus, IsPDFReceived 
+					FROM [PnS].[MRDFRequest] WHERE JobId = @jobId AND ISNULL(MailPieceStatus,'')=@mailPieceStatus
+				END
+			END
+		- For Pullback in PCI Service
+		1) Added new SP [usp_GetPullBackRequestDataByJobId]
+			USE [AuthoMail]
+			GO
+
+			/****** Object:  StoredProcedure [dbo].[usp_GetPullBackRequestDataByJobId]    Script Date: 6/21/2018 12:18:49 PM ******/
+			SET ANSI_NULLS ON
+			GO
+
+			SET QUOTED_IDENTIFIER ON
+			GO
+
+
+
+			CREATE PROCEDURE [dbo].[usp_GetPullBackRequestDataByJobId]
+			@jobId int
+			AS
+			BEGIN
+				-- SET NOCOUNT ON added to prevent extra result sets from
+				-- interfering with SELECT statements.
+				SET NOCOUNT ON;
+				
+				BEGIN TRAN
+				--Pulled back logic
+				UPDATE [PnS].[LogBatchTimeLine]
+				SET
+				[PCIBatchPrepEnd]=CAST('1753-1-1' AS DATETIME)
+				WHERE BatchId=@jobId
+
+				DECLARE @PnSBatchUniqueId UNIQUEIDENTIFIER,@AMPrintBatchId INT
+
+				SET @PnSBatchUniqueId=(SELECT TOP 1 BatchIdentifier FROM PnS.BatchSummary WHERE PrintBatch=@jobId)
+
+				SET @AMPrintBatchId=(SELECT TOP 1 Id FROM AM.PrintBatches WHERE UniqueID=@PnSBatchUniqueId)
+
+				SELECT * FROM [AM].[PullBackRequests] 
+				WHERE MailPieceUniqueId IN (SELECT UniqueId FROM AM.MailPieces WHERE PrintBatchId=@AMPrintBatchId)
+
+				COMMIT TRAN
+
+			END
+		2)  updated SP [usp_GetFinalMRDFResponseDataByJobId]
+			USE [AuthoMail]
+			GO
+			/****** Object:  StoredProcedure [dbo].[usp_GetFinalMRDFResponseDataByJobId]    Script Date: 6/21/2018 12:14:11 PM ******/
+			SET ANSI_NULLS ON
+			GO
+			SET QUOTED_IDENTIFIER ON
+			GO
+
+			ALTER PROCEDURE [dbo].[usp_GetFinalMRDFResponseDataByJobId]
+			@jobId int
+			AS
+			BEGIN
+			 -- SET NOCOUNT ON added to prevent extra result sets from
+			 -- interfering with SELECT statements.
+			 SET NOCOUNT ON;
+			 
+			 SELECT JobId, PostageCost, ErrId, ShippedOn, WeightMeasured, Disposition
+			 , PieceId, UniqueId, PDFFileName, ErrDesc, MailPieceStatus,TotalSheets,DivertVS3, PackageTrackingNumber 
+			 FROM view_MRDFResponseData V WHERE V.JobId=@jobId AND ErrId <> -4
+			END
+	 - For AM
+		- Updated production URL of FedEx in SystemSettings
+			UPDATE Common.SystemSettings
+			SET
+			Value='https://ws.fedex.com:443/web-services'
+			WHERE Id='Core_FedExProdService'
+		- Add production account details of USAA FedEx
+			INSERT [AM].[ShippingAccounts] (AccountCode, [WebAuthenticationKey], [WebAuthenticationPassword], [AccountNumber], [MeterNumber]) VALUES (N'USAA_PROD', N'ML5BqFyJd0iZXoh5', N'797JRMsb5fOMkORxknR6nydUS', N'289444378', N'112833957')
+		- Added new DocTypes
+			SET IDENTITY_INSERT [AM].[DocTypes] ON
+			GO
+			INSERT [AM].[DocTypes] ([Id], [DocTypeCode], [Description], [ClientId], [PrintSize], [ContentScalePercent], [PrintFormat], [QCPercent], [SLADays], [SLACutOffTime], [ShippingCarrier], [ShippingServiceType], [ShippingAccountCode], [IsReturnInfoSpecified], [RetRcptPrefix], [RetRcptFirstName], [RetRcptMiddleName], [RetRcptLastName], [RetRcptSuffix], [RetRcptPhone], [RetRcptOrganization], [RetRcptAddrOptionalLine1AboveStreet], [RetRcptAddrOptionalLine2AboveStreet], [RetRcptAddressStreet], [RetRcptAddressAptOrSuiteOrOther], [RetRcptAddrOptionalLine1BelowStreet], [RetRcptAddrOptionalLine2BelowStreet], [RetRcptAddressCity], [RetRcptAddressState], [RetRcptAddressZIP], [ClientEmails], [ClientContactNo], [SupportEmails], [SupportContactNo], [IsActive], [ModifiedOn], [CreatedOn], [ModifiedBy], [CreatedBy]) VALUES (86, N'Generic_U', N'Generic_U', 109, N'MixMedia', 100, N'Simplex', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, CAST(N'2018-02-28 13:04:06.873' AS DateTime), CAST(N'2018-02-27 13:04:06.873' AS DateTime), (select Id FROM [Profile].[Users] where UserName='system@milestonetechnoconsulting.com'), (select Id FROM [Profile].[Users] where UserName='system@milestonetechnoconsulting.com'))
+			GO
+			INSERT [AM].[DocTypes] ([Id], [DocTypeCode], [Description], [ClientId], [PrintSize], [ContentScalePercent], [PrintFormat], [QCPercent], [SLADays], [SLACutOffTime], [ShippingCarrier], [ShippingServiceType], [ShippingAccountCode], [IsReturnInfoSpecified], [RetRcptPrefix], [RetRcptFirstName], [RetRcptMiddleName], [RetRcptLastName], [RetRcptSuffix], [RetRcptPhone], [RetRcptOrganization], [RetRcptAddrOptionalLine1AboveStreet], [RetRcptAddrOptionalLine2AboveStreet], [RetRcptAddressStreet], [RetRcptAddressAptOrSuiteOrOther], [RetRcptAddrOptionalLine1BelowStreet], [RetRcptAddrOptionalLine2BelowStreet], [RetRcptAddressCity], [RetRcptAddressState], [RetRcptAddressZIP], [ClientEmails], [ClientContactNo], [SupportEmails], [SupportContactNo], [IsActive], [ModifiedOn], [CreatedOn], [ModifiedBy], [CreatedBy]) VALUES (87, N'AppraisalReportWaiver_E', N'Appraisal Report Waiver-ExpressMailing', 101, N'LETTER-IP', 100, N'Simplex', 0, 0, CAST(N'20:00:00' AS Time), N'USPS', N'USPS_EXPRESSMAIL', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, CAST(N'2018-02-28 13:09:29.223' AS DateTime), CAST(N'2018-02-27 13:09:29.223' AS DateTime), (select Id FROM [Profile].[Users] where UserName='system@milestonetechnoconsulting.com'), (select Id FROM [Profile].[Users] where UserName='system@milestonetechnoconsulting.com'))
+			GO
+			INSERT [AM].[DocTypes] ([Id], [DocTypeCode], [Description], [ClientId], [PrintSize], [ContentScalePercent], [PrintFormat], [QCPercent], [SLADays], [SLACutOffTime], [ShippingCarrier], [ShippingServiceType], [ShippingAccountCode], [IsReturnInfoSpecified], [RetRcptPrefix], [RetRcptFirstName], [RetRcptMiddleName], [RetRcptLastName], [RetRcptSuffix], [RetRcptPhone], [RetRcptOrganization], [RetRcptAddrOptionalLine1AboveStreet], [RetRcptAddrOptionalLine2AboveStreet], [RetRcptAddressStreet], [RetRcptAddressAptOrSuiteOrOther], [RetRcptAddrOptionalLine1BelowStreet], [RetRcptAddrOptionalLine2BelowStreet], [RetRcptAddressCity], [RetRcptAddressState], [RetRcptAddressZIP], [ClientEmails], [ClientContactNo], [SupportEmails], [SupportContactNo], [IsActive], [ModifiedOn], [CreatedOn], [ModifiedBy], [CreatedBy]) VALUES (88, N'StandAloneClosingDisclosure_E', N'Stand Alone - Closing Disclosure-ExpressMailing', 101, N'LETTER-IP', 100, N'Simplex', 0, 0, CAST(N'20:00:00' AS Time), N'USPS', N'USPS_EXPRESSMAIL', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, CAST(N'2018-02-28 13:09:29.223' AS DateTime), CAST(N'2018-02-27 13:09:29.223' AS DateTime), (select Id FROM [Profile].[Users] where UserName='system@milestonetechnoconsulting.com'), (select Id FROM [Profile].[Users] where UserName='system@milestonetechnoconsulting.com'))
+			GO
+			INSERT [AM].[DocTypes] ([Id], [DocTypeCode], [Description], [ClientId], [PrintSize], [ContentScalePercent], [PrintFormat], [QCPercent], [SLADays], [SLACutOffTime], [ShippingCarrier], [ShippingServiceType], [ShippingAccountCode], [IsReturnInfoSpecified], [RetRcptPrefix], [RetRcptFirstName], [RetRcptMiddleName], [RetRcptLastName], [RetRcptSuffix], [RetRcptPhone], [RetRcptOrganization], [RetRcptAddrOptionalLine1AboveStreet], [RetRcptAddrOptionalLine2AboveStreet], [RetRcptAddressStreet], [RetRcptAddressAptOrSuiteOrOther], [RetRcptAddrOptionalLine1BelowStreet], [RetRcptAddrOptionalLine2BelowStreet], [RetRcptAddressCity], [RetRcptAddressState], [RetRcptAddressZIP], [ClientEmails], [ClientContactNo], [SupportEmails], [SupportContactNo], [IsActive], [ModifiedOn], [CreatedOn], [ModifiedBy], [CreatedBy]) VALUES (89, N'StandAloneLoanEstimate_E', N'Stand Alone - Loan Estimate-ExpressMailing', 101, N'LETTER-IP', 100, N'Simplex', 0, 0, CAST(N'20:00:00' AS Time), N'USPS', N'USPS_EXPRESSMAIL', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, CAST(N'2018-02-28 13:09:29.223' AS DateTime), CAST(N'2018-02-27 13:09:29.223' AS DateTime), (select Id FROM [Profile].[Users] where UserName='system@milestonetechnoconsulting.com'), (select Id FROM [Profile].[Users] where UserName='system@milestonetechnoconsulting.com'))
+			GO
+			INSERT [AM].[DocTypes] ([Id], [DocTypeCode], [Description], [ClientId], [PrintSize], [ContentScalePercent], [PrintFormat], [QCPercent], [SLADays], [SLACutOffTime], [ShippingCarrier], [ShippingServiceType], [ShippingAccountCode], [IsReturnInfoSpecified], [RetRcptPrefix], [RetRcptFirstName], [RetRcptMiddleName], [RetRcptLastName], [RetRcptSuffix], [RetRcptPhone], [RetRcptOrganization], [RetRcptAddrOptionalLine1AboveStreet], [RetRcptAddrOptionalLine2AboveStreet], [RetRcptAddressStreet], [RetRcptAddressAptOrSuiteOrOther], [RetRcptAddrOptionalLine1BelowStreet], [RetRcptAddrOptionalLine2BelowStreet], [RetRcptAddressCity], [RetRcptAddressState], [RetRcptAddressZIP], [ClientEmails], [ClientContactNo], [SupportEmails], [SupportContactNo], [IsActive], [ModifiedOn], [CreatedOn], [ModifiedBy], [CreatedBy]) VALUES (90, N'InitialDisclosures_E', N'Initial Disclosures-ExpressMailing', 101, N'LETTER-IP', 100, N'Simplex', 0, 0, CAST(N'20:00:00' AS Time), N'USPS', N'USPS_EXPRESSMAIL', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, CAST(N'2018-02-28 13:09:29.223' AS DateTime), CAST(N'2018-02-27 13:09:29.223' AS DateTime), (select Id FROM [Profile].[Users] where UserName='system@milestonetechnoconsulting.com'), (select Id FROM [Profile].[Users] where UserName='system@milestonetechnoconsulting.com'))
+			GO
+			SET IDENTITY_INSERT [AM].[DocTypes] OFF
+			GO
+		- Update SLACutOffTime
+			UPDATE AM.DocTypes
+			SET
+			SLACutOffTime='20:00:00.0000000'
+			WHERE SLACutOffTime IS NOT NULL AND ShippingCarrier='USPS'
+
+			UPDATE AM.DocTypes
+			SET
+			SLACutOffTime='19:00:00.0000000',
+			ShippingAccountCode='CL_STAGING'
+			WHERE SLACutOffTime IS NOT NULL AND ShippingCarrier='FedEx'
+		- Added new SystemSettings
+			INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) VALUES (N'Core_FedExSaturdayCutOffTime', N'TimeSpan', N'13:00:00', NULL, 0, N'12:00:00', (select Id from [Profile].Users where UserName = 'system@milestonetechnoconsulting.com'), GETUTCDATE())
+			INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) VALUES (N'Monitor_ExpressMailingText', N'String', N'-ExpressMailing', NULL, 0, N'-ExpressMailing', (select Id from [Profile].Users where UserName = 'system@milestonetechnoconsulting.com'), GETUTCDATE())
+		- Added new DocTypeCoverLetters mapping
+			INSERT INTO [AM].[DocTypeCoverLetters]([DocTypeId],[SeqId],[CoverLetterTemplatePath])VALUES(87,1,'USAA_USPSExpressMailing_Generic_1.pdf')
+			GO
+			INSERT INTO [AM].[DocTypeCoverLetters]([DocTypeId],[SeqId],[CoverLetterTemplatePath])VALUES(88,1,'USAA_USPSExpressMailing_Generic_1.pdf')
+			GO
+			INSERT INTO [AM].[DocTypeCoverLetters]([DocTypeId],[SeqId],[CoverLetterTemplatePath])VALUES(89,1,'USAA_USPSExpressMailing_Generic_1.pdf')
+			GO
+			INSERT INTO [AM].[DocTypeCoverLetters]([DocTypeId],[SeqId],[CoverLetterTemplatePath])VALUES(90,1,'USAA_USPSExpressMailing_Generic_1.pdf')
+			GO
+=========================
+Application Deployment
+=========================
+	- For PnS Service
+		- Update PCI.Dll
+		- Update Exe
+		- Create Folder for Return PDFs in FagosFTP shared path - PCIReturnedPDFs
+		- Create folder for Return PDFs in PCIRoot folder - ReturnPDFs
+		- Add Two keys in App.Config
+			1) PCI_SFT_ReturnPDFDir - <add key="PCI_SFT_ReturnPDFDir" value="\\MTC-sagarg\c$\MSTC\PCI\ReturnPDFs" />
+			2) PCIRootReturnPDFsZipFolder - <add key="PCIRootReturnPDFsZipFolder" value="PCIRoot\ReturnPDFs" />
+			3) Remove_PDF_Of_PCI_SFT - <add key="Remove_PDF_Of_PCI_SFT" value="1" />
+	
+	- For AM 
+		- Disable Task Schedular for Sunday in Console
+		- Updated log4net.Config file in Console app
+		- Update All AM dll and Console.Exe
+		- Update All AM dll and Core.Exe
+		- Update All AM dll and Reporting.Exe
+		- Add System.Net Config in Core App.Config
+			<system.net>
+			<mailSettings>
+			  <smtp deliveryMethod="Network" from="donotreply@corelogic.com">
+				<network host="smtp.corelogic.com" defaultCredentials="true" />
+			  </smtp>
+			</mailSettings>
+		  </system.net>
+		- Add Trigger/Sweep parameter in Task Schedular of USAA and Alaska
+		- Add ExpressMailing Cover letter in Core/CoverTemplate/USAA folder
+====================================================================================================================================================
+UAT Final Status : PnS Service Deployed with Database Changes, AM Deployed with Databas Changes at 6.30 PM IST
+PROD Final Status : PnS Service Deployed with Database Changes, AM Deployed with Databas Changes at 10.30 PM IST
+====================================================================================================================================================
+
+====================================================
+Deployment 07/12/2018
+====================================================
+=================
+Database Changes
+=================
+	- For PnS
+		- For By Passing PCI 
+			1) Added new SP [usp_GetMRDFResponseDummyDataByJobId] for generating dummy response
+				/****** Object:  StoredProcedure [dbo].[usp_GetMRDFResponseDummyDataByJobId]    Script Date: 7/11/2018 1:58:01 PM ******/
+				SET ANSI_NULLS ON
+				GO
+				SET QUOTED_IDENTIFIER ON
+				GO
+
+
+				CREATE PROCEDURE [dbo].[usp_GetMRDFResponseDummyDataByJobId]
+				@jobId int
+				AS
+				BEGIN
+					-- SET NOCOUNT ON added to prevent extra result sets from
+					-- interfering with SELECT statements.
+					SET NOCOUNT ON;
+
+					SELECT Req.JobId, Req.PieceId, Req.[Date], Req.TotalSheets, Req.InputWeight, Req.Feeder3_Sel, Req.Feeder4_Sel
+						, Req.Feeder5_Sel, Req.LowCap_Sel, Req.NoSeal_Sel, Req.Feeder2_Sel, Req.ZipMark_Sel, Req.Address1, Req.Address2
+						, Req.Zip5, Req.Zip4, Req.Zip2, Req.DivertVS2, Req.DivertVS3
+						, Req.DivertVS4, Req.ReturnLogoBitMap, Req.ReturnLine1, Req.ReturnLine2, Req.ReturnLine3, Req.ReturnLine4
+						, Req.ReturnLine5, Req.ReturnLine6, Req.GroupNumber, Req.SocialSecNumber, Req.CheckAmount, Req.PassThru
+						, Req.Expansion, Req.EndofRecord, Req.UniqueId, Req.PDFFileName, Req.ErrId, Req.ErrDesc, Req.MailPieceStatus, Req.IsPDFReceived 
+						, Req.Feeder2_Sel as Feeder2_Fed
+						,CASE WHEN P.DocTypeId IN (SELECT Id FROM AM.DocTypes WHERE ShippingServiceType='USPS_EXPRESSMAIL') THEN '1234567890123456789012' ELSE '' END AS PackageTrackingNumber
+						,'RichardP' as OperatorId,'PCI09   ' as MachineId
+						,(CONVERT(VARCHAR(8), GETDATE(), 112)+REPLACE(CONVERT(VARCHAR(8), GETDATE(), 108),':','')) as ProcessingTimeStamp
+						,'4691 ' as DetailedErrorId,'00' as Input_Fed,'0' as Feeder3_Fed,'0' as Feeder4_Fed,'0' as Feeder5_Fed
+						,CASE WHEN P.IsPullBackRequested=1 AND P.PulledBackOn IS NULL THEN '4 ' WHEN P.IsQCRequested=1 THEN '8 ' ELSE '5 ' END as Disposition
+						,'0.00 ' as ComputedWeight, '00000000' as MeterDate,'Mailrun_Files            ' as StatusSource
+						,'0.0000' as PostageMetered,'000 ' as WeightMeasured,'Mailrun_Files            ' as ExitLocation
+						FROM [PnS].[MRDFRequest] Req
+						INNER JOIN [AM].[MailPieces] P ON P.UniqueId=Req.UniqueId
+						WHERE Req.JobId = @jobId AND Req.MailPieceStatus='InProgress'
+				END
+				
+			2) Update PnS.Schema_MRDFResponse table data for DataFormatTemplate
+				
+				DELETE FROM [PnS].[Schema_MRDFResponse]
+				INSERT [PnS].[Schema_MRDFResponse] ([Id], [FieldName], [Type], [StartPosition], [Length], [IsActive], [Description], [SampleValue], [DataType], [DataFormatTemplate]) VALUES (5, N'Date', N'ASCII_Alpha', 77, 8, 1, N'Date MRDF was created', N'20170628', N'date', N'{0:yyyyMMdd}')
+				GO
+				INSERT [PnS].[Schema_MRDFResponse] ([Id], [FieldName], [Type], [StartPosition], [Length], [IsActive], [Description], [SampleValue], [DataType], [DataFormatTemplate]) VALUES (10, N'JobId', N'ASCII_Alpha', 85, 10, 1, N'The va lue in this field mus t ma tch the ba rcoded Job Id tha t is printed on the input
+				documents , so tha t there is no doubt tha t the phys ica l ma teria l loa ded for the job should be run us ing the Input file tha t wa s opened. It is highly recommended tha t this va lue is unique for a given ma iling cycle.', N'0001234567', N'int', N'{0:d<len>}')
+				GO
+				INSERT [PnS].[Schema_MRDFResponse] ([Id], [FieldName], [Type], [StartPosition], [Length], [IsActive], [Description], [SampleValue], [DataType], [DataFormatTemplate]) VALUES (15, N'PieceId', N'ASCII_Number', 95, 4, 1, N'The va lue in this field mus t ma tch the ba rcoded Piece Id tha t is printed on the input
+				documents . It is the link between the sca n code and the ma ilpiece record within the Input file tha t conta ins the as s embly ins tructions for tha t ma ilpiece. This va lue mus t be unique for ea ch ma ilpiece, and mus t increment by 1 for ea ch record within the file.', N'', N'int', N'{0:d<len>}')
+				GO
+				INSERT [PnS].[Schema_MRDFResponse] ([Id], [FieldName], [Type], [StartPosition], [Length], [IsActive], [Description], [SampleValue], [DataType], [DataFormatTemplate]) VALUES (16, N'TotalSheets', N'ASCII_Number', 99, 3, 1, N'pick up total sheets from the ‘Expansion’ field in the data.  Same location you populated it in the Input MRDF.', N'', N'int', N'{0:d<len>}')
+				GO
+				INSERT [PnS].[Schema_MRDFResponse] ([Id], [FieldName], [Type], [StartPosition], [Length], [IsActive], [Description], [SampleValue], [DataType], [DataFormatTemplate]) VALUES (17, N'PDFFileName', N'ASCII_Alpha', 117, 160, 1, N'PDF file name', N'*.PDF', N'varchar(255)', N'{0,-<len>}')
+				GO
+				INSERT [PnS].[Schema_MRDFResponse] ([Id], [FieldName], [Type], [StartPosition], [Length], [IsActive], [Description], [SampleValue], [DataType], [DataFormatTemplate]) VALUES (18, N'Expansion', N'ASCII_Alpha', 771, 28, 1, N'', N'0021                        ', N'varchar(28)', N'{0,-<len>}')
+				GO
+				INSERT [PnS].[Schema_MRDFResponse] ([Id], [FieldName], [Type], [StartPosition], [Length], [IsActive], [Description], [SampleValue], [DataType], [DataFormatTemplate]) VALUES (20, N'InputRecFill', N'ASCII_Alpha', 23, 777, 0, N'Starts at position 23 in Input file Total Pages Field and goes to
+				Expansion field', N'', N'N/A', N'Don’t create this column in table')
+				GO
+				INSERT [PnS].[Schema_MRDFResponse] ([Id], [FieldName], [Type], [StartPosition], [Length], [IsActive], [Description], [SampleValue], [DataType], [DataFormatTemplate]) VALUES (25, N'Feeder2_Fed', N'ASCII_Number', 291, 1, 1, N'Over Writes input field position 291 due to no room in output file for expansion.', N'0', N'int', N'{0,-<len>}')
+				GO
+				INSERT [PnS].[Schema_MRDFResponse] ([Id], [FieldName], [Type], [StartPosition], [Length], [IsActive], [Description], [SampleValue], [DataType], [DataFormatTemplate]) VALUES (29, N'PackageTrackingNumber', N'ASCII_Number', 501, 40, 1, N'The value in this field identifies the tracking information of USPS shipping for some clients which dont have IMBarcode value.', N'00000000000', N'varchar(50)', N'{0,-<len>}')
+				GO
+				INSERT [PnS].[Schema_MRDFResponse] ([Id], [FieldName], [Type], [StartPosition], [Length], [IsActive], [Description], [SampleValue], [DataType], [DataFormatTemplate]) VALUES (30, N'OperatorId', N'ASCII_Alpha', 800, 8, 1, N'The va lue in this field Identifies the ma chine on which the ma ilpiece wa s proces s ed. This
+				informa tion is collected by Direct Connect during the ins erting proces s .', N'RichardP', N'varchar(50)', N'{0,-<len>}')
+				GO
+				INSERT [PnS].[Schema_MRDFResponse] ([Id], [FieldName], [Type], [StartPosition], [Length], [IsActive], [Description], [SampleValue], [DataType], [DataFormatTemplate]) VALUES (35, N'MachineId', N'ASCII_Alpha', 808, 8, 1, N'The va lue in this field Identifies the opera tor who proces s ed the ma ilpiece. This
+				informa tion is collected by Direct Connect during the ins erting proces s .', N'PCI09   ', N'varchar(50)', N'{0,-<len>}')
+				GO
+				INSERT [PnS].[Schema_MRDFResponse] ([Id], [FieldName], [Type], [StartPosition], [Length], [IsActive], [Description], [SampleValue], [DataType], [DataFormatTemplate]) VALUES (40, N'ProcessingTimeStamp', N'ASCII_Alpha', 816, 14, 1, N'The va lue in this field s pecifies the da te and time the ma ilpiece wa s proces s ed. This informa tion is collected by Direct Connect during the ins erting proces s . Us e the forma t MM/DD/YYYY HH:MM:SS. (Note tha t there is one space between the da te and time).', N'20170727165042', N'datetime', N'{0:yyyyMMddHHmmss}')
+				GO
+				INSERT [PnS].[Schema_MRDFResponse] ([Id], [FieldName], [Type], [StartPosition], [Length], [IsActive], [Description], [SampleValue], [DataType], [DataFormatTemplate]) VALUES (45, N'DetailedErrorId', N'ASCII_Alpha', 830, 5, 1, N'The va lue in this field s pecifies the ma ilpiece dis pos ition. This informa tion is collected by
+				Direct Connect during the ins erting proces s . Pos s ible va lues are: 0 = Unknown, 1 = On
+				Ins erter, 2 = Removed due to Ja m, 3 = Removed by Opera tor, 4 = Outs orted, 5 = Succes s fully Rendered, 6 = Never Proces s ed, 7 = Ma nua lly Rejected, 8 = Ma nua lly Repa ired, 9 = Deferred', N'0', N'varchar(50)', N'{0,-<len>}')
+				GO
+				INSERT [PnS].[Schema_MRDFResponse] ([Id], [FieldName], [Type], [StartPosition], [Length], [IsActive], [Description], [SampleValue], [DataType], [DataFormatTemplate]) VALUES (50, N'Disposition', N'ASCII_Alpha', 835, 2, 1, N'The va lue in this field s pecifies the text des cription of the ma ilpiece dis pos ition. This
+				informa tion is collected by Direct Connect during the ins erting proces s .', N'5', N'varchar(50)', N'{0,-<len>}')
+				GO
+				INSERT [PnS].[Schema_MRDFResponse] ([Id], [FieldName], [Type], [StartPosition], [Length], [IsActive], [Description], [SampleValue], [DataType], [DataFormatTemplate]) VALUES (55, N'Input_Fed', N'ASCII_Alpha', 837, 2, 1, N'The va lue in this field is the tota l number of sheets actually fed from the input feeder 1 for this ma ilpiece. This informa tion is collected by Direct Connect during the ins erting proces s . There are two of thes e fields ava ila ble to a ccommoda te as ma ny as two input
+				feeders on the ins erter.', N'00', N'varchar(50)', N'{0,-<len>}')
+				GO
+				INSERT [PnS].[Schema_MRDFResponse] ([Id], [FieldName], [Type], [StartPosition], [Length], [IsActive], [Description], [SampleValue], [DataType], [DataFormatTemplate]) VALUES (60, N'Feeder3_Fed', N'ASCII_Alpha', 839, 1, 1, N'The va lue in this field s pecifies whether an ins ert wa s actually fed or not fed from this ins ert feeder for this ma ilpiece. This informa tion is collected by Direct Connect during the ins erting proces s . There are 16 of thes e fields availa ble to a ccommoda te as ma ny as 
+				16 ins ert feeders on the ins erter. Pos s ible va lues include: 0 = Not fed, 1 = Fed.', N'0', N'varchar(50)', N'{0,-<len>}')
+				GO
+				INSERT [PnS].[Schema_MRDFResponse] ([Id], [FieldName], [Type], [StartPosition], [Length], [IsActive], [Description], [SampleValue], [DataType], [DataFormatTemplate]) VALUES (65, N'Feeder4_Fed', N'ASCII_Alpha', 840, 1, 1, N'See Ins ertFeeder03Ack des cription.', N'0', N'varchar(50)', N'{0,-<len>}')
+				GO
+				INSERT [PnS].[Schema_MRDFResponse] ([Id], [FieldName], [Type], [StartPosition], [Length], [IsActive], [Description], [SampleValue], [DataType], [DataFormatTemplate]) VALUES (70, N'Feeder5_Fed', N'ASCII_Alpha', 841, 1, 1, N'See Ins ertFeeder03Ack des cription.', N'0', N'varchar(50)', N'{0,-<len>}')
+				GO
+				INSERT [PnS].[Schema_MRDFResponse] ([Id], [FieldName], [Type], [StartPosition], [Length], [IsActive], [Description], [SampleValue], [DataType], [DataFormatTemplate]) VALUES (75, N'ComputedWeight', N'ASCII_Alpha', 842, 5, 1, N'The va lue in this field s pecifies the actual computed weight of the finis hed ma ilpiece in ounces . This informa tion is collected by Direct Connect during the ins erting proces s . This field mus t be a decima l number with one digit to the left of the decima l point, and three
+				digits to the right (e.g., 1.320).', N'0.00 ', N'decimal(4,3)', N'{0,-<len>}')
+				GO
+				INSERT [PnS].[Schema_MRDFResponse] ([Id], [FieldName], [Type], [StartPosition], [Length], [IsActive], [Description], [SampleValue], [DataType], [DataFormatTemplate]) VALUES (80, N'MeterDate', N'ASCII_Alpha', 847, 8, 1, N'Da te ma il piece wa s pos ted with meter sta mp', N'', N'varchar(50)', N'{0,-<len>}')
+				GO
+				INSERT [PnS].[Schema_MRDFResponse] ([Id], [FieldName], [Type], [StartPosition], [Length], [IsActive], [Description], [SampleValue], [DataType], [DataFormatTemplate]) VALUES (85, N'StatusSource', N'ASCII_Alpha', 855, 25, 1, N'The va lue in this field s pecifies the na me of ma chine element tha t set the ma ilpiece
+				dis pos ition. This informa tion is collected by Direct Connect during the ins erting proces s .', N'Mailpiece Manager        ', N'varchar(50)', N'{0,-<len>}')
+				GO
+				INSERT [PnS].[Schema_MRDFResponse] ([Id], [FieldName], [Type], [StartPosition], [Length], [IsActive], [Description], [SampleValue], [DataType], [DataFormatTemplate]) VALUES (90, N'PostageMetered', N'ASCII_Alpha', 880, 5, 1, N'When the ins erter ha s meter links on ea ch meter, a va lue will be pres ent in this field. The va lue in this field s pecifies the actual pos ta ge a pplied to the finis hed ma ilpiece. This informa tion is collected by Direct Connect during the ins erting proces s . This field mus t be a decima l number with one digit to the left of the decima l point, and three digits to the
+				right (e.g., 0.370).', N'', N'decimal(4,3)', N'{0,-<len>}')
+				GO
+				INSERT [PnS].[Schema_MRDFResponse] ([Id], [FieldName], [Type], [StartPosition], [Length], [IsActive], [Description], [SampleValue], [DataType], [DataFormatTemplate]) VALUES (95, N'WeightMeasured', N'ASCII_Alpha', 885, 5, 1, N'When a Weigh on the Fly sca le is pa rt of the ins erter, a va lue will be pres ent in this field. The va lue in this field s pecifies the actual mea s ured weight of the finis hed ma ilpiece in ounces . This informa tion is collected by Direct Connect during the ins erting proces s . This field mus t be a decima l number with one digit to the left of the decima l point, and three
+				digits to the right (e.g., 1.320).', N'', N'decimal(4,3)', N'{0,-<len>}')
+				GO
+				INSERT [PnS].[Schema_MRDFResponse] ([Id], [FieldName], [Type], [StartPosition], [Length], [IsActive], [Description], [SampleValue], [DataType], [DataFormatTemplate]) VALUES (100, N'ExitLocation', N'ASCII_Alpha', 890, 25, 1, N'The va lue in this field s pecifies the phys ica l loca tion where the ma ilpiece left the
+				ins erter. This informa tion is collected by Direct Connect during the ins erting process. ', N'', N'varchar(50)', N'{0,-<len>}')
+				GO
+			3) Added new column in client table
+				ALTER TABLE [Common].[Clients]
+				ADD SimulatePCI [Bit] DEFAULT(0)
+
+				UPDATE [Common].[Clients]
+				SET
+				SimulatePCI=0
+			4) Updated SP [usp_GetAllClientAppDetail] & [usp_GetClientAppDetailsById] for after adding new column [SimulatePCI]
+	- For AuthoMail
+		- For DueDate logic changes
+			1) Added Holiday list table
+				/****** Object:  Table [dbo].[Holidays]    Script Date: 6/26/2018 1:52:02 PM ******/
+				SET ANSI_NULLS ON
+				GO
+
+				SET QUOTED_IDENTIFIER ON
+				GO
+
+				SET ANSI_PADDING ON
+				GO
+
+				CREATE TABLE [Common].[Holidays](
+					[Id] [int] IDENTITY(1,1) NOT NULL,
+					[HolidayDate] [date] NULL,
+					[Description] [varchar](200) NULL,			
+				 CONSTRAINT [PK_Holidays] PRIMARY KEY CLUSTERED 
+				(
+					[Id] ASC
+				)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+				) ON [PRIMARY]
+
+				GO
+
+				SET ANSI_PADDING OFF
+				GO
+				
+				-- Holiday List
+				SET IDENTITY_INSERT [Common].[Holidays] ON
+				GO
+				INSERT [Common].[Holidays] ([Id], [HolidayDate], [Description]) VALUES (1, CAST(N'2018-01-01' AS Date), N'New Year Day')
+				GO
+				INSERT [Common].[Holidays] ([Id], [HolidayDate], [Description]) VALUES (2, CAST(N'2018-01-15' AS Date), N'Martin Luther King Jr. Day')
+				GO
+				INSERT [Common].[Holidays] ([Id], [HolidayDate], [Description]) VALUES (3, CAST(N'2018-02-19' AS Date), N'Presidents Day')
+				GO
+				INSERT [Common].[Holidays] ([Id], [HolidayDate], [Description]) VALUES (4, CAST(N'2018-05-28' AS Date), N'Memorial Day')
+				GO
+				INSERT [Common].[Holidays] ([Id], [HolidayDate], [Description]) VALUES (5, CAST(N'2018-07-04' AS Date), N'Independence Day')
+				GO
+				INSERT [Common].[Holidays] ([Id], [HolidayDate], [Description]) VALUES (6, CAST(N'2018-09-03' AS Date), N'Labor Day')
+				GO
+				INSERT [Common].[Holidays] ([Id], [HolidayDate], [Description]) VALUES (7, CAST(N'2018-10-08' AS Date), N'Columbus Day')
+				GO
+				INSERT [Common].[Holidays] ([Id], [HolidayDate], [Description]) VALUES (8, CAST(N'2018-11-12' AS Date), N'Veterans Day')
+				GO
+				INSERT [Common].[Holidays] ([Id], [HolidayDate], [Description]) VALUES (9, CAST(N'2018-11-22' AS Date), N'Thanks Giving Day')
+				GO
+				INSERT [Common].[Holidays] ([Id], [HolidayDate], [Description]) VALUES (10, CAST(N'2018-11-23' AS Date), N'Day After Thanks Giving')
+				GO
+				INSERT [Common].[Holidays] ([Id], [HolidayDate], [Description]) VALUES (11, CAST(N'2018-12-24' AS Date), N'Christmas Eve')
+				GO
+				INSERT [Common].[Holidays] ([Id], [HolidayDate], [Description]) VALUES (12, CAST(N'2018-12-25' AS Date), N'Christmas')
+				GO
+				INSERT [Common].[Holidays] ([Id], [HolidayDate], [Description]) VALUES (13, CAST(N'2019-01-01' AS Date), N'New Year Day')
+				GO
+				SET IDENTITY_INSERT [Common].[Holidays] OFF
+				GO
+			2) Dropped two column from AM.DocTypes table	
+				ALTER TABLE [AM].[DocTypes] DROP COLUMN [SLADays],[SLACutOffTime]
+			3) Added 9 new columns in AM.DocTypes table	
+				ALTER TABLE [AM].[DocTypes]
+				ADD [BizdayCutOff] [varchar](255) NULL,[BizdaySLAType][varchar](255) NULL,[BizdayTimeSpan][varchar](255) NULL,[SatCutOff] [varchar](255) NULL,[SatSLAType][varchar](255) NULL,[SatTimeSpan][varchar](255) NULL,
+					[SunCutOff] [varchar](255) NULL,[SunSLAType][varchar](255) NULL,[SunTimeSpan][varchar](255) NULL
+			4) UPDATE shipping type of one doctype which is not in use
+				UPDATE AM.DocTypes
+				SET
+				ShippingCarrier='FedEx',
+				ShippingServiceType='PRIORITY_OVERNIGHT',
+				ShippingAccountCode='CL_STAGING'
+				WHERE Id=77
+			5) Update Timing and CutOff Values for DocTypes
+				UPDATE AM.DocTypes
+				SET
+				BizdayCutOff='00:00:00',
+				BizdaySLAType='Duration',
+				BizdayTimeSpan='01:00:00:00',
+				SatCutOff='00:00:00',
+				SatSLAType='Duration',
+				SatTimeSpan='01:00:00:00',
+				SunCutOff=NULL,
+				SunSLAType='NA',
+				SunTimeSpan=NULL
+				WHERE Id in (SELECT Id FROM am.DocTypes WHERE ClientId=101 AND ShippingServiceType='USPS')
+				
+				UPDATE AM.DocTypes
+				SET
+				BizdayCutOff='15:00:00',
+				BizdaySLAType='FixedTime',
+				BizdayTimeSpan='00:23:59:59',
+				SatCutOff='15:00:00',
+				SatSLAType='FixedTime',
+				SatTimeSpan='00:23:59:59',
+				SunCutOff=NULL,
+				SunSLAType='NA',
+				SunTimeSpan=NULL
+				WHERE Id in (SELECT Id FROM am.DocTypes WHERE ClientId=101 AND ShippingServiceType='USPS_EXPRESSMAIL')
+				
+				UPDATE AM.DocTypes
+				SET
+				BizdayCutOff='19:00:00',
+				BizdaySLAType='FixedTime',
+				BizdayTimeSpan='00:23:59:59',
+				SatCutOff='12:00:00',
+				SatSLAType='FixedTime',
+				SatTimeSpan='00:23:59:59',
+				SunCutOff=NULL,
+				SunSLAType='NA',
+				SunTimeSpan=NULL
+				WHERE Id in (SELECT Id FROM am.DocTypes WHERE ClientId=101 AND ShippingServiceType='PRIORITY_OVERNIGHT')
+				
+				UPDATE AM.DocTypes
+				SET
+				BizdayCutOff='20:00:00',
+				BizdaySLAType='FixedTime',
+				BizdayTimeSpan='00:23:59:59',
+				SatCutOff='20:00:00',
+				SatSLAType='FixedTime',
+				SatTimeSpan='00:23:59:59',
+				SunCutOff=NULL,
+				SunSLAType='NA',
+				SunTimeSpan=NULL
+				WHERE Id in (SELECT Id FROM am.DocTypes WHERE ClientId=102 AND ShippingServiceType='USPS')
+		- For Bundle Sweep Programming
+			1) Dropped column MailBatchId from AM.PrintBatches
+				
+				/****** Object:  Index [IX_PrintBatches_MailBatchId]    Script Date: 6/26/2018 2:05:04 PM ******/
+				DROP INDEX [IX_PrintBatches_MailBatchId] ON [AM].[PrintBatches]
+				GO
+				ALTER TABLE [AM].[PrintBatches] DROP CONSTRAINT [FK_PrintBatches_MailBatches]
+				GO
+				ALTER TABLE AM.PrintBatches
+				DROP COLUMN [MailBatchId]
+				GO
+			2) Added new Key in SystemSettings "Core_BundleSweepClientChannelIds" (NOTE : Give Deployed Channel Ids in below key)
+				INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) VALUES (N'Core_BundleSweepClientChannelIds', N'String', N'0', NULL, 0, N'1', (select Id from [Profile].Users where UserName = 'system@milestonetechnoconsulting.com'), GETUTCDATE())
+				INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) VALUES (N'Web_MaxJsonLength', N'Int32', N'16000000', NULL, 0, N'16000000', (select Id from [Profile].Users where UserName = 'system@milestonetechnoconsulting.com'), CAST(N'2018-06-29 06:00:10.533' AS DateTime))
+			3) Remove unused SystemSettings Key
+				DELETE FROM Common.SystemSettings WHERE Id IN('Monitor_NoBatchReceivedNotification_Subject','Monitor_NoBatch_Email_To','Monitor_NoBatch_Email_Cc','Monitor_ReportSFTUploadingPathAMC','Core_PnSEmail_Subject','Core_PnS_Email_To','Core_PnS_Email_Cc','Core_FedExSaturdayCutOffTime')
+	- For On boarding HSBC Precautions for Database
+		- Database
+			- Update DocType details of HSBC	
+				UPDATE AM.DocTypes
+				SET
+				ShippingCarrier='USPS',
+				ShippingServiceType='USPS',
+				BizdayCutOff='20:00:00',
+				BizdaySLAType='FixedTime',
+				BizdayTimeSpan='00:23:59:59',
+				SatCutOff='20:00:00',
+				SatSLAType='FixedTime',
+				SatTimeSpan='00:23:59:59',
+				SunCutOff=NULL,
+				SunSLAType='NA',
+				SunTimeSpan=NULL,
+				IsReturnInfoSpecified=1,
+				RetRcptAddrOptionalLine1AboveStreet='HSBC Bank USA  N.A.',
+				RetRcptAddressStreet='100 Bailey Ave',
+				RetRcptAddressCity='Buffalo',
+				RetRcptAddressState='NY',
+				RetRcptAddressZIP='14220'
+				WHERE ClientId=104
+	
+
+			1) Enable client for AM and PCI
+				Update Common.Clients SET IsAMActive=1, IsPnSActive=1 WHERE Id=104
+			2) Insert ClientSFTChannel mapping
+				INSERT INTO [Common].[ClientSFTChannels]([ClientId],[SFTChannelId])VALUES(104,4)
+			3) Update / Validate SFTChannel Details for HSBC
+			4) Insert not configured DocTypes
+				SET IDENTITY_INSERT [AM].[DocTypes] ON
+				GO
+				INSERT [AM].[DocTypes] ([Id], [DocTypeCode], [Description], [ClientId], [PrintSize], [ContentScalePercent], [PrintFormat], [QCPercent], [ShippingCarrier], [ShippingServiceType], [ShippingAccountCode], [IsReturnInfoSpecified], [RetRcptPrefix], [RetRcptFirstName], [RetRcptMiddleName], [RetRcptLastName], [RetRcptSuffix], [RetRcptPhone], [RetRcptOrganization], [RetRcptAddrOptionalLine1AboveStreet], [RetRcptAddrOptionalLine2AboveStreet], [RetRcptAddressStreet], [RetRcptAddressAptOrSuiteOrOther], [RetRcptAddrOptionalLine1BelowStreet], [RetRcptAddrOptionalLine2BelowStreet], [RetRcptAddressCity], [RetRcptAddressState], [RetRcptAddressZIP], [ClientEmails], [ClientContactNo], [SupportEmails], [SupportContactNo], [IsActive], [ModifiedOn], [CreatedOn], [CreatedBy], [ModifiedBy], [BizdayCutOff], [BizdaySLAType], [BizdayTimeSpan], [SatCutOff], [SatSLAType], [SatTimeSpan], [SunCutOff], [SunSLAType], [SunTimeSpan]) VALUES (101,N'FloodAdvisory', N'Flood Advisory', 104, N'MixMedia', 100, N'Simplex', 0, N'USPS', N'USPS', NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, N'HSBC Bank USA, N.A.', NULL, N'100 Bailey Ave', NULL, NULL, NULL, N'Buffalo', N'NY', N'14220', NULL, NULL, NULL, NULL, 1, CAST(N'2018-02-28 13:04:00.200' AS DateTime), CAST(N'2018-02-27 13:04:00.200' AS DateTime), N'66f8d3e7-b66a-48d9-911f-d3914f1b3a11', N'66f8d3e7-b66a-48d9-911f-d3914f1b3a11', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL)
+				GO
+				SET IDENTITY_INSERT [AM].[DocTypes] OFF
+				GO
+			5) Insert client domains
+			6) Insert EmailChannels and Deliverables for HSBC
+
+				-- EmailChannels
+				
+				INSERT INTO [Common].[EmailChannels]([Title],[To],[Cc],[Bcc],[Subject],[BodyTemplate],[IsBodyHTML])VALUES('HSBC Reporting','mortgage.origination.vendor.oversight@us.hsbc.com,PrintingServicesFTL@corelogic.com,hsbcprint&ship.slx@corelogic.com,mortgage.business.system.analysts@us.hsbc.com,shaley@corelogic.com,chawilson@corelogic.com,brapayne@corelogic.com','vmungara@corelogic.com,sgolvelkar@corelogic.com,avala@corelogic.com',NULL,'Download Summary','HTML',0)
+				GO
+				INSERT INTO [Common].[EmailChannels]([Title],[To],[Cc],[Bcc],[Subject],[BodyTemplate],[IsBodyHTML])VALUES('HSBC Reporting','mortgage.business.system.analysts@us.hsbc.com,mortgage.origination.vendor.oversight@us.hsbc.com,hsbcprint&ship.slx@corelogic.com,shaley@corelogic.com,chawilson@corelogic.com,brapayne@corelogic.com','vmungara@corelogic.com,sgolvelkar@corelogic.com,avala@corelogic.com',NULL,'Production Summary','HTML',0)
+				GO
+				INSERT INTO [Common].[EmailChannels]([Title],[To],[Cc],[Bcc],[Subject],[BodyTemplate],[IsBodyHTML])VALUES('HSBC Reporting','mortgage.business.system.analysts@us.hsbc.com,mortgage.origination.vendor.oversight@us.hsbc.com,shaley@corelogic.com,chawilson@corelogic.com,brapayne@corelogic.com,hsbcprint&ship.slx@corelogic.com','vmungara@corelogic.com,sgolvelkar@corelogic.com,avala@corelogic.com',NULL,'No Batch Available To Download',NULL,1)
+				GO
+				INSERT INTO [Common].[EmailChannels]([Title],[To],[Cc],[Bcc],[Subject],[BodyTemplate],[IsBodyHTML])VALUES('HSBC Reporting','hsbcprint&ship.slx@corelogic.com,mortgage.business.system.analysts@us.hsbc.com,mortgage.origination.vendor.oversight@us.hsbc.com,shaley@corelogic.com,chawilson@corelogic.com,brapayne@corelogic.com','vmungara@corelogic.com,sgolvelkar@corelogic.com,avala@corelogic.com',NULL,'Consolidated HSBC Report Summary','Consolidated Reports of todays batches.',0)
+				GO
+				
+				-- Deliverables
+				
+				INSERT INTO [Common].[Deliverables]([ClientId],[ReportName],[ReportType],[DeliveryType],[ReportQuery],[Delimeter],[FileNameExpression],[IsSFTUploadRequired],[UploadPath],[EmailChannelId],[ScheduleId])VALUES(104,'Error Report','Error','Batch','',',','{BatchName}.ErrorReport_{SweepTime}.csv',1,'/Exceptions',5,NULL)
+				GO
+				INSERT INTO [Common].[Deliverables]([ClientId],[ReportName],[ReportType],[DeliveryType],[ReportQuery],[Delimeter],[FileNameExpression],[IsSFTUploadRequired],[UploadPath],[EmailChannelId],[ScheduleId])VALUES(104,'Delivery Report','Delivery','Batch','',',','{BatchName}.DeliveryReport_{SweepTime}.csv',1,'/Imports',6,NULL)
+				GO
+				INSERT INTO [Common].[Deliverables]([ClientId],[ReportName],[ReportType],[DeliveryType],[ReportQuery],[Delimeter],[FileNameExpression],[IsSFTUploadRequired],[UploadPath],[EmailChannelId],[ScheduleId])VALUES(104,'No Batch','NoBatch','Batch','',',','',0,'',7,NULL)
+				GO
+				INSERT INTO [Common].[Deliverables]([ClientId],[ReportName],[ReportType],[DeliveryType],[ReportQuery],[Delimeter],[FileNameExpression],[IsSFTUploadRequired],[UploadPath],[EmailChannelId],[ScheduleId])VALUES(104,'Consolidated Report','Consolidated','Schedule','',',','',0,'',8,NULL)
+				GO
+				
+			7) Insert DocTypeCoverLetters for HSBC
+
+				INSERT INTO [AM].[DocTypeCoverLetters]([DocTypeId],[SeqId],[CoverLetterTemplatePath])
+				SELECT Id,1,'HSBC_USPS_Generic_1.pdf' FROM [AM].[DocTypes] WHERE ClientId=104
+				GO
+			8) Insert ClientBusinessIdentifiers in AM.ClientBusinessIdentifiers
+				INSERT INTO AM.ClientBusinessIdentifiers(ClientId,BusinessIdName) VALUES (104,'Loan Number')
+=========================
+Application Deployment
+=========================
+	- For PnS
+		1) Update PnS Service.exe and PCI.Lib.dll for Bug fixed for Attachments
+	- For AuthoMail
+		1) Update Core.exe with AM dlls
+		2) Create new task schedular with total 5 triggers and in Action give Core.exe path and Commandline arguement as "BUNDLE"
+			- Bundle sweep times (EST): 8:00 am, 12:00 pm, 4:00 pm, 4:45 pm, 7:45 pm
+	- For HSBC On Boarding - (PENDING)
+		1) Disable previous HSBC application / Reporting Application
+			- HSBC , ALKHSBReportingApp
+		2) Create new task schedular for HSBC with 4 triggers and Command line arguments HSBC Sweep
+			Timings 8am, 12pm, 4pm and 8pm EST (5AM,9AM,1PM,5PM PST)
+		3) Create Reporting task schedular for HSBC with Commandline arguments HSBC and Timing 3AM PST /6AM EST
+		4) Check SFTP credentials are working or not
+
+====================================================================================================================================================
+UAT Final Status : AM Deployed with Databas Changes at on 2nd July 2.30 PM IST / PnS Service Deployment is completed for ByPassPCI at 07/18/2018 3.30PM
+PROD Final Status : AM Deployed with Databas Changes at on 24nd July 1.00 PM IST / PnS Service Deployment is completed for ByPassPCI at 07/24/2018 1.00PM
+====================================================================================================================================================
+
+====================================================
+Deployment 23/08/2018
+====================================================
+=========================
+Database Changes
+=========================
+	- For AuthoMail
+		1) Added two new columns in AM.MailPieces table
+			- ALTER TABLE [AM].[MailPieces] ADD PickedUpOn DATETIME NULL,[IsPickedUp]  AS (case when [PickedUpOn] IS NULL then (0) else (1) end)
+		2) Added one new column in AM.Doctypes table
+			- ALTER TABLE [AM].[DocTypes] ADD [ShippingSpecialService] VARCHAR(255) NULL
+			- UPDATE  [AM].[DocTypes] SET [ShippingSpecialService]='SATURDAY_DELIVERY' WHERE ClientId=101 AND ShippingCarrier='FedEx'
+		3) Added new Store Procedure [uspweb_FedExPickedUpReport]
+			-  	-- =============================================
+				-- Author:		 Sagar Golvelkar
+				-- Create date:  13-Aug-2018
+				-- Modifiy date: 13-Aug-2018
+				-- Exec: [dbo].[uspweb_FedExPickedUpReport] '2018-03-19 04:00:00','2018-03-20 03:59:59','FedEx',1
+				-- Description:	 Get mail pieces list which are not yet picked up
+				-- =============================================
+				CREATE PROCEDURE [dbo].[uspweb_FedExPickedUpReport]
+					@deploymentDate datetime,
+					@lastReceivedOnDate datetime,
+					@shippingType varchar(128),
+					@isPickedUp int--Possible values : 1/0/-1'
+				AS
+					if(@isPickedUp=0)
+					BEGIN
+						SELECT * FROM AM.MailPieces MP
+						INNER JOIN AM.MailBatches MB ON MB.ID=MP.MailBatchId
+						INNER JOIN AM.DocTypes D ON D.Id=MP.DocTypeId
+						WHERE MB.ReceivedOn >= @deploymentDate AND MB.ReceivedOn < @lastReceivedOnDate
+						AND MP.ShippingStatus <> 'Error' AND MP.IsPickedUp=0
+						AND D.ShippingCarrier=@shippingType
+					END
+					ELSE IF(@isPickedUp=1)
+					BEGIN
+						SELECT * FROM AM.MailPieces MP
+						INNER JOIN AM.MailBatches MB ON MB.ID=MP.MailBatchId
+						INNER JOIN AM.DocTypes D ON D.Id=MP.DocTypeId
+						WHERE MB.ReceivedOn >= @deploymentDate AND MB.ReceivedOn < @lastReceivedOnDate
+						AND MP.ShippingStatus <> 'Error' AND MP.IsPickedUp=1
+						AND D.ShippingCarrier=@shippingType
+					END
+					ELSE
+					BEGIN
+						SELECT * FROM AM.MailPieces MP
+						INNER JOIN AM.MailBatches MB ON MB.ID=MP.MailBatchId
+						INNER JOIN AM.DocTypes D ON D.Id=MP.DocTypeId
+						WHERE MB.ReceivedOn >= @deploymentDate AND MB.ReceivedOn < @lastReceivedOnDate
+						AND MP.ShippingStatus <> 'Error'
+						AND D.ShippingCarrier=@shippingType
+					END
+				GO
+		4) Added two columns in StoredProcedure [usp_GetDocTypeDetailsByAppId] [ShippingCarrier],[ShippingServiceType]
+		5) Added schema [API]
+			- CREATE SCHEMA [API] GO
+		6) Created new table [API].[USPS]
+			- 	CREATE TABLE [API].[USPS](
+				[Id] [int] IDENTITY(1,1) NOT NULL,
+				[APIName] [nvarchar](255) NOT NULL,
+				[UserId] [nvarchar](255) NOT NULL,
+				[IsAPIError] [bit] NOT NULL,
+				[IsUSPSError] [bit] NOT NULL,
+				[APIRequest] [nvarchar](max) NOT NULL,
+				[APIRequestedOn] [datetime] NOT NULL,
+				[USPSRequest] [nvarchar](max) NULL,
+				[USPSRequestedOn] [datetime] NULL,
+				[USPSResponse] [nvarchar](max) NULL,
+				[USPSResponseOn] [datetime] NULL,
+				[APIResponse] [nvarchar](max) NULL,
+				[APIResponseOn] [datetime] NULL,
+				CONSTRAINT [PK_USPS.AddressRequest] PRIMARY KEY CLUSTERED 
+				(
+				[Id] ASC
+				)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+				) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+				GO
+		7) Added new system settings in Common.SystemSettings table
+			 INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) VALUES (N'Web_API_USPS_IsDbLoggingEnabled', N'Boolean', N'false', NULL, 0, N'false', (select Id from [Profile].Users where UserName = 'system@milestonetechnoconsulting.com'), GETUTCDATE())
+
+			 INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) VALUES (N'Web_API_USPS_MilitaryCities', N'String', N'APO,DPO,FPO', NULL, 0, N'APO,DPO,FPO', (select Id from [Profile].Users where UserName = 'system@milestonetechnoconsulting.com'), GETUTCDATE())
+
+			 INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) VALUES (N'Web_API_USPS_MilitaryStates', N'String', N'AA,AE,AP', NULL, 0, N'AA,AE,AP', (select Id from [Profile].Users where UserName = 'system@milestonetechnoconsulting.com'), GETUTCDATE())
+
+			 INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) VALUES (N'Web_API_USPS_Territory', N'String', N'AS,FM,GU,MH,MP,PR,PW,VI', NULL, 0, N'AS,FM,GU,MH,MP,PR,PW,VI', (select Id from [Profile].Users where UserName = 'system@milestonetechnoconsulting.com'), GETUTCDATE())
+
+			 INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) VALUES (N'Web_API_USPS_URL', N'String', N'http://production.shippingapis.com/ShippingAPI.dll', NULL, 0, N'http://production.shippingapis.com/ShippingAPI.dll', (select Id from [Profile].Users where UserName = 'system@milestonetechnoconsulting.com'), GETUTCDATE())
+
+			 INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) VALUES (N'Web_API_USPS_UserId', N'String', N'228COREL3398', NULL, 0, N'416COREL2218', (select Id from [Profile].Users where UserName = 'system@milestonetechnoconsulting.com'), GETUTCDATE())
+
+			 INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) VALUES (N'Web_API_USPS_VerifyAPIName', N'String', N'Verify', NULL, 0, N'Verify', (select Id from [Profile].Users where UserName = 'system@milestonetechnoconsulting.com'), GETUTCDATE())
+
+			 INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) VALUES (N'Web_API_USPS_AddressCount', N'Int32', N'5', NULL, 0, N'5', (select Id from [Profile].Users where UserName = 'system@milestonetechnoconsulting.com'), GETUTCDATE())
+			
+			 INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) VALUES (N'Web_API_USPS_MainlandStates', N'String', N'AK,AL,AR,AZ,CA,CO,CT,DC,DE,FL,GA,HI,IA,ID,IL,IN,KS,KY,LA,MA,MD,ME,MI,MN,MO,MS,MT,NC,ND,NE,NH,NJ,NM,NV,NY,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VA,VT,WA,WI,WV,WY', NULL, 0, N'AK,AL,AR,AZ,CA,CO,CT,DC,DE,FL,GA,HI,IA,ID,IL,IN,KS,KY,LA,MA,MD,ME,MI,MN,MO,MS,MT,NC,ND,NE,NH,NJ,NM,NV,NY,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VA,VT,WA,WI,WV,WY', (select Id from [Profile].Users where UserName = 'system@milestonetechnoconsulting.com'), GETUTCDATE())
+		8) Replace Data in AM.MailPieces 
+			- UPDATE AM.MailPieces SET [RcptAddrOptionalLine1BelowStreet]=[RcptAddressAptOrSuiteOrOther]
+			- UPDATE AM.MailPieces SET [RcptAddressAptOrSuiteOrOther]=NULL
+		9) Updated CutOff timings of USAA doctypes
+			- UPDATE AM.DOCTYPES SET BizDayCutOff='18:00:00',BizdayTimeSpan='00:23:59:59',BIZDAYSLATYPE='FixedTime',SatCutOff='14:00:00',SatTimeSpan='00:23:59:59',SatSLATYPE='FixedTime' WHERE CLIENTID=101 AND ShippingServiceType='PRIORITY_EXPRESS'
+			- UPDATE [AM].[DocTypes]SET BizdayCutOff='20:00:00',SatCutOff='14:00:00' WHERE ShippingCarrier='FedEx' AND ClientId=101
+			- UPDATE AM.DOCTYPES SET BizDayCutOff='20:00:00',BizdayTimeSpan='01:23:59:59',BIZDAYSLATYPE='FixedTime',SatCutOff='20:00:00',SatTimeSpan='01:23:59:59',SatSLATYPE='FixedTime' WHERE CLIENTID=101 AND (BIZDAYSLATYPE='Duration' OR SatSLATYPE='Duration')
+
+		
+=========================
+Application Changes
+=========================
+	- For AuthoMail
+		1) AM.Console - Exe,dlls
+		2) AM.Core - Exe,dlls
+		3) AM.Reporting - Exe,dlls, Create new task schedular for FedEx Report at 10PM EST
+	- For PnS Service
+		1) PnS.Service - Exe
+		2) PnS.Service.Config - Added new key <add key="DallasSweepTimings" value="18:00,19:00,20:00" />
+
+====================================================================================================================================================
+UAT Final Status : PnS Service Application changes and Database changes Deployment is completed at 08/22/2018 12.30PM
+PROD Final Status : AM Process Updated with FedEx Saturday delivery option enabled at 08/23/2018 01.00 PM
+====================================================================================================================================================
+
+====================================================
+Deployment 30/08/2018
+====================================================
+=========================
+Database Changes
+=========================
+	1) Common.SystemSettings table Changes
+		- Added Keys
+			INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) VALUES (N'Web_API_USPS_eVSAPIName', N'String', N'eVS', NULL, 0, N'eVS', (select Id from [Profile].Users where UserName = 'system@milestonetechnoconsulting.com'), GETUTCDATE())
+		- Removed Keys
+			DELETE FROM Common.SystemSettings WHERE Id IN ('Web_API_USPS_URL','Web_Msg_API_PB_BatchStatusSubmitted','Monitor_InternalPrintShippingMethods')
+		- Updated Keys
+			UPDATE Common.SystemSettings SET Id = 'Web_API_USPS_URL' WHERE id = 'Web_API_USPS_eVSURL'
+			UPDATE Common.SystemSettings SET Value = 'https://stg-secure.shippingapis.com/ShippingAPI.dll' WHERE id = 'Web_API_USPS_URL' - For Staging Deployment
+			--UPDATE Common.SystemSettings SET Value = 'https://secure.shippingapis.com/ShippingAPI.dll' WHERE id = 'Web_API_USPS_URL' - For Production Deployment With USPS Express Label
+	2) Tables
+		- Table Modified - [AM].[MailPieces]
+			ALTER TABLE [AM].[MailPieces] ADD [EffectiveReceivedOnEst] DATETIME NULL,[RcptAddressTypes] VARCHAR(255) NULL			
+			
+			CREATE NONCLUSTERED INDEX [IX_MailPieces_EffectiveReceivedOnEst] ON [AM].[MailPieces]
+			(
+				[EffectiveReceivedOnEst] ASC
+			)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+			GO
+			
+			UPDATE [AM].[MailPieces]
+			SET
+			[EffectiveReceivedOnEst]=DATEADD(HOUR,-4,[EffectiveReceivedOn])
+
+			ALTER TABLE [AM].[MailPieces] DROP COLUMN [EffectiveReceivedOn]
+		- Added Tables
+			CREATE TYPE [dbo].[Amount] FROM [decimal](14, 2) NULL
+
+			CREATE TABLE [API].[USPSeVS](
+			 [Id] [int] IDENTITY(1,1) NOT NULL,
+			 [APIName] [nvarchar](255) NOT NULL,
+			 [UserId] [nvarchar](255) NULL,
+			 [IsAPIError] [bit] NOT NULL,
+			 [IsUSPSError] [bit] NOT NULL,
+			 [APIRequest] [nvarchar](max) NOT NULL,
+			 [APIRequestedOn] [datetime] NOT NULL,
+			 [USPSRequest] [nvarchar](max)  NULL,
+			 [USPSRequestedOn] [datetime] NULL,
+			 [USPSResponse] [nvarchar](max) NULL,
+			 [USPSResponseOn] [datetime] NULL,
+			 [APIResponse] [nvarchar](max) NULL,
+			 [APIResponseOn] [datetime] NULL,
+			 [BarcodeNumber] [nvarchar](255) NULL,
+			 [Postage] [Amount] NOT NULL,
+			 [CommitmentName] [nvarchar](255) NULL,
+			 [ScheduledDeliveryDate] [date] NULL
+			 CONSTRAINT [PK_USPSEVS.Id] PRIMARY KEY CLUSTERED 
+			(
+			 [Id] ASC
+			)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+			) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+
+			GO
+	3) Stored Procedures
+		- Added SPs : [dbo].[usp_GetMailBatchReceivedOnDataBasedFromPrintBatchId],[dbo].[SP_GetPendingScanning],[dbo].[SP_GetScannedMailPieces],[dbo].[SP_GetScanReportData]
+		
+			CREATE PROCEDURE [dbo].[usp_GetMailBatchReceivedOnDataBasedFromPrintBatchId]
+			@pnsPrintBatchId int
+			AS
+			BEGIN
+			 -- SET NOCOUNT ON added to prevent extra result sets from
+			 -- interfering with SELECT statements.
+			 SET NOCOUNT ON;
+			 
+			 SELECT P.Id AS MailPieceId,P.EffectiveReceivedOnEst,P.UniqueId as UniqueId,M.PDFFileName as MailPieceFileName FROM AM.MailPieces P
+			 INNER JOIN [PnS].MRDFRequest M ON P.UniqueId=M.UniqueId
+			 WHERE M.JobId=@pnsPrintBatchId AND M.MailPieceStatus='InProgress'
+			 
+			END
+			
+			CREATE PROCEDURE [dbo].[SP_GetPendingScanning]
+			@appcode varchar(128)
+			AS
+			BEGIN
+				declare @clientid int
+				set @appcode = replace(@appcode, 'AUT','')
+				select @clientid=Id from Common.Clients where AppCode=@appcode;
+
+				select TrackingNo,LoanNumber,SubmittedOn,PDFFileName as [FileName],JobName,MailPieceStatus,BatchName,DueDate 
+				from dbo.vw_DallasBatches
+				where ClientId=@clientid and PrintLocation=(select Value from [Common].[SystemSettings] where Id		='Common_PrintLocationCL') and MailPieceStatus='InProgress' and ProcessingTimeStamp is null
+			END
+			GO
+			
+			CREATE PROCEDURE [dbo].[SP_GetScannedMailPieces]
+			@appcode varchar(128),
+			@batchName varchar(255),
+			@startDate datetime,
+			@endDate datetime
+			
+			AS
+			BEGIN
+				declare @printlocationcl varchar(1024), @clientid int
+				set @appcode=REPLACE(@appcode,'AUT','')
+				-- Get ClientId
+				select @clientid=Id from Common.Clients where AppCode=@appcode;
+				-- Get PrintLocation
+				select @printlocationcl=Value from [Common].[SystemSettings] where Id ='Common_PrintLocationCL';
+
+				select TrackingNo,
+				(case when IsPullBackRequested = 1 then 'Pulledback' when IsQCRequested = 1 then 'QC' else 'Valid' end) as [Code],JobName
+				from dbo.vw_DallasBatches
+				where Printlocation=@printlocationcl and ClientId=@clientId and SweepName=@batchName and MailPieceStatus <> 'InProgress'	and ProcessingTimeStamp between @startDate and @endDate 
+
+			END
+			GO
+			
+			CREATE PROCEDURE [dbo].[SP_GetScanReportData]
+			@loanNumber varchar(255),
+			@trackingNo varchar(255),
+			@appcode varchar(128),
+			@substartdate datetime,
+			@subenddate datetime,
+			@scanstartDate datetime,
+			@scanendDate datetime
+			AS
+			BEGIN
+				declare @printlocationcl varchar(255),@clientid int
+				-- Get Print location 
+				select @printlocationcl = Value from [Common].[SystemSettings] where Id ='Common_PrintLocationCL'
+				-- Assign Client id value
+				set @appcode = replace(@appcode, 'AUT','')
+				select @clientid=Id from Common.Clients where AppCode=@appcode;
+				
+				select JobName,BatchName,TrackingNo as BarcodeValue,TotalPages,ProcessingTimeStamp as ShippedOn,LoanNumber,MailPieceStatus,SubmittedOn as ReceivedOn from dbo.vw_DallasBatches
+				where ClientId=@clientId and PrintLocation=@printlocationcl
+				and SubmittedOn between ISNULL(@substartdate,SubmittedOn) and ISNULL(@subenddate,SubmittedOn)
+				and ProcessingTimeStamp between ISNULL(@scanstartDate,ProcessingTimeStamp) and ISNULL(@scanendDate,ProcessingTimeStamp)
+				and TrackingNo = ISNULL(@trackingNo,TrackingNo)
+				and LoanNumber = ISNULL(@loanNumber,LoanNumber)
+				order by SubmittedOn asc
+
+			END
+			
+		- Updated SP [dbo].[SP_GetRecentBatchesStats],[dbo].[SP_GetScanStats],[dbo].[SP_RegisterScan]
+		
+			ALTER PROCEDURE [dbo].[SP_GetRecentBatchesStats] 
+			@appcode varchar(128),
+			@startdate datetime,
+			@enddate datetime
+			 AS
+			BEGIN
+				
+				declare @bn nvarchar(max),@st time, @et time,
+				@printlocationcl varchar(1024),  @clientid int,
+				@sd datetime, @ed datetime, @mindt datetime=null
+
+				--Get Client Id, and remove AUT from client appcode
+				set @appcode=REPLACE(@appcode,'AUT','')
+				select @clientid=Id from Common.Clients where AppCode=@appcode;
+				-- Get PrintLocation
+				select @printlocationcl=Value from [Common].[SystemSettings] where Id ='Common_PrintLocationCL';
+				-- Get Pending count batch(sweep) wise
+				with pc as
+				(
+					select distinct SweepName,count(Id) as PendingCount from dbo.vw_DallasBatches
+					where Printlocation=@printlocationcl and ClientId=@clientId
+					and MailPieceStatus = 'InProgress'
+					group by SweepName
+				),
+				-- Get Scanned count batch(sweep) wise
+				sc as
+				(
+					select distinct SweepName,count(Id) as ScannedCount from dbo.vw_DallasBatches
+					where Printlocation=@printlocationcl and ClientId=@clientId
+					and MailPieceStatus <> 'InProgress' and ProcessingTimeStamp between @startdate and @enddate
+					group by SweepName
+				),
+				sw as
+				(
+					select BatchName from dbo.ufn_GetDallasBatches()
+				),
+
+				t as
+				(	
+					select	ISNULL(sc.SweepName,pc.SweepName) as BatchName,
+							ISNULL(pc.PendingCount,0) as PendingCount,
+							ISNULL(sc.ScannedCount,0) as ScannedCount
+					from sc full outer join pc on sc.SweepName=pc.SweepName
+				)
+				
+				select	ISNULL(t.BatchName,sw.BatchName) as BatchName,
+						IsNULL(t.ScannedCount,0) as ScannedLoans,
+						(ISNULL(t.PendingCount,0) + ISNULL(t.ScannedCount,0)) as TotalLoans 
+						from t
+						full outer join sw on t.BatchName = sw.BatchName
+			END
+			
+			ALTER PROCEDURE [dbo].[SP_GetScanStats]
+			@appcode varchar(128),
+			@startdate datetime,
+			@enddate datetime
+			AS
+			BEGIN
+			declare @printlocationcl varchar(1024), @totalPending int, @scannedCount int, @clientid int
+
+			-- Set PrintLocation value
+			select @printlocationcl = Value from [Common].[SystemSettings] where Id ='Common_PrintLocationCL'
+
+			-- Remove AUT from app code
+			set @appcode = replace(@appcode, 'AUT','')
+
+			-- Get client id
+			select @clientid=Id from Common.Clients where AppCode=@appcode
+
+			-- Calculate Total Pending Scanned
+				select @totalPending=count(Id) from dbo.vw_DallasBatches
+				where Printlocation=@printlocationcl and ClientId=@clientId
+				and MailPieceStatus = 'InProgress'
+				
+
+			-- Calculate Total Scanned count
+				select @scannedCount=count(Id) from dbo.vw_DallasBatches
+				where Printlocation=@printlocationcl and ClientId=@clientId
+				and MailPieceStatus <> 'InProgress' and (ProcessingTimeStamp between @startdate and @enddate)
+
+				-- Return result
+			select @scannedCount as [ScanCount],@totalPending + @scannedCount as [TotalCount]
+
+			END		
+			
+			ALTER PROCEDURE [dbo].[SP_RegisterScan]
+			-- Add the parameters for the stored procedure here
+			@trackno varchar(255),
+			@clientCode varchar(128),
+			@operatorid varchar(50),
+			@machineid varchar(255),
+			@sweepName varchar(255)-- 05PM, 06PM, 07PM, Backlog
+			--@todayESTDate date
+			AS
+			BEGIN
+			declare	@jobid int,
+				@pieceid int,
+				@mrdfreqdate date,
+				@ispullbackrequested bit,
+				@isqcrequested bit,
+				@disposition varchar(50),
+				@mailpiecestatus varchar(255),
+				@totalsheet int = null,
+				@pdffilename varchar(255),
+				@printlocationcl varchar(1024),
+				@inprogresscnt int,
+				@mailpieceid int,
+				@code varchar(50),
+				@existjobid int,
+				@jobName varchar(512),
+				@serviceType varchar(255),
+				@isMPSUpdate bit,
+				@clientAppCode varchar(128),
+				@clientName varchar(255),
+				@swp varchar(255)
+
+			BEGIN TRY
+
+				set @trackno = replace(@trackno, 'AUT','')
+				set @clientCode = replace(@clientCode, 'AUT','')
+				--Get Print Location name
+				SET @printlocationcl=(select Value from [Common].[SystemSettings] where Id ='Common_PrintLocationCL')
+				-- Get mailpiece, MRDFRequest data filter by trackingno & printlocation
+
+				if(@sweepName is null)
+				begin 
+					select 'Invalid' as Code, NULL as TrackingNo, 'Batch name can not be null' as [Message], NULL as [JobName]
+					return
+				end
+				select @mailpieceid= Id,@pieceid=PieceId,@jobid=JobId,@mrdfreqdate=MRDFReqDate,@ispullbackrequested =IsPullBackRequested,@isqcrequested=IsQCRequested,@totalsheet=TotalSheets,@pdffilename=PDFFileName,@jobName=JobName,@serviceType=ShippingServiceType,@clientAppCode=AppCode,@clientName=ClientName,@swp=SweepName
+				from dbo.vw_DallasBatches		
+				where TrackingNo=@trackno and PrintLocation=@printlocationcl --and b.IsSubmitted=1
+
+				if(@mailpieceid IS NULL) 
+				begin
+					select 'Invalid' as Code, NULL as TrackingNo, NULL as [Message], NULL as [JobName]
+					return
+				end
+
+				--Validate tracking no is assign to this client
+				if(@clientCode <> @clientAppCode)
+				begin
+					select 'Invalid' as Code, @trackno as TrackingNo, REPLACE('This tracking number belongs to @clientName client. Please check your document.','@clientName',@clientName) as [Message], NULL as [JobName]
+					return
+				end
+				-- Validate this mailpiece is assign to this batch or not.
+				if(@swp<>@sweepName)
+				begin
+					select 'Invalid' as Code, @trackno as TrackingNo, REPLACE('This document belongs to <span style="color:#000"> @swp </span> batch.','@swp',@swp) as [Message], NULL as [JobName]
+					return
+				end
+				
+				if exists(select 1 from PnS.MRDFResponse where JobId = @jobid and PieceId = @pieceid) 
+				begin
+					select 'Rescan' as Code, @trackno as TrackingNo, NULL as [Message], @jobName as [JobName]
+					return
+				end
+				-- set mailpiece status if ispullbackrequested then update otherwise not
+				SET @mailpiecestatus='Shipped'
+
+				if(@ispullbackrequested = 1) 
+				begin
+					SET @code = 'Pulledback'
+					SET @disposition='4' 
+					SET @mailpiecestatus='PulledBack'
+				end
+				else if(@isqcrequested=1)
+				begin
+					SET @disposition='8'
+					SET @code = 'QC'
+				end
+				else
+				begin
+					SET @disposition='5'
+					SET @code = 'Valid'
+				end
+
+				-- Validate if trackno is same as MailPiece and service type is same as USPS_EXPRESSMAIL. 
+				-- Then do not update MailPieceStatus
+				set @isMPSUpdate=1;
+				if(@trackno = cast(@mailpieceid as varchar) and @serviceType = 'USPS_EXPRESSMAIL') set @isMPSUpdate=0;
+				
+				-- Start Transaction
+				BEGIN TRANSACTION	
+					-- insert data into MRDFResponse table
+					INSERT INTO [PnS].[MRDFResponse] ([JobId],[PieceId],[Date],[Feeder2_Fed],[OperatorId],[MachineId],									[ProcessingTimeStamp],[DetailedErrorId],[Disposition],[Input_Fed],[Feeder3_Fed],[Feeder4_Fed],[Feeder5_Fed],						[ComputedWeight],[MeterDate],[StatusSource],[PostageMetered]
+					,[WeightMeasured],[ExitLocation],[TotalSheets],[PDFFileName],[PackageTrackingNumber])
+					VALUES(@jobid,@pieceid,@mrdfreqdate,0,@operatorid,@machineid,GETUTCDATE(),'4691'
+					,@disposition,'00','0','0','0','0.000','00000000', @printlocationcl,'0.000','0.000',@printlocationcl
+					,@totalsheet,@pdffilename,NULL)
+						
+					-- update mailepiecestatus depend on [Disposition] value
+					if(@isMPSUpdate = 1)
+					begin
+						Update [PnS].[MRDFRequest] SET MailPieceStatus = @mailpiecestatus
+						where JobId=@jobid and PieceId = @pieceid
+
+						-- Check if we are yet to received response for any mail pieces
+						select @inprogresscnt= count(*) from [PnS].[MRDFRequest] where MailPieceStatus='InProgress' and JobId=@jobid
+					
+						-- If responses are received for entire batch, then update batch status to received
+						if(@inprogresscnt = 0)
+						begin
+							update PnS.BatchSummary set PipelineStatus = 'MRDFReceived', MRDFReceivedOn = GETUTCDATE() where PrintBatch = @jobid
+						end
+					end
+				--End Transaction
+				COMMIT
+				
+				select @code as Code, @trackno as TrackingNo, NULL as [Message], @jobName as [JobName]
+			END TRY
+			BEGIN CATCH
+				IF @@TRANCOUNT > 0
+					ROLLBACK
+			END CATCH
+			END
+			
+	4) Functions
+		- Added Functions [dbo].[ufn_GetDallasBatchTimings],[dbo].[ufn_GetDallasBatches],[dbo].[ufn_GetDallasBatchDetails]
+			
+			CREATE FUNCTION [dbo].[ufn_GetDallasBatchTimings]
+			(
+			@EstDate DATE
+			)
+			RETURNS @BatchTimings TABLE 
+			(
+				BatchName varchar(255),
+				StartTime varchar(255),
+				EndTime varchar(255),
+				ShippingCarrier varchar(255),
+				ShippingServiceType varchar(255)
+			)
+			AS
+			begin
+				
+				DECLARE @DayofWeek INT = DATEPART(dw,@EstDate)
+
+				if(@DayofWeek=7)
+				BEGIN
+					insert into @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+					values ('10AM','00:00:00','11:00:00','FedEx','PRIORITY_OVERNIGHT')
+					insert into @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+					values ('11AM','11:00:01','12:00:00','FedEx','PRIORITY_OVERNIGHT')
+					insert into @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+					values ('12PM','12:00:01','13:00:00','FedEx','PRIORITY_OVERNIGHT')		
+					insert into @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+					values ('01PM','13:00:01','14:00:00','FedEx','PRIORITY_OVERNIGHT')
+
+					insert into @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+					values ('10AM','00:00:00','11:00:00','USPS','PRIORITY_EXPRESS')
+					insert into @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+					values ('11AM','11:00:01','12:00:00','USPS','PRIORITY_EXPRESS')
+					insert into @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+					values ('12PM','12:00:01','13:00:00','USPS','PRIORITY_EXPRESS')		
+					insert into @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+					values ('01PM','13:00:01','14:00:00','USPS','PRIORITY_EXPRESS')
+				END
+				ELSE
+				BEGIN
+					insert into @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+					values ('04PM','00:00:00','17:00:00','FedEx','PRIORITY_OVERNIGHT')
+
+					insert into @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+					values ('05PM','17:00:01','18:00:00','FedEx','PRIORITY_OVERNIGHT')
+
+					insert into @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+					values ('06PM','18:00:01','19:00:00','FedEx','PRIORITY_OVERNIGHT')
+
+					insert into @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+					values ('07PM','19:00:01','20:00:00','FedEx','PRIORITY_OVERNIGHT')
+
+					insert into @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+					values ('04PM','00:00:00','17:00:00','USPS','PRIORITY_EXPRESS')
+
+					insert into @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+					values ('05PM','17:00:00','18:00:00','USPS','PRIORITY_EXPRESS')
+				END
+				
+				return
+			end
+
+			GO
+			
+			CREATE FUNCTION [dbo].[ufn_GetDallasBatches]
+			(
+			@EstDate DATE
+			)
+			RETURNS @sweep TABLE 
+			(
+				BatchName varchar(255),
+				StartDate datetime,
+				EndDate datetime,
+				ShippingCarrier varchar(255),
+				ShippingServiceType varchar(255)
+			)
+			AS
+			begin
+				declare @todayDate date
+				select @todayDate=@EstDate
+				
+				insert into @sweep (BatchName,StartDate,EndDate,ShippingCarrier,ShippingServiceType) 
+				select BatchName,cast(@todayDate as datetime)+cast(StartTime as datetime),cast(@todayDate as datetime)+cast(EndTime as datetime),ShippingCarrier,ShippingServiceType from [dbo].[ufn_GetDallasBatchTimings]()	 
+				
+				
+				insert into @sweep (BatchName,StartDate,EndDate,ShippingCarrier,ShippingServiceType) values ('Backlog',DateAdd(day,-7, cast(@todayDate as datetime)),DateAdd(second,-1, cast(@todayDate as datetime)),'FedEx','PRIORITY_OVERNIGHT')
+				
+				insert into @sweep (BatchName,StartDate,EndDate,ShippingCarrier,ShippingServiceType) values ('Backlog',DateAdd(day,-7, cast(@todayDate as datetime)),DateAdd(second,-1, cast(@todayDate as datetime)),'USPS','PRIORITY_EXPRESS')
+				return
+			end
+			GO
+
+			CREATE FUNCTION [dbo].[ufn_GetDallasBatchDetails]
+			(
+			@EstDate DATE
+			)
+			RETURNS TABLE 
+			AS
+			RETURN
+			(
+			with db as
+			(
+				select * from [dbo].[ufn_GetDallasBatches](@EstDate)
+			),
+			q as
+			(
+			SELECT m.Id,m.BusinessFriendlyIdValue as LoanNumber,m.ClientId, m.PrintLocation, m.EffectiveReceivedOnEst, m.TrackingNo,m.IsPullBackRequested,m.IsQCRequested,m.TotalSheets , m.DueDate,m.TotalPages,
+			b.PrintBatch,b.IsSubmitted,b.PipelineStatus,b.JobName,b.SubmittedOn,
+			req.PieceId,req.JobId,req.[Date] as MRDFReqDate,req.PDFFileName, req.UniqueId,req.MailPieceStatus, res.ProcessingTimeStamp,
+			d.ShippingServiceType,d.ShippingCarrier,
+			c.AppCode,c.Name as ClientName,(select BatchName from db where EffectiveReceivedOnEst between StartDate AND EndDate AND ShippingCarrier=d.ShippingCarrier AND ShippingServiceType=d.ShippingServiceType) BatchName
+			FROM [AM].[MailPieces] m
+			INNER JOIN PnS.MRDFRequest req ON m.UniqueId = req.UniqueId
+			INNER JOIN PnS.BatchSummary b ON req.JobId = b.PrintBatch
+			LEFT OUTER JOIN PnS.MRDFResponse res ON req.JobId = res.JobId AND req.PieceId=res.PieceId
+			INNER JOIN AM.DocTypes d ON m.DocTypeId=d.Id
+			INNER JOIN Common.Clients c ON m.ClientId=c.Id
+			WHERE m.PrintLocation=(SELECT Value FROM Common.SystemSettings WHERE Id='Common_PrintLocationCL') 
+			AND m.EffectiveReceivedOnEst >=(select MIN(StartDate) from db)
+			)
+			select * from q where BatchName is not null 
+			)
+
+			GO
+=========================
+Application Changes
+=========================
+	- For AuthoMail
+		1) AM.Console - Exe,dlls, add newtonsoft.dll,Refit.dll
+		2) AM.Core - Exe,dlls, add newtonsoft.dll,Refit.dll
+		3) AM.Reporting - Exe,dlls, add newtonsoft.dll,Refit.dll
+			- Create new task schedular for FedEx Report at 10PM EST
+			- Update task schedular for DallasNotification app which will execute on 03:00:30 PM,04:00:30 PM,05:00:30 PM
+	- For PnS Service
+		1) PnS.Service
+
+====================================================================================================================================================
+UAT Final Status : Deployed on 09/01/2018 at 12.30 PM IST
+PROD Final Status : Deployed on 09/01/2018 at 10.30 AM IST
+====================================================================================================================================================
+		
+====================================================
+Deployment 13/09/2018
+====================================================
+=========================
+Database Changes
+=========================
+1) Added 4 new columns in AM.PrintBatches
+	ALTER TABLE [AM].[PrintBatches] ADD [IsReportPrepped]  AS (case when [ReportPreppedOn] IS NULL then (0) else (1) end),ReportPreppedOn DATETIME NULL,
+	[IsReportedBack]  AS (case when [ReportedBackOn] IS NULL then (0) else (1) end),ReportedBackOn DATETIME NULL
+2) Function Changed
+	ALTER FUNCTION [dbo].[ufn_GetDallasBatchTimings]
+	(
+	@EstDate DATE
+	)
+	RETURNS @BatchTimings TABLE 
+	(
+		BatchName varchar(255),
+		StartTime varchar(255),
+		EndTime varchar(255),
+		ShippingCarrier varchar(255),
+		ShippingServiceType varchar(255)
+	)
+	AS
+	BEGIN		
+	
+		DECLARE @DayofWeek INT = DATEPART(dw,@EstDate)
+		if(@DayofWeek=7)
+		BEGIN
+			INSERT INTO @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('10AM','00:00:00','11:00:00','FedEx','PRIORITY_OVERNIGHT')
+			INSERT INTO @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('12PM','11:00:01','13:00:00','FedEx','PRIORITY_OVERNIGHT')		
+			INSERT INTO @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('01PM','13:00:01','14:00:00','FedEx','PRIORITY_OVERNIGHT')
+
+			INSERT INTO @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('10AM','00:00:00','11:00:00','USPS','PRIORITY_EXPRESS')
+			INSERT INTO @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('12PM','11:00:01','13:00:00','USPS','PRIORITY_EXPRESS')		
+			INSERT INTO @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('01PM','13:00:01','14:00:00','USPS','PRIORITY_EXPRESS')
+
+			INSERT INTO @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('10AM','00:00:00','11:00:00','USPS','PRIORITY')
+			INSERT INTO @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('12PM','11:00:01','13:00:00','USPS','PRIORITY')		
+			INSERT INTO @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('01PM','13:00:01','14:00:00','USPS','PRIORITY')
+		END
+		ELSE
+		BEGIN
+			INSERT INTO @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('04PM','00:00:00','17:00:00','FedEx','PRIORITY_OVERNIGHT')
+
+			INSERT INTO @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('05PM','17:00:01','18:00:00','FedEx','PRIORITY_OVERNIGHT')
+
+			INSERT INTO @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('06PM','18:00:01','19:00:00','FedEx','PRIORITY_OVERNIGHT')
+
+			INSERT INTO @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('07PM','19:00:01','20:00:00','FedEx','PRIORITY_OVERNIGHT')
+
+			INSERT INTO @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('04PM','00:00:00','17:00:00','USPS','PRIORITY_EXPRESS')
+
+			INSERT INTO @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('05PM','17:00:01','18:00:00','USPS','PRIORITY_EXPRESS')
+
+			INSERT INTO @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('04PM','00:00:00','17:00:00','USPS','PRIORITY')
+
+			INSERT INTO @BatchTimings (BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('05PM','17:00:01','18:00:00','USPS','PRIORITY')
+		END		
+		RETURN
+	END
+	GO
+	---------------------------------------------
+	ALTER FUNCTION [dbo].[ufn_GetDallasBatches]
+	(
+	@EstDate DATE
+	)
+	RETURNS @sweep TABLE 
+	(
+		BatchName varchar(255),
+		StartDate datetime,
+		EndDate datetime,
+		ShippingCarrier varchar(255),
+		ShippingServiceType varchar(255)
+	)
+	AS
+	BEGIN
+		DECLARE @todayDate DATE
+		SELECT @todayDate=@EstDate
+		
+		INSERT INTO @sweep (BatchName,StartDate,EndDate,ShippingCarrier,ShippingServiceType) 
+		SELECT BatchName,cast(@todayDate AS DATETIME)+cast(StartTime AS DATETIME),cast(@todayDate AS DATETIME)+cast(EndTime AS DATETIME),ShippingCarrier,ShippingServiceType from [dbo].[ufn_GetDallasBatchTimings](@EstDate)	 
+		
+		
+		INSERT INTO @sweep (BatchName,StartDate,EndDate,ShippingCarrier,ShippingServiceType) 
+		VALUES ('Backlog',DateAdd(day,-7, cast(@todayDate AS DATETIME)),DateAdd(second,-1, cast(@todayDate AS DATETIME)),'FedEx','PRIORITY_OVERNIGHT')
+		
+		INSERT INTO @sweep (BatchName,StartDate,EndDate,ShippingCarrier,ShippingServiceType) 
+		VALUES ('Backlog',DateAdd(day,-7, cast(@todayDate AS DATETIME)),DateAdd(second,-1, cast(@todayDate AS DATETIME)),'USPS','PRIORITY_EXPRESS')
+
+		INSERT INTO @sweep (BatchName,StartDate,EndDate,ShippingCarrier,ShippingServiceType) 
+		VALUES ('Backlog',DateAdd(day,-7, cast(@todayDate AS DATETIME)),DateAdd(second,-1, cast(@todayDate AS DATETIME)),'USPS','PRIORITY')
+		RETURN
+	END
+	GO
+	----------------------------------------
+	ALTER FUNCTION [dbo].[ufn_GetDallasBatchDetails]
+	(
+	@EstDate DATE
+	)
+	RETURNS TABLE 
+	AS
+	RETURN
+	(
+	with db as
+	(
+		select * from [dbo].[ufn_GetDallasBatches](@EstDate)
+	),
+	q as
+	(
+	SELECT m.Id,m.BusinessFriendlyIdValue as LoanNumber,m.ClientId, m.PrintLocation, m.EffectiveReceivedOnEst, m.TrackingNo,m.IsPullBackRequested,m.IsQCRequested,m.TotalSheets , m.DueDate,m.TotalPages,
+	b.PrintBatch,b.IsSubmitted,b.PipelineStatus,b.JobName,b.SubmittedOn,
+	req.PieceId,req.JobId,req.[Date] as MRDFReqDate,req.PDFFileName, req.UniqueId,req.MailPieceStatus, res.ProcessingTimeStamp,
+	d.ShippingServiceType,d.ShippingCarrier,
+	c.AppCode,c.Name as ClientName,(select BatchName from db where EffectiveReceivedOnEst between StartDate AND EndDate AND ShippingCarrier=d.ShippingCarrier AND ShippingServiceType=d.ShippingServiceType) BatchName
+	FROM [AM].[MailPieces] m
+	LEFT OUTER JOIN PnS.MRDFRequest req ON m.UniqueId = req.UniqueId
+	LEFT OUTER JOIN PnS.BatchSummary b ON req.JobId = b.PrintBatch
+	LEFT OUTER JOIN PnS.MRDFResponse res ON req.JobId = res.JobId AND req.PieceId=res.PieceId
+	INNER JOIN AM.DocTypes d ON m.DocTypeId=d.Id
+	INNER JOIN Common.Clients c ON m.ClientId=c.Id
+	WHERE m.PrintLocation=(SELECT Value FROM Common.SystemSettings WHERE Id='Common_PrintLocationCL') 
+	AND m.EffectiveReceivedOnEst >=(select MIN(StartDate) from db)
+	)
+	select * from q where BatchName is not null 
+	)
+3) SP Updated : [dbo].[SP_GetPendingScanning],[dbo].[SP_GetRecentBatchesStats],[dbo].[SP_GetScannedMailPieces],[dbo].[SP_GetScanReportData], [dbo].[SP_GetScanStats],[dbo].[SP_RegisterScan],[dbo].[usp_GetMRDFResponseDummyDataByJobId]
+	-- =============================================
+	-- Author:		Sagar Golvelkar
+	-- Create date: 09/12/2018
+	-- Description:	<Description,,>
+	-- =============================================
+	ALTER PROCEDURE [dbo].[usp_GetPCIReconReport]
+	@StartDate DATE,
+	@EndDate DATE
+	AS
+	BEGIN
+		-- SET NOCOUNT ON added to prevent extra result sets from
+		-- interfering with SELECT statements.
+		SET NOCOUNT ON;
+		SELECT * FROM 
+		(
+			--USAA,ALASKA
+			SELECT DISTINCT B.PrintBatch,B.PrintFileName,B.SubmittedOn,B.DueDate,D.ShippingCarrier,D.ShippingServiceType,COUNT(*) AS PackageCount,SUM(M.TotalPages) as TotalPages FROM PnS.BatchSummary B INNER JOIN PnS.MRDFRequest REQ ON REQ.JobId=B.PrintBatch INNER JOIN AM.MailPieces M ON M.UniqueId=REQ.UniqueId INNER JOIN AM.DocTypes D ON D.Id=B.DocTypeId WHERE B.PrintLocation='Fort Mill, SC' AND B.ClientId IN (101,102) AND M.EffectiveReceivedOnEst >= @StartDate AND M.EffectiveReceivedOnEst < @EndDate GROUP BY B.PrintBatch,B.PrintFileName,B.SubmittedOn,B.DueDate,D.ShippingCarrier,D.ShippingServiceType,B.Images
+			UNION
+			--HSBC
+			SELECT DISTINCT B.PrintBatch,B.PrintFileName,B.SubmittedOn,B.DueDate,D.ShippingCarrier,D.ShippingServiceType,COUNT(*) AS PackageCount,SUM(M.TotalPages) as TotalPages FROM PnS.BatchSummary B INNER JOIN PnS.MRDFRequest REQ ON REQ.JobId=B.PrintBatch INNER JOIN AM.MailPieces M ON M.UniqueId=REQ.UniqueId INNER JOIN AM.DocTypes D ON D.Id=B.DocTypeId WHERE B.PrintLocation='Fort Mill, SC' AND B.ClientId IN (104) AND CAST(dbo.ufn_UTCToEST(B.SubmittedOn) as DATE) = @StartDate GROUP BY B.PrintBatch,B.PrintFileName,B.SubmittedOn,B.DueDate,D.ShippingCarrier,D.ShippingServiceType,B.Images
+			UNION
+			--CONDOSAFE,RPS,CITI
+			SELECT DISTINCT B.PrintBatch,B.PrintFileName,B.SubmittedOn,B.DueDate,D.ShippingCarrier,D.ShippingServiceType,COUNT(*) AS PackageCount,B.Images as TotalPages FROM PnS.BatchSummary B INNER JOIN PnS.MRDFRequest REQ ON REQ.JobId=B.PrintBatch
+			INNER JOIN AM.DocTypes D ON D.Id=B.DocTypeId
+			WHERE B.ClientId IN (103,109,110) AND CAST(dbo.ufn_UTCToEST(B.SubmittedOn) as DATE) = @StartDate
+			GROUP BY B.PrintBatch,B.PrintFileName,B.SubmittedOn,B.DueDate,D.ShippingCarrier,D.ShippingServiceType,B.Images
+		)X
+		ORDER BY X.PRINTBATCH
+	END
+	GO
+4) New SystemSettings Added in Common.SystemSettings
+	INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) 
+	VALUES (N'Web_DD_PrintFormatList', N'String', N'Simplex, Duplex', N'Print format dropdown values', 0, N'Simplex, Duplex', (select Id from [Profile].Users where UserName = 'system@milestonetechnoconsulting.com'), GETUTCDATE())
+
+	INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) 
+	VALUES (N'Web_DD_PrintSizeList', N'String', N'MixMedia, LETTER-IP, GLT-20-DOP-17.5, LEGAL-IP, WC24#LTR-PERF, LEGAL-PERF-IP', N'Print size dropdown values', 0, N'MixMedia, LETTER-IP, GLT-20-DOP-17.5, LEGAL-IP, WC24#LTR-PERF, LEGAL-PERF-IP', (select Id from [Profile].Users where UserName = 'system@milestonetechnoconsulting.com'), GETUTCDATE())
+
+	INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) 
+	VALUES (N'Web_DD_ShippingCarrierList', N'String', N'USPS, FedEx, UPS', N'Shipping Carrier dropdown values', 0, N'USPS, FedEx, UPS', (select Id from [Profile].Users where UserName = 'system@milestonetechnoconsulting.com'), GETUTCDATE())
+
+	INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) 
+	VALUES (N'Web_DD_ShippingServiceTypeList', N'String', N'USPS, FEDEX_2_DAY, FEDEX_EXPRESS_SAVER, FEDEX_GROUND, FIRST_OVERNIGHT, GROUND_HOME_DELIVERY, PRIORITY_OVERNIGHT, STANDARD_OVERNIGHT', N'Shipping Service Type dropdown values', 0, N'USPS, FEDEX_2_DAY, FEDEX_EXPRESS_SAVER, FEDEX_GROUND, FIRST_OVERNIGHT, GROUND_HOME_DELIVERY, PRIORITY_OVERNIGHT, STANDARD_OVERNIGHT', (select Id from [Profile].Users where UserName = 'system@milestonetechnoconsulting.com'), GETUTCDATE())
+
+	INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) 
+	VALUES (N'Web_DD_ShippingSpecialServiceList', N'String', N'SATURDAY_DELIVERY, SATURDAY_PICKUP', N'Shipping Special Service dropdown values', 0, N'SATURDAY_DELIVERY, SATURDAY_PICKUP', (select Id from [Profile].Users where UserName = 'system@milestonetechnoconsulting.com'), GETUTCDATE())
+
+	INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) 
+	VALUES (N'Monitor_PriorityMailingText', N'String', N'-Priority', NULL, 0, N'-Priority', (select Id from [Profile].Users where UserName = 'system@milestonetechnoconsulting.com'), GETUTCDATE())
+	
+	INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) 
+	VALUES (N'Core_DirectReportBackChannelIds', N'String', N'2', N'', 0, N'', (select Id from [Profile].Users where UserName = 'system@milestonetechnoconsulting.com'), GETUTCDATE())
+
+5) New Priority DocTypes added in AM.DocTypes
+	SET IDENTITY_INSERT [AM].[DocTypes] ON 
+	GO
+	INSERT [AM].[DocTypes] ([Id], [DocTypeCode], [Description], [ClientId], [PrintSize], [ContentScalePercent], [PrintFormat], [QCPercent], [ShippingCarrier], [ShippingServiceType], [ShippingAccountCode], [IsReturnInfoSpecified], [RetRcptPrefix], [RetRcptFirstName], [RetRcptMiddleName], [RetRcptLastName], [RetRcptSuffix], [RetRcptPhone], [RetRcptOrganization], [RetRcptAddrOptionalLine1AboveStreet], [RetRcptAddrOptionalLine2AboveStreet], [RetRcptAddressStreet], [RetRcptAddressAptOrSuiteOrOther], [RetRcptAddrOptionalLine1BelowStreet], [RetRcptAddrOptionalLine2BelowStreet], [RetRcptAddressCity], [RetRcptAddressState], [RetRcptAddressZIP], [ClientEmails], [ClientContactNo], [SupportEmails], [SupportContactNo], [IsActive], [ModifiedOn], [CreatedOn], [CreatedBy], [ModifiedBy], [BizdayCutOff], [BizdaySLAType], [BizdayTimeSpan], [SatCutOff], [SatSLAType], [SatTimeSpan], [SunCutOff], [SunSLAType], [SunTimeSpan]) VALUES (102, N'AppraisalReportWaiver_P', N'Appraisal Report Waiver-Priority', 101, N'LETTER-IP', 100, N'Simplex', 0, N'USPS', N'PRIORITY', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, CAST(N'2018-02-28 13:09:29.223' AS DateTime), CAST(N'2018-02-27 13:09:29.223' AS DateTime), N'66f8d3e7-b66a-48d9-911f-d3914f1b3a11', N'66f8d3e7-b66a-48d9-911f-d3914f1b3a11', N'18:00:00', N'FixedTime', N'00:23:59:59', N'14:00:00', N'FixedTime', N'00:23:59:59', NULL, N'NA', NULL)
+	GO
+	INSERT [AM].[DocTypes] ([Id], [DocTypeCode], [Description], [ClientId], [PrintSize], [ContentScalePercent], [PrintFormat], [QCPercent], [ShippingCarrier], [ShippingServiceType], [ShippingAccountCode], [IsReturnInfoSpecified], [RetRcptPrefix], [RetRcptFirstName], [RetRcptMiddleName], [RetRcptLastName], [RetRcptSuffix], [RetRcptPhone], [RetRcptOrganization], [RetRcptAddrOptionalLine1AboveStreet], [RetRcptAddrOptionalLine2AboveStreet], [RetRcptAddressStreet], [RetRcptAddressAptOrSuiteOrOther], [RetRcptAddrOptionalLine1BelowStreet], [RetRcptAddrOptionalLine2BelowStreet], [RetRcptAddressCity], [RetRcptAddressState], [RetRcptAddressZIP], [ClientEmails], [ClientContactNo], [SupportEmails], [SupportContactNo], [IsActive], [ModifiedOn], [CreatedOn], [CreatedBy], [ModifiedBy], [BizdayCutOff], [BizdaySLAType], [BizdayTimeSpan], [SatCutOff], [SatSLAType], [SatTimeSpan], [SunCutOff], [SunSLAType], [SunTimeSpan]) VALUES (103, N'StandAloneClosingDisclosure_P', N'Stand Alone - Closing Disclosure-Priority', 101, N'LETTER-IP', 100, N'Simplex', 0, N'USPS', N'PRIORITY', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, CAST(N'2018-02-28 13:09:29.223' AS DateTime), CAST(N'2018-02-27 13:09:29.223' AS DateTime), N'66f8d3e7-b66a-48d9-911f-d3914f1b3a11', N'66f8d3e7-b66a-48d9-911f-d3914f1b3a11', N'18:00:00', N'FixedTime', N'00:23:59:59', N'14:00:00', N'FixedTime', N'00:23:59:59', NULL, N'NA', NULL)
+	GO
+	INSERT [AM].[DocTypes] ([Id], [DocTypeCode], [Description], [ClientId], [PrintSize], [ContentScalePercent], [PrintFormat], [QCPercent], [ShippingCarrier], [ShippingServiceType], [ShippingAccountCode], [IsReturnInfoSpecified], [RetRcptPrefix], [RetRcptFirstName], [RetRcptMiddleName], [RetRcptLastName], [RetRcptSuffix], [RetRcptPhone], [RetRcptOrganization], [RetRcptAddrOptionalLine1AboveStreet], [RetRcptAddrOptionalLine2AboveStreet], [RetRcptAddressStreet], [RetRcptAddressAptOrSuiteOrOther], [RetRcptAddrOptionalLine1BelowStreet], [RetRcptAddrOptionalLine2BelowStreet], [RetRcptAddressCity], [RetRcptAddressState], [RetRcptAddressZIP], [ClientEmails], [ClientContactNo], [SupportEmails], [SupportContactNo], [IsActive], [ModifiedOn], [CreatedOn], [CreatedBy], [ModifiedBy], [BizdayCutOff], [BizdaySLAType], [BizdayTimeSpan], [SatCutOff], [SatSLAType], [SatTimeSpan], [SunCutOff], [SunSLAType], [SunTimeSpan]) VALUES (104, N'StandAloneLoanEstimate_P', N'Stand Alone - Loan Estimate-Priority', 101, N'LETTER-IP', 100, N'Simplex', 0, N'USPS', N'PRIORITY', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, CAST(N'2018-02-28 13:09:29.223' AS DateTime), CAST(N'2018-02-27 13:09:29.223' AS DateTime), N'66f8d3e7-b66a-48d9-911f-d3914f1b3a11', N'66f8d3e7-b66a-48d9-911f-d3914f1b3a11', N'18:00:00', N'FixedTime', N'00:23:59:59', N'14:00:00', N'FixedTime', N'00:23:59:59', NULL, N'NA', NULL)
+	GO
+	INSERT [AM].[DocTypes] ([Id], [DocTypeCode], [Description], [ClientId], [PrintSize], [ContentScalePercent], [PrintFormat], [QCPercent], [ShippingCarrier], [ShippingServiceType], [ShippingAccountCode], [IsReturnInfoSpecified], [RetRcptPrefix], [RetRcptFirstName], [RetRcptMiddleName], [RetRcptLastName], [RetRcptSuffix], [RetRcptPhone], [RetRcptOrganization], [RetRcptAddrOptionalLine1AboveStreet], [RetRcptAddrOptionalLine2AboveStreet], [RetRcptAddressStreet], [RetRcptAddressAptOrSuiteOrOther], [RetRcptAddrOptionalLine1BelowStreet], [RetRcptAddrOptionalLine2BelowStreet], [RetRcptAddressCity], [RetRcptAddressState], [RetRcptAddressZIP], [ClientEmails], [ClientContactNo], [SupportEmails], [SupportContactNo], [IsActive], [ModifiedOn], [CreatedOn], [CreatedBy], [ModifiedBy], [BizdayCutOff], [BizdaySLAType], [BizdayTimeSpan], [SatCutOff], [SatSLAType], [SatTimeSpan], [SunCutOff], [SunSLAType], [SunTimeSpan]) VALUES (105, N'InitialDisclosures_P', N'Initial Disclosures-Priority', 101, N'LETTER-IP', 100, N'Simplex', 0, N'USPS', N'PRIORITY', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, CAST(N'2018-02-28 13:09:29.223' AS DateTime), CAST(N'2018-02-27 13:09:29.223' AS DateTime), N'66f8d3e7-b66a-48d9-911f-d3914f1b3a11', N'66f8d3e7-b66a-48d9-911f-d3914f1b3a11', N'18:00:00', N'FixedTime', N'00:23:59:59', N'14:00:00', N'FixedTime', N'00:23:59:59', NULL, N'NA', NULL)
+	GO
+	SET IDENTITY_INSERT [AM].[DocTypes] OFF
+	GO
+
+=========================
+Application Changes
+=========================
+
+1) AM.Console Update : exe, dlls
+2) AM.Core Update : exe, dlls
+3) AM.Reporting Update : exe, dlls
+	- Create new task schedular AM_Reporting_PCIRecon with parameter "PCIRecon" at 9 PM EST, Check App.Config for new keys
+	- Check task schedular AM_Reporting_DallasNotification for Saturday notification
+	- Separated ReportBack for AMC,HSBC,ALASKA
+4) PnS Service Update : exe, dlls
+	- Update App.Config Key: <add key="SubmitBatchEmailSubject" value="Batch Submitted To {0} : {1} at {2} Total Files : {3} Total Page Count : {4}" />
+	
+====================================================================================================================================================
+UAT Final Status : Deployed on 09/10/2018 at 12.30 PM IST
+PROD Final Status : Deployed on 09/13/2018 at 11.00 AM IST (Bundle Sweeps updated)
+====================================================================================================================================================
+====================================================
+Deployment 29/09/2018
+====================================================
+=========================
+Database Changes
+=========================
+
+	--STORED PROCEDURES
+	CREATE PROCEDURE [dbo].[usp_GetDallasBatchTimingsPnS] 
+	@EstToday DATE
+	AS
+	BEGIN
+		-- SET NOCOUNT ON added to prevent extra result sets from
+		-- interfering with SELECT statements.
+		SET NOCOUNT ON;
+		Select * from dbo.ufn_GetDallasBatchTimings(@EstToday)
+	END
+
+	GO
+
+
+	ALTER PROCEDURE [dbo].[usp_GetNextBatchIdByJobName] 
+		-- Add the parameters for the stored procedure here
+		@jobName varchar(50),
+		@operation varchar(50)
+	AS
+	BEGIN
+		
+		IF (@jobName = 'PnSJobMonitor' AND @operation = 'ReportBack')
+		BEGIN
+			SELECT PrintBatch AS BatchId FROM [PnS].BatchSummary WHERE PipelineStatus = 'ReportPrepped' AND  IsReportPrepped = 1 AND IsReportedBack = 0
+		END
+		ELSE IF(@jobName = 'PnSCoreService')
+		BEGIN
+			IF(@operation = 'Prep')
+			BEGIN
+				SELECT PrintBatch AS BatchId FROM PnS.BatchSummary WHERE PipelineStatus = 'Downloaded' AND  IsDownloaded = 1 AND IsPrepped = 0 
+			END
+			ELSE IF(@operation = 'ProcessMRDF')
+			BEGIN
+				SELECT PrintBatch AS BatchId FROM PnS.BatchSummary WHERE PipelineStatus = 'MRDFReceived' AND  IsMRDFReceived = 1 AND IsReportPrepped = 0
+			END
+		END
+		ELSE IF(@jobName = 'PCIJobMonitor' AND @operation = 'Submit')
+		BEGIN
+			SELECT PrintBatch AS BatchId FROM PnS.BatchSummary WHERE PipelineStatus = 'Prepped' AND  IsPrepped = 1 AND IsSubmitted = 0 
+		END
+	END
+
+	--FUNCTION
+	CREATE FUNCTION [dbo].[ufn_GetPCIBundleSweepTimings] 
+	()
+	RETURNS @T TABLE
+	(
+		SrNo int,
+		WeekDayType varchar(10),
+		SweepTime time
+	) 
+	AS
+	BEGIN
+		
+		INSERT INTO @T (SrNo,WeekDayType,SweepTime) 
+		VALUES (1,'Weekday','16:00:00')
+		INSERT INTO @T (SrNo,WeekDayType,SweepTime) 
+		VALUES (2,'Weekday','20:00:00')
+		INSERT INTO @T (SrNo,WeekDayType,SweepTime) 
+		VALUES (1,'Saturday','16:00:00')
+		INSERT INTO @T (SrNo,WeekDayType,SweepTime) 
+		VALUES (2,'Saturday','20:00:00')
+		RETURN
+	END
+
+	--TABLES CHANGES
+
+	ALTER TABLE AM.MailPieces 
+	ADD StdSubmissionTime DATETIME NULL,MaxSubmissionTime DATETIME NULL, MissedSLAReason VARCHAR(15) NULL
+
+	CREATE TABLE [API].[USPSeVSCancel](
+	 [Id] [int] IDENTITY(1,1) NOT NULL,
+	 [APIName] [nvarchar](255) NOT NULL,
+	 [UserId] [nvarchar](255) NULL,
+	 [IsAPIError] [bit] NOT NULL,
+	 [IsUSPSError] [bit] NOT NULL,
+	 [APIRequest] [nvarchar](max) NOT NULL,
+	 [APIRequestedOn] [datetime] NOT NULL,
+	 [USPSRequest] [nvarchar](max) NULL,
+	 [USPSRequestedOn] [datetime] NULL,
+	 [USPSResponse] [nvarchar](max) NULL,
+	 [USPSResponseOn] [datetime] NULL,
+	 [APIResponse] [nvarchar](max) NULL,
+	 [APIResponseOn] [datetime] NULL,
+	 [BarcodeNumber] [nvarchar](255) NULL,
+	 [Status] [nvarchar](255) NULL,
+	 [Reason] [nvarchar](max) NULL,
+	 CONSTRAINT [PK_USPSeVSCancel.Id] PRIMARY KEY CLUSTERED 
+	(
+	 [Id] ASC
+	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+
+
+	CREATE TABLE [AM].[ClientAMCCustIdMap](
+		[ClientId] [int] NOT NULL,
+		[AMCCustId] [varchar](128) NOT NULL,
+	 CONSTRAINT [PK_ClientAMCCustIdMap] PRIMARY KEY CLUSTERED 
+	(
+		[ClientId] ASC,
+		[AMCCustId] ASC
+	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	) ON [PRIMARY]
+
+
+	ALTER TABLE [AM].[ClientAMCCustIdMap]  WITH CHECK ADD  CONSTRAINT [FK_ClientAMCCustIdMap_Clients] FOREIGN KEY([ClientId])
+	REFERENCES [Common].[Clients] ([Id])
+	GO
+
+	ALTER TABLE [AM].[ClientAMCCustIdMap] CHECK CONSTRAINT [FK_ClientAMCCustIdMap_Clients]
+	GO
+
+
+
+
+
+	-- DATA RELATED CHANGES
+
+	SET IDENTITY_INSERT [Common].[Clients] ON
+	GO
+	DECLARE @SFTChannelCode VARCHAR(50),@SFTChannelId INT,@ClientId INT,@EmailChannelId INT
+
+	SET @SFTChannelId=(SELECT Id FROM Common.SFTChannels WHERE Code='AMC_' + (SELECT VALUE FROM Common.SystemSettings WHERE Id='Common_Environment'))*-1
+
+
+	INSERT INTO [Common].[Clients](Id,Name, AppCode, BusinessUnit, IsAMActive, IsPnSActive, TimeZone, ModifiedOn, CreatedOn, CreatedBy, ModifiedBy, SimulatePCI)
+	VALUES (@SFTChannelId,'AMCInvalid','AMCInvalid',1,1,0,'Eastern Standard Time',GETUTCDATE(),GETUTCDATE(),(select Id FROM [Profile].[Users] where UserName='system@milestonetechnoconsulting.com'),(select Id FROM [Profile].[Users] where UserName='system@milestonetechnoconsulting.com'),0)
+
+	SET @ClientId=@SFTChannelId
+	INSERT INTO [AM].[ClientAMCCustIdMap](Clientid,AMCCustId) VALUES(@ClientId,'InvalidCustId')
+	INSERT INTO [AM].[ClientBusinessIdentifiers](ClientId,BusinessIdName) VALUES (@ClientId,'Loan Number')
+
+	INSERT INTO [Common].[EmailChannels]([Title],[To],[Cc],[Bcc],[Subject],[BodyTemplate],[IsBodyHTML])VALUES('AMCInvalid Reporting','brapatel@corelogic.com','sgolvelkar@corelogic.com,vmungara@corelogic.com,avala@corelogic.com',NULL,'Production Summary','HTML',0)
+	SET @EmailChannelId = SCOPE_IDENTITY()
+
+	INSERT INTO [Common].[Deliverables](ClientId, ReportName, ReportType, DeliveryType, ReportQuery, Delimeter, FileNameExpression, IsSFTUploadRequired, UploadPath, EmailChannelId, ScheduleId)
+	VALUES(@ClientId,'Error Report','Error','Batch','','\t','Error-{Now:yyyyMMdd}.csv',1,'/Reports',@EmailChannelId,NULL)
+
+	SET IDENTITY_INSERT [Common].[Clients] OFF 
+	GO
+
+	--[Common].[ClientSFTChannels] Table
+
+	EXEC usp_MapClientSFTChannels 'AMCInvalid','AMC_Prod'
+	EXEC usp_MapClientSFTChannels 'HSBC','AMC_Prod'
+
+
+	--Common.SystemSettings Table
+	INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) VALUES (N'Core_USPSEndPageTemplatePath', N'String', N'USPSBarcodedEndPageTemplate.pdf', NULL, 0, N'USPSBarcodedEndPageTemplate.pdf', (select Id from [Profile].Users where UserName = 'system@milestonetechnoconsulting.com'), GETUTCDATE())
+
+	INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) VALUES (N'Core_FedExEndPageTemplatePath', N'String', N'FedExBarcodedEndPageTemplate.pdf', NULL, 0, N'FedExBarcodedEndPageTemplate.pdf', (select Id from [Profile].Users where UserName = 'system@milestonetechnoconsulting.com'), GETUTCDATE())
+
+	DELETE FROM Common.SystemSettings WHERE id = 'Core_EndPageTemplatePath'
+
+	INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) VALUES (N'Web_API_USPS_eVSCancelAPIName', N'String', N'eVSCancel', NULL, 0, N'eVSCancel', (select Id from [Profile].Users where UserName = 'system@milestonetechnoconsulting.com'), GETUTCDATE())
+
+	INSERT [Common].[SystemSettings] ([Id], [DataType], [Value], [Description], [IsSystem], [DefaultValue], [ModifiedBy], [ModifiedOn]) VALUES (N'Common_ProcessingBufferTime', N'Int32', N'30', NULL, 0, N'30', (select Id from [Profile].Users where UserName = 'system@milestonetechnoconsulting.com'), GETUTCDATE())
+
+	--Common.Deliverables AND [Common].[EmailChannels] Tables
+	DECLARE @EmailChannelIdForUSAA INT
+	INSERT INTO [Common].[EmailChannels]([Title],[To],[Cc],[Bcc],[Subject],[BodyTemplate],[IsBodyHTML])VALUES('USAA Reporting','sgolvelkar@corelogic.com','vmungara@corelogic.com',NULL,'Production Summary','HTML',0)
+
+	SET @EmailChannelIdForUSAA=SCOPE_IDENTITY()
+
+	INSERT INTO [Common].[Deliverables]([ClientId],[ReportName],[ReportType],[DeliveryType],[ReportQuery],[Delimeter],[FileNameExpression],[IsSFTUploadRequired],[UploadPath],[EmailChannelId],[ScheduleId])VALUES(101,'Delivery Report','Delivery','Batch','','\t','Delivery-{Now:yyyyMMdd}.csv',1,'/Reports',@EmailChannelIdForUSAA,NULL)
+
+	UPDATE [Common].[EmailChannels]
+	SET
+	[Subject]='Download Summary'
+	WHERE Id=3
+
+	UPDATE [Common].[Deliverables]
+	SET
+	UploadPath='/Reports'
+	WHERE ClientId=104 AND IsSFTUploadRequired=1
+
+	--[AM].[ClientAMCCustIdMap] Table
+	INSERT INTO [AM].[ClientAMCCustIdMap](Clientid,AMCCustId) VALUES(101,'166')
+	INSERT INTO [AM].[ClientAMCCustIdMap](Clientid,AMCCustId) VALUES(104,'185')
+
+=========================
+Application Changes
+=========================
+
+1) AM.Console Update : exe, dlls
+2) AM.Core Update : exe, dlls
+	- Add two cover rear barcoded cover letters in CoverTemplates
+3) AM.Reporting Update : exe, dlls
+4) PnS Service :
+	- New Deployment in AuthoMail folder With 3 Separate Exe Just like UAT
+	- Create 3 Task schedular with PnSJob, PnSCore and PCIJob Arguments
+	- Disable PnSServices
+	- Use same config file of Original PnSService
+	- Added 3 keys in PnS Service
+		<add key="UnexpectedEmail_Subject" value="Unexpected Error Occured in PnS Service" />
+		<add key="UnexpectedEmail_ToEmail" value="sgolvelkar@corelogic.com" />
+		<add key="UnexpectedEmail_CcEmail" value="sgolvelkar@corelogic.com" />
+	- Removed DallasSweepTiming key in PnS.AppConfig
+5) Disable AM_Monitor_HSBC Task Schedular
+6) Creat "Archive" folder in AMRoot
+7) Deploy TaskManager and Create task schedular for Disabling task on SUNDAY 00:00:00(EST) SATURDAY (21:00:00 PST) and Start again on Monday 00:00:00(EST)  SUNDAY (21:00:00 PST)
+8) Look into web deployment
+====================================================================================================================================================
+UAT Final Status : Deployed on 09/26/2018 at 04.30 AM IST
+PROD Final Status : Deployed on 09/29/2018 at 10.59 AM IST (PnSService separate exe updates, HSBC onboard through AMC,evscancel updates )
+====================================================================================================================================================
+
+====================================================
+Deployment 23/10/2018
+====================================================
+=========================
+Database Changes
+=========================
+1) Added new column IsBRE in AM.DocTypes
+
+	ALTER TABLE [AM].[DocTypes]
+	ADD [IsBRE] BIT NULL 
+
+	UPDATE [AM].[DocTypes]
+	SET
+	IsBRE=0
+
+	ALTER TABLE [AM].[DocTypes]
+	ALTER COLUMN [IsBRE] BIT NOT NULL 
+
+	ALTER TABLE [AM].[DocTypes] ADD  CONSTRAINT [DF_DocTypes_IsBRE]  DEFAULT ((0)) FOR [IsBRE]
+
+	DocTypes updated for HSBC BRE
+	UPDATE AM.DocTypes
+	SET
+	IsBRE=1
+	WHERE Id IN (15,28,12,17,21,23,25,26,24,29,27,83,101)
+
+2) Key changes in Common.SystemSettings Monitor_InternalPrintAndShipStartTime
+
+	UPDATE COmmon.SystemSettings
+	SET
+	Id='Monitor_InternalPrintAndShipTiming'
+	WHERE Id='Monitor_InternalPrintAndShipStartTime'
+
+	UPDATE Common.SystemSettings
+	SET
+	DataType='String',
+	Value='USAA,00:00:00-23:59:59|HSBC,00:00:00-23:59:59'
+	WHERE Id='Monitor_InternalPrintAndShipTiming'
+
+3) Removed Monitor_InternalPrintAndShipEndTime
+	DELETE FROM COmmon.SystemSettings WHERE Id='Monitor_InternalPrintAndShipEndTime'
+4) Function updated for IsBRE column [ufn_GetDallasBatchDetails]- added one more condition in BatchName by client subquery, and added IsBRE column
+	USE [AuthoMail]
+	GO
+	/****** Object:  UserDefinedFunction [dbo].[ufn_GetDallasBatchDetails]    Script Date: 10/18/2018 6:41:47 PM ******/
+	SET ANSI_NULLS ON
+	GO
+	SET QUOTED_IDENTIFIER ON
+	GO
+	ALTER FUNCTION [dbo].[ufn_GetDallasBatchDetails]
+	(
+	@EstDate DATE
+	)
+	RETURNS TABLE 
+	AS
+	RETURN
+	(
+	with db as
+	(
+		select * from [dbo].[ufn_GetDallasBatches](@EstDate)
+	),
+	q as
+	(
+	SELECT m.Id,m.BusinessFriendlyIdValue as LoanNumber,m.ClientId, m.PrintLocation, m.EffectiveReceivedOnEst, m.TrackingNo,m.IsPullBackRequested,m.IsQCRequested,m.TotalSheets , m.DueDate,m.TotalPages,m.ShippingStatus,
+	b.PrintBatch,b.IsSubmitted,b.PipelineStatus,b.JobName,b.SubmittedOn,
+	req.PieceId,req.JobId,req.[Date] as MRDFReqDate,req.PDFFileName, req.UniqueId,req.MailPieceStatus, res.ProcessingTimeStamp,
+	d.ShippingServiceType,d.ShippingCarrier,d.IsBRE,
+	c.AppCode,c.Name as ClientName,(select BatchName from db where EffectiveReceivedOnEst between StartDate AND EndDate AND ShippingCarrier=d.ShippingCarrier AND ShippingServiceType=d.ShippingServiceType AND AppCode=c.AppCode) BatchName
+	FROM [AM].[MailPieces] m
+	LEFT OUTER JOIN PnS.MRDFRequest req ON m.UniqueId = req.UniqueId
+	LEFT OUTER JOIN PnS.BatchSummary b ON req.JobId = b.PrintBatch
+	LEFT OUTER JOIN PnS.MRDFResponse res ON req.JobId = res.JobId AND req.PieceId=res.PieceId
+	INNER JOIN AM.DocTypes d ON m.DocTypeId=d.Id
+	INNER JOIN Common.Clients c ON m.ClientId=c.Id
+	WHERE m.PrintLocation=(SELECT Value FROM Common.SystemSettings WHERE Id='Common_PrintLocationCL') 
+	AND m.EffectiveReceivedOnEst >=(select MIN(StartDate) from db)
+	)
+	select * from q where BatchName is not null 
+	)
+5) Column added for Client wise ,Timings updated for HSBC [ufn_GetDallasBatchTimings]
+	USE [AuthoMail]
+	GO
+	/****** Object:  UserDefinedFunction [dbo].[ufn_GetDallasBatchTimings]    Script Date: 10/18/2018 6:42:40 PM ******/
+	SET ANSI_NULLS ON
+	GO
+	SET QUOTED_IDENTIFIER ON
+	GO
+
+	ALTER FUNCTION [dbo].[ufn_GetDallasBatchTimings]
+	(
+	@EstDate DATE
+	)
+	RETURNS @BatchTimings TABLE 
+	(
+		AppCode VARCHAR(255),
+		BatchName VARCHAR(255),
+		StartTime VARCHAR(255),
+		EndTime VARCHAR(255),
+		ShippingCarrier VARCHAR(255),
+		ShippingServiceType VARCHAR(255)
+	)
+	AS
+	BEGIN
+		
+		DECLARE @DayofWeek INT = DATEPART(dw,@EstDate)
+
+		IF(@DayofWeek=7)
+		BEGIN
+			INSERT INTO @BatchTimings (AppCode, BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('USAA','10AM','00:00:00','11:00:00','FedEx','PRIORITY_OVERNIGHT')			
+			INSERT INTO @BatchTimings (AppCode, BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('USAA','01PM','11:00:01','14:00:00','FedEx','PRIORITY_OVERNIGHT')
+
+			INSERT INTO @BatchTimings (AppCode, BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('USAA','10AM','00:00:00','11:00:00','USPS','PRIORITY_EXPRESS')			
+			INSERT INTO @BatchTimings (AppCode, BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('USAA','01PM','11:00:01','14:00:00','USPS','PRIORITY_EXPRESS')
+
+			INSERT INTO @BatchTimings (AppCode, BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('USAA','10AM','00:00:00','11:00:00','USPS','PRIORITY')		
+			INSERT INTO @BatchTimings (AppCode, BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('USAA','01PM','11:00:01','14:00:00','USPS','PRIORITY')
+		END
+		ELSE
+		BEGIN
+			
+			INSERT INTO @BatchTimings (AppCode, BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('USAA','12PM','00:00:00','13:00:00','FedEx','PRIORITY_OVERNIGHT')
+			INSERT INTO @BatchTimings (AppCode, BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('USAA','05PM','13:00:01','18:00:00','FedEx','PRIORITY_OVERNIGHT')
+			INSERT INTO @BatchTimings (AppCode, BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('USAA','06PM','18:00:01','19:00:00','FedEx','PRIORITY_OVERNIGHT')
+			INSERT INTO @BatchTimings (AppCode, BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('USAA','07PM','19:00:01','20:00:00','FedEx','PRIORITY_OVERNIGHT')
+
+			INSERT INTO @BatchTimings (AppCode, BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('USAA','12PM','00:00:00','13:00:00','USPS','PRIORITY_EXPRESS')
+			INSERT INTO @BatchTimings (AppCode, BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('USAA','05PM','13:00:01','18:00:00','USPS','PRIORITY_EXPRESS')
+
+			INSERT INTO @BatchTimings (AppCode, BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('USAA','12PM','00:00:00','13:00:00','USPS','PRIORITY')
+			INSERT INTO @BatchTimings (AppCode, BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('USAA','05PM','13:00:01','18:00:00','USPS','PRIORITY')
+
+			INSERT INTO @BatchTimings (AppCode, BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('HSBC','12PM','00:00:00','13:00:00','USPS','IMB')
+			INSERT INTO @BatchTimings (AppCode, BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('HSBC','05PM','13:00:01','18:00:00','USPS','IMB')
+			INSERT INTO @BatchTimings (AppCode, BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('HSBC','06PM','18:00:01','19:00:00','USPS','IMB')
+			INSERT INTO @BatchTimings (AppCode, BatchName,StartTime,EndTime,ShippingCarrier,ShippingServiceType) 
+			VALUES ('HSBC','07PM','19:00:01','20:00:00','USPS','IMB')
+		END
+		
+		RETURN
+	END
+
+SP Changes [ufn_GetDallasBatches]- added AppCode in function
+
+	USE [AuthoMail]
+	GO
+	/****** Object:  UserDefinedFunction [dbo].[ufn_GetDallasBatches]    Script Date: 10/18/2018 6:42:10 PM ******/
+	SET ANSI_NULLS ON
+	GO
+	SET QUOTED_IDENTIFIER ON
+	GO
+
+	ALTER FUNCTION [dbo].[ufn_GetDallasBatches]
+	(
+	@EstDate DATE
+	)
+	RETURNS @sweep TABLE 
+	(
+		AppCode VARCHAR(255),
+		BatchName varchar(255),
+		StartDate datetime,
+		EndDate datetime,
+		ShippingCarrier varchar(255),
+		ShippingServiceType varchar(255)
+	)
+	AS
+	BEGIN
+		DECLARE @todayDate DATE
+		SELECT @todayDate=@EstDate
+		
+		INSERT INTO @sweep (AppCode, BatchName,StartDate,EndDate,ShippingCarrier,ShippingServiceType) 
+		SELECT AppCode, BatchName,cast(@todayDate AS DATETIME)+cast(StartTime AS DATETIME),cast(@todayDate AS DATETIME)+cast(EndTime AS DATETIME),ShippingCarrier,ShippingServiceType from [dbo].[ufn_GetDallasBatchTimings](@EstDate)	 
+		
+		
+		INSERT INTO @sweep (AppCode, BatchName,StartDate,EndDate,ShippingCarrier,ShippingServiceType) 
+		VALUES ('USAA','Backlog',DateAdd(day,-7, cast(@todayDate AS DATETIME)),DateAdd(second,-1, cast(@todayDate AS DATETIME)),'FedEx','PRIORITY_OVERNIGHT')
+		
+		INSERT INTO @sweep (AppCode, BatchName,StartDate,EndDate,ShippingCarrier,ShippingServiceType) 
+		VALUES ('USAA','Backlog',DateAdd(day,-7, cast(@todayDate AS DATETIME)),DateAdd(second,-1, cast(@todayDate AS DATETIME)),'USPS','PRIORITY_EXPRESS')
+
+		INSERT INTO @sweep (AppCode, BatchName,StartDate,EndDate,ShippingCarrier,ShippingServiceType) 
+		VALUES ('USAA','Backlog',DateAdd(day,-7, cast(@todayDate AS DATETIME)),DateAdd(second,-1, cast(@todayDate AS DATETIME)),'USPS','PRIORITY')
+
+		INSERT INTO @sweep (AppCode, BatchName,StartDate,EndDate,ShippingCarrier,ShippingServiceType) 
+		VALUES ('HSBC','Backlog',DateAdd(day,-7, cast(@todayDate AS DATETIME)),DateAdd(second,-1, cast(@todayDate AS DATETIME)),'USPS','IMB')
+
+		INSERT INTO @sweep (AppCode, BatchName,StartDate,EndDate,ShippingCarrier,ShippingServiceType) 
+		VALUES ('BECU','Backlog',DateAdd(day,-7, cast(@todayDate AS DATETIME)),DateAdd(second,-1, cast(@todayDate AS DATETIME)),'USPS','IMB')
+		RETURN
+	END
+	
+6) Rename ShippingServiceType of USPS to IMB
+	UPDATE AM.DocTypes
+	SET
+	ShippingServiceType='IMB'
+	WHERE ShippingCarrier='USPS' AND ShippingServiceType='USPS'
+
+7) Change TrackingDetailViewModel.ShippingServiceType, Config.Web_DD_ShippingServiceTypeList code for IMB instead of USPS
+
+8) Change in SP [usp_GetDocTypeDetailsByAppId] added IsBRE
+	USE [AuthoMail]
+	GO
+	/****** Object:  StoredProcedure [dbo].[usp_GetDocTypeDetailsByAppId]    Script Date: 10/18/2018 6:44:22 PM ******/
+	SET ANSI_NULLS ON
+	GO
+	SET QUOTED_IDENTIFIER ON
+	GO
+
+	ALTER PROCEDURE [dbo].[usp_GetDocTypeDetailsByAppId]
+	 @clientId int
+	AS
+	BEGIN
+	 -- SET NOCOUNT ON added to prevent extra result sets from
+	 -- interfering with SELECT statements.
+	 SET NOCOUNT ON;
+	 
+	 SELECT D.ClientId,D.[PrintSize],D.[ContentScalePercent],D.[QCPercent],D.[ClientEmails],D.[SupportEmails]
+	 ,D.[Description] as DocTypeDesc,D.DocTypeCode,D.IsActive,D.ModifiedOn
+	 ,D.CreatedOn,D.Id AS DocTypeId,D.ShippingCarrier,D.ShippingServiceType,D.IsBRE
+	 FROM AM.DocTypes D
+	 INNER JOIN Common.Clients C ON C.Id=D.ClientId
+	 WHERE C.Id=@clientId
+	 
+	END
+9) Disable SimulatePCI for HSBC
+=========================
+Application Changes
+=========================
+
+1) AM.Console Update : exe, dlls
+2) AM.Core Update : exe, dlls
+	- update BECU and HSBC two cover front barcoded cover letters in CoverTemplates
+3) AM.Reporting Update : exe, dlls, email templates
+4) PnS Service : exe, dlls	
+====================================================================================================================================================
+UAT Final Status : Deployed on 10/23/2018 at 02.30 PM IST (HSBC transfer to Dallas)
+PROD Final Status : 
+====================================================================================================================================================
+
+====================================================
+Deployment : Non-AuthoMail clients | Date :
+====================================================
+=========================
+Database Changes
+=========================
+
+1) Document Type Cut-Off Timings :
+UPDATE AM.DocTypes
+SET
+[BizdayCutOff]='20:00:00',
+[BizdaySLAType]='FixedTime',
+[BizdayTimeSpan]='00:23:59:59',
+[SatCutOff]=NULL,
+[SatSLAType]='NA',
+[SatTimeSpan]=NULL,
+[SunCutOff]=NULL,
+[SunSLAType]='NA',
+[SunTimeSpan]=NULL
+WHERE ClientId in ((SELECT Id FROM Common.Clients WHERE AppCode='CITIVM'),(SELECT Id FROM Common.Clients WHERE AppCode='DALLAS'),(SELECT Id FROM Common.Clients WHERE AppCode='RPS'))
+
+2) Function updated ufn_GetSweepTimings Added Citi,RPS, Dallas
+
+/****** Object:  UserDefinedFunction [dbo].[ufn_GetSweepTimings]    Script Date: 2/19/2019 12:17:46 PM ******/
+DROP FUNCTION [dbo].[ufn_GetSweepTimings]
+GO
+
+/****** Object:  UserDefinedFunction [dbo].[ufn_GetSweepTimings]    Script Date: 2/19/2019 12:17:46 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE FUNCTION [dbo].[ufn_GetSweepTimings] 
+( 
+ 
+)
+RETURNS @T TABLE
+(
+ SrNo int,
+ AppCode VARCHAR(20),
+ VendorCode VARCHAR(20),
+ WeekDayType varchar(10),
+ SweepType VARCHAR(20),
+ SweepTime time 
+) 
+AS
+begin
+ --ALASKA
+ insert into @T (SrNo,AppCode,VendorCode,WeekDayType,SweepType,SweepTime) 
+ values (1,'ALASKA','PCI','Weekday','OnSchedule','15:00:00')
+ insert into @T (SrNo,AppCode,VendorCode,WeekDayType,SweepType,SweepTime) 
+ values (2,'ALASKA','PCI','Weekday','OnSchedule','19:45:00')
+ insert into @T (SrNo,AppCode,VendorCode,WeekDayType,SweepType,SweepTime) 
+ values (1,'ALASKA','PCI','Saturday','OnSchedule','15:00:00')
+ insert into @T (SrNo,AppCode,VendorCode,WeekDayType,SweepType,SweepTime) 
+ values (2,'ALASKA','PCI','Saturday','OnSchedule','19:45:00')
+ 
+ --USAA
+ insert into @T (SrNo,AppCode,VendorCode,WeekDayType,SweepType,SweepTime) 
+ values (1,'USAA','CL_DALLAS','Weekday','Continuous','00:00:00')
+ insert into @T (SrNo,AppCode,VendorCode,WeekDayType,SweepType,SweepTime) 
+ values (1,'USAA','CL_DALLAS','Saturday','Continuous','00:00:00')
+
+ insert into @T (SrNo,AppCode,VendorCode,WeekDayType,SweepType,SweepTime) 
+ values (1,'USAA','PCI','Weekday','OnSchedule','15:00:00')
+ insert into @T (SrNo,AppCode,VendorCode,WeekDayType,SweepType,SweepTime) 
+ values (2,'USAA','PCI','Weekday','OnSchedule','20:00:00')
+ 
+ insert into @T (SrNo,AppCode,VendorCode,WeekDayType,SweepType,SweepTime) 
+ values (1,'USAA','PCI','Saturday','OnSchedule','15:00:00')
+ insert into @T (SrNo,AppCode,VendorCode,WeekDayType,SweepType,SweepTime) 
+ values (2,'USAA','PCI','Saturday','OnSchedule','20:00:00')
+ 
+ --HSBC
+ insert into @T (SrNo,AppCode,VendorCode,WeekDayType,SweepType,SweepTime) 
+ values (1,'HSBC','CL_DALLAS','Weekday','Continuous','00:00:00')
+ insert into @T (SrNo,AppCode,VendorCode,WeekDayType,SweepType,SweepTime) 
+ values (1,'HSBC','CL_DALLAS','Saturday','Continuous','00:00:00')
+ 
+ --CITI
+ insert into @T (SrNo,AppCode,VendorCode,WeekDayType,SweepType,SweepTime) 
+ values (1,'CITIVM','PCI','Weekday','OnSchedule','15:00:00')
+ insert into @T (SrNo,AppCode,VendorCode,WeekDayType,SweepType,SweepTime) 
+ values (2,'CITIVM','PCI','Weekday','OnSchedule','19:30:00')
+ 
+ insert into @T (SrNo,AppCode,VendorCode,WeekDayType,SweepType,SweepTime) 
+ values (1,'CITIVM','PCI','Saturday','OnSchedule','15:00:00')
+ insert into @T (SrNo,AppCode,VendorCode,WeekDayType,SweepType,SweepTime) 
+ values (2,'CITIVM','PCI','Saturday','OnSchedule','19:30:00')
+
+  --RPS
+ insert into @T (SrNo,AppCode,VendorCode,WeekDayType,SweepType,SweepTime) 
+ values (1,'RPS','PCI','Weekday','OnSchedule','15:00:00')
+ insert into @T (SrNo,AppCode,VendorCode,WeekDayType,SweepType,SweepTime) 
+ values (2,'RPS','PCI','Weekday','OnSchedule','19:30:00')
+ 
+ insert into @T (SrNo,AppCode,VendorCode,WeekDayType,SweepType,SweepTime) 
+ values (1,'RPS','PCI','Saturday','OnSchedule','15:00:00')
+ insert into @T (SrNo,AppCode,VendorCode,WeekDayType,SweepType,SweepTime) 
+ values (2,'RPS','PCI','Saturday','OnSchedule','19:30:00')
+
+  --DALLAS
+ insert into @T (SrNo,AppCode,VendorCode,WeekDayType,SweepType,SweepTime) 
+ values (1,'DALLAS','PCI','Weekday','OnSchedule','15:00:00')
+ insert into @T (SrNo,AppCode,VendorCode,WeekDayType,SweepType,SweepTime) 
+ values (2,'DALLAS','PCI','Weekday','OnSchedule','19:30:00')
+ 
+ insert into @T (SrNo,AppCode,VendorCode,WeekDayType,SweepType,SweepTime) 
+ values (1,'DALLAS','PCI','Saturday','OnSchedule','15:00:00')
+ insert into @T (SrNo,AppCode,VendorCode,WeekDayType,SweepType,SweepTime) 
+ values (2,'DALLAS','PCI','Saturday','OnSchedule','19:30:00')
+ 
+ return
+end
+
+3) Insert Deliverables and Email Channels for All Non-AuthoMail clients
+-- Email Channel Data for CITIVM
+
+INSERT INTO [Common].[EmailChannels]([Title],[To],[Cc],[Bcc],[Subject],[BodyTemplate],[IsBodyHTML])VALUES('CITIVM Download Reporting','sgolvelkar@corelogic.com','vmungara@corelogic.com',NULL,'Download Summary','HTML',0)
+GO
+INSERT INTO [Common].[EmailChannels]([Title],[To],[Cc],[Bcc],[Subject],[BodyTemplate],[IsBodyHTML])VALUES('CITIVM Production Reporting','sgolvelkar@corelogic.com','vmungara@corelogic.com',NULL,'Production Summary','HTML',0)
+GO
+
+-- Deliverables Data for CITIVM
+
+INSERT INTO [Common].[Deliverables]([ClientId],[ReportName],[ReportType],[DeliveryType],[ReportQuery],[Delimeter],[FileNameExpression],[IsSFTUploadRequired],[UploadPath],[EmailChannelId],[ScheduleId])VALUES((select Id from Common.Clients WHERE AppCode='CITIVM'),'Error Report','Error','Batch','','\t','Error-{Now:yyyyMMdd}.csv',1,'/Reports',(select Id from Common.EmailChannels WHERE Title='CITIVM Download Reporting'),NULL)
+GO
+INSERT INTO [Common].[Deliverables]([ClientId],[ReportName],[ReportType],[DeliveryType],[ReportQuery],[Delimeter],[FileNameExpression],[IsSFTUploadRequired],[UploadPath],[EmailChannelId],[ScheduleId])VALUES((select Id from Common.Clients WHERE AppCode='CITIVM'),'Delivery Report','Delivery','Batch','','\t','Delivery-{Now:yyyyMMdd}.csv',1,'/Reports',(select Id from Common.EmailChannels WHERE Title='CITIVM Production Reporting'),NULL)
+GO
+
+-- Email Channel Data for RPS
+
+INSERT INTO [Common].[EmailChannels]([Title],[To],[Cc],[Bcc],[Subject],[BodyTemplate],[IsBodyHTML])VALUES('RPS Download Reporting','sgolvelkar@corelogic.com','vmungara@corelogic.com',NULL,'Download Summary','HTML',0)
+GO
+INSERT INTO [Common].[EmailChannels]([Title],[To],[Cc],[Bcc],[Subject],[BodyTemplate],[IsBodyHTML])VALUES('RPS Production Reporting','sgolvelkar@corelogic.com','vmungara@corelogic.com',NULL,'Production Summary','HTML',0)
+GO
+
+-- Deliverables Data for RPS
+
+INSERT INTO [Common].[Deliverables]([ClientId],[ReportName],[ReportType],[DeliveryType],[ReportQuery],[Delimeter],[FileNameExpression],[IsSFTUploadRequired],[UploadPath],[EmailChannelId],[ScheduleId])VALUES((select Id from Common.Clients WHERE AppCode='RPS'),'Error Report','Error','Batch','','\t','Error-{Now:yyyyMMdd}.csv',1,'/Reports',(select Id from Common.EmailChannels WHERE Title='RPS Download Reporting'),NULL)
+GO
+INSERT INTO [Common].[Deliverables]([ClientId],[ReportName],[ReportType],[DeliveryType],[ReportQuery],[Delimeter],[FileNameExpression],[IsSFTUploadRequired],[UploadPath],[EmailChannelId],[ScheduleId])VALUES((select Id from Common.Clients WHERE AppCode='RPS'),'Delivery Report','Delivery','Batch','','\t','Delivery-{Now:yyyyMMdd}.csv',1,'/Reports',(select Id from Common.EmailChannels WHERE Title='RPS Production Reporting'),NULL)
+GO
+
+
+-- Email Channel Data for DALLAS
+
+INSERT INTO [Common].[EmailChannels]([Title],[To],[Cc],[Bcc],[Subject],[BodyTemplate],[IsBodyHTML])VALUES('DALLAS Download Reporting','sgolvelkar@corelogic.com','vmungara@corelogic.com',NULL,'Download Summary','HTML',0)
+GO
+INSERT INTO [Common].[EmailChannels]([Title],[To],[Cc],[Bcc],[Subject],[BodyTemplate],[IsBodyHTML])VALUES('DALLAS Production Reporting','sgolvelkar@corelogic.com','vmungara@corelogic.com',NULL,'Production Summary','HTML',0)
+GO
+
+-- Deliverables Data for DALLAS
+
+INSERT INTO [Common].[Deliverables]([ClientId],[ReportName],[ReportType],[DeliveryType],[ReportQuery],[Delimeter],[FileNameExpression],[IsSFTUploadRequired],[UploadPath],[EmailChannelId],[ScheduleId])VALUES((select Id from Common.Clients WHERE AppCode='DALLAS'),'Error Report','Error','Batch','','\t','Error-{Now:yyyyMMdd}.csv',1,'/Reports',(select Id from Common.EmailChannels WHERE Title='DALLAS Download Reporting'),NULL)
+GO
+INSERT INTO [Common].[Deliverables]([ClientId],[ReportName],[ReportType],[DeliveryType],[ReportQuery],[Delimeter],[FileNameExpression],[IsSFTUploadRequired],[UploadPath],[EmailChannelId],[ScheduleId])VALUES((select Id from Common.Clients WHERE AppCode='DALLAS'),'Delivery Report','Delivery','Batch','','\t','Delivery-{Now:yyyyMMdd}.csv',1,'/Reports',(select Id from Common.EmailChannels WHERE Title='DALLAS Production Reporting'),NULL)
+GO
+
+4) Insert SFTChannel detaild for Non-AuthoMail clients
+--DALLAS
+INSERT [Common].[SFTChannels] ([Code], [Description], [Title], [Protocol], [Host], [UserName], [Password], [ToADEDir], [FromADEDir], [ArchiveDir], [PostDownloadAction], [IsActive]) VALUES ( N'NONAUTHOMAIL_Prod', NULL, N'Non-AuthoMail client Process', N'unc', N'\\Slxqn1vdappsr01.infosolco.net\FAGOSFTP\ADE_PnS\PROD\NON_AUTHOMAIL', N'user', N'', N'/', NULL, NULL, N'Delete', 1)
+GO
+EXEC usp_MapClientSFTChannels 'DALLAS','NONAUTHOMAIL_Prod'
+EXEC usp_MapClientSFTChannels 'CITIVM','NONAUTHOMAIL_Prod'
+EXEC usp_MapClientSFTChannels 'RPS','NONAUTHOMAIL_Prod'
+
+5) Insert and Update Print Vendors Paths in SFTChannels
+--PnS Service Internal
+INSERT [Common].[SFTChannels] ([Code], [Description], [Title], [Protocol], [Host], [UserName], [Password], [ToADEDir], [FromADEDir], [ArchiveDir], [PostDownloadAction], [IsActive]) VALUES ( N'PnSService_Prod', NULL, N'PnS Service Process', N'unc', N'\\slxqn1vdappsr01.infosolco.net\FAGOSFTP\ADE_PnS\PROD', N'user', N'', N'/', N'/', NULL, N'Delete', 1)
+GO
+
+UPDATE Common.PrintVendors
+SET
+SFTChannelId=(SELECT Id FROM Common.SFTChannels WHERE Code='PCI_Prod')
+WHERE Id=(SELECT Id FROM Common.PrintVendors WHERE VENDORCode='PCI')
+UPDATE Common.PrintVendors
+SET
+SFTChannelId=(SELECT Id FROM Common.SFTChannels WHERE Code='CL_DocSol_PnS_DALLAS_Prod')
+WHERE Id=(SELECT Id FROM Common.PrintVendors WHERE VENDORCode='CL_DALLAS')
+
+6) Add new columns in AM.DocTypes
+
+ALTER TABLE [AM].[DocTypes]
+ADD [EnvelopeId] VARCHAR(255) NULL,[BREEnvelopeId] VARCHAR(255) NULL
+
+ALTER TABLE [AM].[DocTypes]  WITH CHECK ADD CONSTRAINT [FK_DocTypes_Envelope] FOREIGN KEY([EnvelopeId])
+REFERENCES [Common].[Envelopes] ([Id])
+GO
+
+ALTER TABLE [AM].[DocTypes]  WITH CHECK ADD CONSTRAINT [FK_DocTypes_BREEnvelope] FOREIGN KEY([BREEnvelopeId])
+REFERENCES [Common].[Envelopes] ([Id])
+GO
+
+ALTER TABLE [AM].[DocTypes] CHECK CONSTRAINT [FK_DocTypes_Envelope]
+ALTER TABLE [AM].[DocTypes] CHECK CONSTRAINT [FK_DocTypes_BREEnvelope]
+GO
+
+
+
+--USAA
+UPDATE AM.DocTypes
+SET
+EnvelopeId=(select Id from Common.Envelopes WHERE Id='USAA_S_10')
+WHERE ClientId=(SELECT Id FROM Common.Clients WHERE AppCode='USAA') AND ShippingCarrier='USPS' AND ShippingServiceType='IMB'
+
+--CITI, ALASKA, HSBC
+UPDATE AM.DocTypes
+SET
+EnvelopeId=(select Id from Common.Envelopes WHERE Id='CL_S_9_12')
+WHERE ClientId IN ((SELECT Id FROM Common.Clients WHERE AppCode='CITIVM'),(SELECT Id FROM Common.Clients WHERE AppCode='ALASKA'),(SELECT Id FROM Common.Clients WHERE AppCode='HSBC'))
+
+--HSBC
+UPDATE AM.DocTypes
+SET
+BREEnvelopeId=CASE WHEN IsBRE=1 THEN (select Id from Common.Envelopes WHERE Id='HSBC_B_9_12') ELSE NULL END
+WHERE ClientId IN ((SELECT Id FROM Common.Clients WHERE AppCode='HSBC'))
+
+--RPS
+UPDATE AM.DocTypes
+SET
+EnvelopeId=(select Id from Common.Envelopes WHERE Id='CL_S_6_9')
+WHERE ClientId in ((SELECT Id FROM Common.Clients WHERE AppCode='RPS'))
+
+7) Modified SPs :  [dbo].[usp_GetMRDFResponseDummyDataByPrintTrailBatchId],[dbo].[usp_GetMRDFRequestDataByPrintTrailBatchId], [dbo].[usp_GetMRDFRequestDataByPrintTrailId] 
+
+ALTER PROCEDURE [dbo].[usp_GetMRDFResponseDummyDataByPrintTrailBatchId]
+@printTrailBatchId int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	SELECT Req.PrintTrailBatchId as JobId, Req.PieceId, Req.[Date], Req.TotalSheets, Req.InputWeight, Req.Feeder3_Sel, Req.Feeder4_Sel
+		, Req.Feeder5_Sel, Req.LowCap_Sel, Req.NoSeal_Sel, Req.Feeder2_Sel, Req.ZipMark_Sel, Req.Address1, Req.Address2
+		, Req.Zip5, Req.Zip4, Req.Zip2, Req.DivertVS2, Req.DivertVS3
+		, Req.DivertVS4, Req.ReturnLogoBitMap, Req.ReturnLine1, Req.ReturnLine2, Req.ReturnLine3, Req.ReturnLine4
+		, Req.ReturnLine5, Req.ReturnLine6, Req.GroupNumber, Req.SocialSecNumber, Req.CheckAmount, Req.PassThru
+		, Req.Expansion, Req.EndofRecord, Req.UniqueId, Req.PDFFileName, Req.ErrId, Req.ErrDesc, Req.MailPieceStatus, Req.IsPDFReceived 
+		, Req.Feeder2_Sel as Feeder2_Fed
+		,NULL AS PackageTrackingNumber
+		,'RichardP' as OperatorId,'PCI09   ' as MachineId
+		,GETUTCDATE() as ProcessingTimeStamp
+		,'4691 ' as DetailedErrorId,'00' as Input_Fed,'0' as Feeder3_Fed,'0' as Feeder4_Fed,'0' as Feeder5_Fed
+		,CASE WHEN P.IsPullBackRequested=1 AND P.PulledBackOn IS NULL THEN '4 ' WHEN P.IsQCRequested=1 THEN '8 ' ELSE '5 ' END as Disposition
+		,'0.00 ' as ComputedWeight, '00000000' as MeterDate,'Mailrun_Files            ' as StatusSource
+		,LEFT(RIGHT('0'+CAST(CAST(ROUND(RAND(CHECKSUM(NEWID())) * (10), 2) AS decimal(5,2)) as VARCHAR),6)+'0',6) as PostageMetered,'000 ' as WeightMeasured,'Mailrun_Files            ' as ExitLocation
+		,Req.PrintTrailBatchId,CASE WHEN P.IsPullBackRequested=1 AND P.PulledBackOn IS NULL THEN 'PulledBack' WHEN P.IsQCRequested=1 THEN 'Shipped' ELSE 'Shipped' END as PrintStatus,P.Id as MailPieceId
+		FROM [PnS].[MRDFRequest] Req
+		INNER JOIN [AM].[MailPieces] P ON P.UniqueId=Req.UniqueId
+		WHERE Req.PrintTrailBatchId = @printTrailBatchId AND Req.MailPieceStatus='InProgress'
+END
+
+ALTER PROCEDURE [dbo].[usp_GetMRDFRequestDataByPrintTrailBatchId]
+@printTrailBatchId int,
+@mailPieceStatus varchar(255)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	If(@mailPieceStatus='ALL')
+	BEGIN
+		SELECT Req.JobId, Req.PieceId, Req.[Date], Req.TotalSheets, Req.InputWeight, Req.Feeder3_Sel, Req.Feeder4_Sel
+		, Req.Feeder5_Sel, Req.LowCap_Sel, Req.NoSeal_Sel, Req.Feeder2_Sel, Req.ZipMark_Sel, Req.Address1, Req.Address2
+		, Req.Zip5, Req.Zip4, Req.Zip2, Req.DivertVS2, Req.DivertVS3
+		, Req.DivertVS4, Req.ReturnLogoBitMap, Req.ReturnLine1, Req.ReturnLine2, Req.ReturnLine3, Req.ReturnLine4
+		, Req.ReturnLine5, Req.ReturnLine6, Req.GroupNumber, Req.SocialSecNumber, Req.CheckAmount, Req.PassThru
+		, Req.Expansion, Req.EndofRecord, Req.UniqueId, Req.PDFFileName,ErrId, Req.ErrDesc, Req.MailPieceStatus
+		, Req.IsPDFReceived,PrintTrailBatchId,MP.Id as MailPieceId
+		FROM [PnS].[MRDFRequest] Req
+		INNER JOIN PnS.BatchSummary BS ON REQ.JobId=BS.PrintBatch
+		LEFT OUTER JOIN AM.MailPieces MP ON REQ.UniqueId=MP.UniqueId
+		WHERE Req.PrintTrailBatchId = @printTrailBatchId
+	END
+	ELSE If(@mailPieceStatus='INTERNAL')--This will be used for getting only submitted records to PCI
+	BEGIN
+		SELECT JobId, PieceId, [Date], TotalSheets, InputWeight, Feeder3_Sel, Feeder4_Sel
+		, Feeder5_Sel, LowCap_Sel, NoSeal_Sel, Feeder2_Sel, ZipMark_Sel, Address1, Address2
+		, Zip5, Zip4, Zip2, DivertVS2, DivertVS3
+		, DivertVS4, ReturnLogoBitMap, ReturnLine1, ReturnLine2, ReturnLine3, ReturnLine4
+		, ReturnLine5, ReturnLine6, GroupNumber, SocialSecNumber, CheckAmount, PassThru
+		, Expansion, EndofRecord, UniqueId, PDFFileName,ErrId, ErrDesc, MailPieceStatus, IsPDFReceived,PrintTrailBatchId 
+		FROM [PnS].[MRDFRequest] WHERE PrintTrailBatchId = @printTrailBatchId AND ErrId NOT IN (-1,-2,-3)
+	END
+	ELSE
+	BEGIN
+		SELECT REQ.*,MP.Id as MailPieceId,MP.EffectiveReceivedOnEst, BS.ClientId,BS.DocTypeId,D.ShippingCarrier,
+		D.ShippingServiceType,C.AppCode,MP.DueDate as MailPieceDueDate,D.EnvelopeId,D.BREEnvelopeId
+		FROM PnS.MRDFRequest REQ
+		INNER JOIN PnS.BatchSummary BS ON REQ.JobId=BS.PrintBatch
+		LEFT OUTER JOIN AM.MailPieces MP ON REQ.UniqueId=MP.UniqueId
+		INNER JOIN AM.DocTypes D ON BS.DocTypeId=D.Id
+		INNER JOIN Common.Clients C ON C.Id=BS.ClientId
+		WHERE REQ.PrintTrailBatchId=@printTrailBatchId AND ISNULL(MailPieceStatus,'')=@mailPieceStatus 
+	END
+END
+
+ALTER PROCEDURE [dbo].[usp_GetMRDFRequestDataByPrintTrailId] 
+@printTrailId INT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+ SELECT REQ.*,MP.Id as MailPieceId,MP.EffectiveReceivedOnEst, BS.ClientId,BS.DocTypeId,D.ShippingCarrier,
+ D.ShippingServiceType,C.AppCode,MP.DueDate as MailPieceDueDate,D.EnvelopeId,D.BREEnvelopeId
+ FROM PnS.MRDFRequest REQ
+ INNER JOIN PnS.BatchSummary BS ON REQ.JobId=BS.PrintBatch
+ LEFT OUTER JOIN AM.MailPieces MP ON REQ.UniqueId=MP.UniqueId
+ INNER JOIN AM.DocTypes D ON BS.DocTypeId=D.Id
+ INNER JOIN Common.Clients C ON C.Id=BS.ClientId
+ WHERE BS.PipelineStatus='Prepped' AND  IsPrepped = 1 AND IsSubmitted = 0
+ AND BS.PrintTrailId=@printTrailId
+	
+END

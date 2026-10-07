@@ -1,0 +1,58 @@
+ Pullback Algorithm
+========================================================
+Current Scenario (When Batch submitted to PCI)
+- Pullback only can be requested when batch is submitted to PCI(i.e Batch PipelineStatus = "Submitted")
+- Cannot pullback in below scenario/mailpiece status
+	-Pullback already Requested
+	-mailpiece status are "Aborted", "PulledBack", "Error", "Shipped"
+	-Batch pipeline Status are "Received","Downloaded"
+- Can not pullback whole batch (we have to select all mailpiece for the particular batch to pullback whole batch)
+- when Batch PipelineStatus = "Submitted" and MailPieceStatus = "InProgress" then generate pullback Request form and email to PCI.
+- After generating form update "PullBackRequestedOn" in AM.MailPiece table and insert data into PullbackRequested table.
+========================================================
+New scenario
+- Pullback should also work even if batch is not submitted to PCI 
+
+- When Batch is not submitted to PCI
+[RP] Check if the mailpiece is already pulled back, if yes, return info (when, by whom, status) in message.
+
+1) Check MailBatch PipelineStatus,it should be in Prepped state, not in Received or Downladed (Validated???)
+[RP] if not validated, show message ("The requested mailpiece is yet to be received or validated.")
+2) Check MailPiece (MailPieceStatus)ShippingStatus = InProgress, not in Error, Aborted, PulledBack, Shipped and PullbackRequested = false
+[RP] If mailpiece is in error, show message that it cannot be pulled back and also show the error message. Applies to PnS as well.
+[RP] Between AM SubmittedToShipping and PnS Submitted, show message ("The mailpiece is being processed for printing, you should be able to request pullback within 5 to 10 minutes.")(IGNORED---NOT NEEDED---)
+
+[SG] AM SubmittedToShipping and PnS.LogBatchTimeLine PCIBatchPrepEnd = NULL - Direct Pullback 
+	 AM SubmittedToShipping and PnS.LogBatchTimeLine PCIBatchPrepEnd = NOT NULL - Check for PnS.BatchSummary PipelineStatus='Prepped' Send Form to PCI
+		If not Prepped
+			Thread.Sleep = 2Sec
+			Check Again if success then Send Form PCI
+		Check for max 30 Seconds
+		
+3) When ShippingStatus=InProgress and MailBatch Status = "Prepped"
+	- Update ShippingStatus=PulledBack, PullBackRequestedOn=Current UTC time, PulledBackOn= Current UTC time
+	- Insert entry in AM.PullBackRequests table
+	[RP] Insert this before peforming actual pullback updates. (AM.MailPieces PulledBackRequestedOn, PulledBackOn, PulledBackRequestedBy | AM.PullBackRequests all fields) list all fields and tables here)
+	[RP] As per new logic, ensure that PulledBack status doesn't create issues when PnS response is received.
+4) After successfull PulledBack Show below Message
+	- "PulledBack recorded Successfully." 
+5) If Error occured while pulledback
+	- Show actual error/exception in UI
+
+=======================================================
+AM.BatchGenerator
+- Sweep time wise generate PnS batch
+- As per mentioned in Change Request Document, Bundle sweep times (EST): 8:00 am, 12:00 pm, 4:00 pm, 4:45 pm, 7:45 pm
+
+Example : 
+
+USAA Batch-5 Records
+4PM- Prepped State
+
+4.15PM - 2 PulledBack 
+
+4.45PM BatchGenerator App will take 3 records and generate PnSBatch for PCI
+
+5.PM - 1 Record Pullback
+- Generate Form and Submit to PCI
+

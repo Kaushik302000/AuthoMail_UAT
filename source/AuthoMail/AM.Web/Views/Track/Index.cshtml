@@ -1,0 +1,80 @@
+﻿@model AM.Web.Models.TrackingInfoViewModel
+@{
+    ViewBag.Title = "Tracking Info";
+    Layout = "~/Views/Shared/_LayoutTracking.cshtml";
+}
+<script src="~/Scripts/jquery-1.10.2.js"></script>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="panel-title text-center" id="trckingNo">Tracking Details</div>
+    </div>
+    <div class="panel-body panel-gray">
+        <div class="row">
+            <div class="col-md-12">
+                @if (Model.TrackingDetailViewModel.IsError)
+                {
+                    <div class="alert alert-yellow">
+                        <h3 class="text-white">Not found</h3>
+                        <span class="sbold">
+                            This tracking number cannot be found, please check the number.
+                        </span>
+                    </div>
+                }
+                else if (Model.EDeliveryStatusInfoModel != null)
+                {
+                    <div class="table-responsive">
+                        @Html.Partial("~/Views/Track/_GetEDeliveryTrackingInfo.cshtml", Model.EDeliveryStatusInfoModel)
+                    </div>
+                }
+                else if (Model.USPSTrackingInfo != null && Model.TrackingDetailViewModel.ShippingCarrier == "USPS" && Model.TrackingDetailViewModel.ShippingServiceType == "IMB")
+                {
+                    <div class="table-responsive">
+                        @Html.Partial("~/Views/Common/_TrackingInfo.cshtml", Model.USPSTrackingInfo)
+                    </div>
+                    <script>
+                        $(document).ready(function () {
+                            var trackingNo = '@Model.TrackingDetailViewModel.TrackingNo';
+                            $("#trckingNo").text(trackingNo);
+                        });
+                    </script>
+                }
+                else if (Model.TrackingDetailViewModel.ShippingCarrier == "FedEx")
+                {
+                    <div class="alert alert-blue"> Redirecting to FedEx ...</div>
+                    <script>
+                        $(document).ready(function () {
+                            var trackingNo = '@Model.TrackingDetailViewModel.TrackingNo';
+                            setTimeout(function () {
+                                window.location.href = 'https://www.fedex.com/fedextrack/?trknbr=' + trackingNo;
+
+                            }, 2000);
+                        });
+                    </script>
+                }
+                else if (Model.TrackingDetailViewModel.ShippingCarrier == "USPS" && (Model.TrackingDetailViewModel.ShippingServiceType == "PRIORITY_EXPRESS" || Model.TrackingDetailViewModel.ShippingServiceType == "PRIORITY"))
+                {
+                    <div class="alert alert-blue"> Redirecting to USPS ... </div>
+                    <script>
+                        $(document).ready(function () {
+                            var trackingNo = '@Model.TrackingDetailViewModel.TrackingNo';
+                            setTimeout(function () {
+                                window.location.href = 'https://m.usps.com/m/TrackConfirmAction_detail?tLabels=' + trackingNo;
+
+                            }, 2000);
+                        });
+                    </script>
+                }
+                else
+                {
+                    <div class="alert alert-yellow">
+                        <h3 class="text-white">Not found</h3>
+                        <span class="sbold">
+                            This tracking number cannot be found, please check the number.
+                        </span>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="margin-bottom-30"></div>
+    </div>
+</div>

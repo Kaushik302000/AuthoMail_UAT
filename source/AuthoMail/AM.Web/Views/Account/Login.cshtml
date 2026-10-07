@@ -1,0 +1,101 @@
+﻿@using AM.Web.Models
+@model LoginViewModel
+@{
+    ViewBag.Title = "Log in";
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+}
+
+<section class="cl-row">
+    <div class="cl-columns">
+        <div class="inner-block">
+            <div class="cl-row">
+                <div class="left-block cl-columns">
+                    <h1 class="app-logo">AuthoMail</h1>
+                    <br>
+                    @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "cl-form-login", @role = "form" }))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                        <div class="cl-form-login">
+                            @if (ViewBag.confirmationlink != null)
+                            {
+                                <div><span class="btn btn-link resendemaillink">Click here </span>to get email verification link.</div>
+                            }
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.UserName)
+                                @Html.TextBoxFor(m => m.UserName, new { @class = "form-control", @tabindex = "1" })
+                                @Html.ValidationMessageFor(m => m.UserName, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Password)
+                                <span class="pull-right" tabindex="4">@Html.ActionLink("Forgot Password?", "ForgotPassword", "Account", new { @class = "forgot" })</span>
+                                @Html.PasswordFor(m => m.Password, new { @class = "form-control", @tabindex = "2", @autocomplete = "false" })
+                                @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+
+                            </div>
+                            @*<div class="form-group">
+                                <input type="submit" tabindex="3" value="Sign In" class="btn btn-primary btn-lg btn-block">
+                                </div>*@
+                            <div class="form-group">
+
+                                <input type="submit" tabindex="3" value="Sign In" style="width:49%;float:left;" class="btn btn-primary btn-lg">
+                                @Html.ActionLink("Register", "Register", "Account", routeValues: null, htmlAttributes: new { id = "registerLink", @tabindex = "4", @class = "btn btn-default btn-lg", @style = "width:49%;float:right;margin-top:0px;" })
+                            </div>
+                        </div>
+                    }
+
+                </div>
+            </div>
+            <div class="cl-row hide-mobile">
+                <div class="left-block cl-columns">
+
+                </div>
+                <div class="right-block offset-1 cl-columns hide-small" style=" margin-top: 0% !important;margin-bottom: -3%;">
+                    <p>
+                        Need help? Call our toll-free number at <br /><strong><span>(844)815-6403</span></strong> or send
+                        us an <a href="mailto:printandshipescalation.slx@corelogic.com?subject=AuthoMail Inquiry">email</a>
+                    </p>
+                </div>
+            </div>
+            <div class="cl-image hide-small">
+                <a href="#"><img src="~/clui/images/sso-image.jpg" /></a>
+            </div>
+        </div>
+        @*<div class="cl-learnmore">
+                <span> <b>Not a Customer?</b></span>
+                @Html.ActionLink("Register", "Register", "Account", routeValues: null, htmlAttributes: new { id = "registerLink", @class = "btn btn-default" })
+            </div>*@
+    </div>
+</section>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var email = '@ViewBag.confirmationlink';
+            if (email != null || email != "") {
+                $('.resendemaillink').click(function (e) {
+                    e.preventDefault();
+                    var context = $(this);
+                    $(this).attr('disabled', 'disabled');
+                    context.addClass('disabled');
+                    $.ajax({
+                        type: "POST",
+                        url: "/Account/ResendConfirmation",
+                        data: { email: email },
+                        dataType: "json",
+                        success: function (response) {
+                            context.attr('disabled', 'disabled');
+                            context.addClass('disabled');
+                        }, error: function (err) {
+                            console.log(JSON.stringify(err));
+                        }
+                    });
+
+                });
+            }
+        });
+    </script>
+}

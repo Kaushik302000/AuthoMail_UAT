@@ -1,0 +1,266 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8107735F-EAD2-47EA-9BB1-A77637C62CA6}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>PCI.Service</RootNamespace>
+    <AssemblyName>PCI.Service</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="itextsharp, Version=5.5.11.0, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\iTextSharp.5.5.11\lib\itextsharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Common, Version=6.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\EnterpriseLibrary.Common.6.0.1304.0\lib\NET45\Microsoft.Practices.EnterpriseLibrary.Common.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Data, Version=6.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\EnterpriseLibrary.Data.6.0.1304.0\lib\NET45\Microsoft.Practices.EnterpriseLibrary.Data.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Nordis.Lib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>PCILib\Nordis.Lib.dll</HintPath>
+    </Reference>
+    <Reference Include="PCI.Lib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>PCILib\PCI.Lib.dll</HintPath>
+    </Reference>
+    <Reference Include="Renci.SshNet, Version=2016.0.0.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106, processorArchitecture=MSIL">
+      <HintPath>..\packages\SSH.NET.2016.0.0\lib\net40\Renci.SshNet.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DAL\DAL.Common.cs" />
+    <Compile Include="DAL\DAL.PCIJob.cs" />
+    <Compile Include="DAL\DAL.PnSCore.cs" />
+    <Compile Include="DAL\DAL.PnSJob.cs" />
+    <Compile Include="Models\BatchSummary.cs" />
+    <Compile Include="Models\ClientApp.cs" />
+    <Compile Include="Models\EnvelopeType.cs" />
+    <Compile Include="Models\GeneralModels.cs" />
+    <Compile Include="Models\MRDFRequest.cs" />
+    <Compile Include="Models\MRDFResponse.cs" />
+    <Compile Include="Models\PCIFieldData.cs" />
+    <Compile Include="Models\Schema.cs" />
+    <Compile Include="PCIJobMonitor\PCIJob.cs" />
+    <Compile Include="PnSCoreService\PnSCore.cs" />
+    <Compile Include="PnSJobMonitor\PnSJob.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities\BarcodeInfo.cs" />
+    <Compile Include="Utilities\Common.cs" />
+    <Compile Include="Utilities\Extensions.cs" />
+    <Compile Include="Utilities\MailUtility.cs" />
+    <Compile Include="Utilities\PdfUtil.cs" />
+    <Compile Include="Utilities\ScaleEvent.cs" />
+    <Compile Include="Utilities\SFTUtil.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PCIRequest\1-BOALASDELFUS-BAC Delfus.dat" />
+    <None Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PCIResponse\1-BOALASDELFUS-BAC Delfus.OUT" />
+    <None Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_01.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_02.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_03.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_04.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_05.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_06.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_07.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_08.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_09.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_10.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_11.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_12.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_13.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_14.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_15.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_16.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_17.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_18.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_19.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_20.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PnSResponse\BAC Delfus-res.xml.immediate" />
+    <None Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PnSResponse\BAC Delfus.rpt" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetterWithA\File_01.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetterWithA\File_02.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetterWithA\File_03.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetterWithA\File_04.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetterWithA\File_05.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetterWithA\File_06.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetterWithA\File_07.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetterWithA\File_08.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetterWithA\File_09.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetterWithA\File_10.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetterWithA\File_11.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetterWithA\File_12.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetterWithA\File_13.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetterWithA\File_14.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetterWithA\File_15.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetterWithA\File_16.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetterWithA\File_17.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetterWithA\File_18.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetterWithA\File_19.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetterWithA\File_20.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetter\File_01.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetter\File_02.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetter\File_03.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetter\File_04.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetter\File_05.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetter\File_06.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetter\File_07.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetter\File_08.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetter\File_09.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetter\File_10.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetter\File_11.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetter\File_12.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetter\File_13.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetter\File_14.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetter\File_15.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetter\File_16.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetter\File_17.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetter\File_18.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetter\File_19.pdf" />
+    <None Include="BatchSamples\NewPrefixBatch\FilesWithCoverLetter\File_20.pdf" />
+    <None Include="BatchSamples\OldPrefixBatch\1-BAC Delfus\PCIRequest\1-BOALASDELFUS-BAC Delfus.dat" />
+    <None Include="BatchSamples\OldPrefixBatch\1-BAC Delfus\PCIRequest\1-BOALASDELFUS-BAC Delfus.pdf" />
+    <None Include="BatchSamples\OldPrefixBatch\1-BAC Delfus\PCIResponse\1-BOALASDELFUS-BAC Delfus.OUT" />
+    <None Include="BatchSamples\OldPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_01.pdf" />
+    <None Include="BatchSamples\OldPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_02.pdf" />
+    <None Include="BatchSamples\OldPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_03.pdf" />
+    <None Include="BatchSamples\OldPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_04.pdf" />
+    <None Include="BatchSamples\OldPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_05.pdf" />
+    <None Include="BatchSamples\OldPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_06.pdf" />
+    <None Include="BatchSamples\OldPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_07.pdf" />
+    <None Include="BatchSamples\OldPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_08.pdf" />
+    <None Include="BatchSamples\OldPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_09.pdf" />
+    <None Include="BatchSamples\OldPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_10.pdf" />
+    <None Include="BatchSamples\OldPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_11.pdf" />
+    <None Include="BatchSamples\OldPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_12.pdf" />
+    <None Include="BatchSamples\OldPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_13.pdf" />
+    <None Include="BatchSamples\OldPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_14.pdf" />
+    <None Include="BatchSamples\OldPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_15.pdf" />
+    <None Include="BatchSamples\OldPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_16.pdf" />
+    <None Include="BatchSamples\OldPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_17.pdf" />
+    <None Include="BatchSamples\OldPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_18.pdf" />
+    <None Include="BatchSamples\OldPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_19.pdf" />
+    <None Include="BatchSamples\OldPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus\File_20.pdf" />
+    <None Include="log4net.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="packages.config" />
+    <None Include="Resources\ARIAL.TTF">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\BarcodeManifest.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\FREE3OF9.TTF">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\ZapfDingbats.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PCIRequest\1-BOALASDELFUS-BAC Delfus.txt" />
+    <Content Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus.xml" />
+    <Content Include="BatchSamples\NewPrefixBatch\1-BAC Delfus\PnSResponse\BAC Delfus-res.xml" />
+    <Content Include="BatchSamples\OldPrefixBatch\1-BAC Delfus\PCIRequest\1-BOALASDELFUS-BAC Delfus.txt" />
+    <Content Include="BatchSamples\OldPrefixBatch\1-BAC Delfus\PnSRequest\BAC Delfus.xml" />
+    <Content Include="DB Script\Business\PCI PnS DB Script schema.sql" />
+    <Content Include="DB Script\Business\PCIPnSFinalDbWithData.sql" />
+    <Content Include="DB Script\SeedData.sql" />
+    <Content Include="DB Script\Store Procedures\sp_AppRegistration.sql" />
+    <Content Include="DB Script\Store Procedures\sp_BatchStatusChart.sql" />
+    <Content Include="DB Script\Store Procedures\sp_DeleteEnvelopeTypes.sql" />
+    <Content Include="DB Script\Store Procedures\sp_GetAppDetails.sql" />
+    <Content Include="DB Script\Store Procedures\sp_GetAppNames.sql" />
+    <Content Include="DB Script\Store Procedures\sp_GetBusinessUnits.sql" />
+    <Content Include="DB Script\Store Procedures\sp_GetEnvelopeTypes.sql" />
+    <Content Include="DB Script\Store Procedures\sp_GetPendingBatches.sql" />
+    <Content Include="DB Script\Store Procedures\sp_GetStartDateOfCanceledOrSuspendedBatch.sql" />
+    <Content Include="DB Script\Store Procedures\sp_InsertAppEnvelopeMap.sql" />
+    <Content Include="DB Script\Store Procedures\sp_UpdateAppDetails.sql" />
+    <Content Include="DB Script\Store Procedures\usp_DeleteMRDFRequestByJobId.sql" />
+    <Content Include="DB Script\Store Procedures\usp_DeleteMRDFResponseByJobId.sql" />
+    <Content Include="DB Script\Store Procedures\usp_GetActiveInActiveClientAppDetails.sql" />
+    <Content Include="DB Script\Store Procedures\usp_GetAllClientAppDetail.sql" />
+    <Content Include="DB Script\Store Procedures\usp_GetBatchSummaryById.sql" />
+    <Content Include="DB Script\Store Procedures\usp_GetBatchSummarySchema.sql" />
+    <Content Include="DB Script\Store Procedures\usp_GetClientAppDetailsById.sql" />
+    <Content Include="DB Script\Store Procedures\usp_GetEnvelopeTypesByAppId.sql" />
+    <Content Include="DB Script\Store Procedures\usp_GetMRDFRequestDataByJobId.sql" />
+    <Content Include="DB Script\Store Procedures\usp_GetMRDFRequestSchema.sql" />
+    <Content Include="DB Script\Store Procedures\usp_GetMRDFResponseDataByJobId.sql" />
+    <Content Include="DB Script\Store Procedures\usp_GetMRDFResponseSchema.sql" />
+    <Content Include="DB Script\Store Procedures\usp_GetNextBatchIdByJobName.sql" />
+    <Content Include="DB Script\Store Procedures\usp_MoveBatchToHistoryTables.sql" />
+    <Content Include="DB Script\Test Batch CleanUp Query.sql" />
+    <Content Include="DB Script\Views\view_MRDFResponseData.sql" />
+    <Content Include="PCIJobMonitor\PCIJobNotes.txt" />
+    <Content Include="PCILib\Nordis.Lib.dll" />
+    <Content Include="PCILib\PCI.Lib.dll" />
+    <Content Include="Resources\Notes.txt" />
+    <Content Include="Templates\SubmitBatch.html" />
+    <Content Include="Templates\SuspendedBatch.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="BatchSamples\OldPrefixBatch\1-BAC Delfus\PnSResponse\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

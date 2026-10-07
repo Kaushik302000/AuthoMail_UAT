@@ -1,0 +1,50 @@
+AuthoMail User Account Module:
+
+When user click on 'Register or Sign Up' button show this page
+
+New user registration:
+
+=> Email Address (Validate email, corelogic or not)
+On Next, check if the host name of the email address is found in the common.clientdomains table. If not, show this message.
+"Users of the specified domain name '{0}' are not allowed to register."
+
+	- CoreLogic User
+		-> Input CoreLogic Password and retrive and fill into the fields FirstName, LastName and DisplayName(Allow Edit).
+	- Other User
+		-> Input passowrd, confirm password, FirstName, LastName and DisplayName with following rules.
+			1. First Name (valid names, no digits or special characters)
+			2. Last Name (valid names, no digits or special characters)
+			3. Display Name (calculated and editable: Last Name, First Name)
+
+In case of CoreLogic auto populate 1, 2 and 3(Allow Edit) from AD, DO NOT let them change.
+
+
+If user has already registered...
+	1. If login is active, show message that "Your account with email address - {0} - is already active. If you are having trouble logging in, reset your password."
+	2. If Email is not verified, "You must confirm your email address. Click here to resend the confirmation email in case you haven't received any."
+	3. If request if not yet approved or rejected, "Your account is not yet approved. If it is taking longer, you may escalate to Robin, Brijesh or Marian" (show their emails)
+
+If domain is valid, store registration request in Profile.Users table and show the following message.
+
+Confirmation Email Sent
+
+Your registration request is recorded, please check your email and confirm your email address. Once the email address is confirmed, your request will be sent for
+approval. You should receive approval or rejection notification shortly.
+
+Create approval screen. Sent notification on approval or rejection. Only Admins can approve or reject.
+	- Approved
+		- Update in Users table Status=Approved, ClosedOn=Current UTC Datetime
+		- Get ClientId using HostName of email and find it from ClientDomains table and map it with clientId in Users table
+
+Create Forgot Password and Password Reset (I guess both are almost same.)
+
+https://docs.microsoft.com/en-us/aspnet/mvc/overview/security/create-an-aspnet-mvc-5-web-app-with-email-confirmation-and-password-reset
+https://docs.microsoft.com/en-us/aspnet/identity/overview/features-api/account-confirmation-and-password-recovery-with-aspnet-identity
+
+
+Table Defs:
+
+Common.ClientDomains (ClientId (FK, Index), AllowedDomain varchar(255)) Composite Unique Index on ClientId and AllowedDomain)
+
+AuthoMail User Table add following fields
+FirstName, LastName, DisplayName, RequestedOn, Status(Open, Approved, Rejected), ClosedOn(null)

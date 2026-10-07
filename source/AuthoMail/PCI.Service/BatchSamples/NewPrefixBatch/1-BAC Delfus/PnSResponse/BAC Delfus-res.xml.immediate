@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-16"?>
+<PnSResponse xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" BatchName="BAC Delfus" PCIBatchName="0000000001" AppCode="BOALASDELFUS" ReceivedOn="2017-09-01T16:14:34.227" BatchStatus="InProgress" StatusDescription="Some PDFs could not be processed. Check detailed description." xmlns="http://schemas.corelogic.com/PnS_Response/v1.17">
+  <MailPackageReport>
+    <MailPieceReport PDFFileName="File_01.pdf" UniqueIdentifier="File_01" MailPieceStatus="InProgress" />
+    <MailPieceReport PDFFileName="File_02.pdf" UniqueIdentifier="File_02" MailPieceStatus="InProgress" />
+    <MailPieceReport PDFFileName="File_03.pdf" UniqueIdentifier="File_03" MailPieceStatus="InProgress" />
+    <MailPieceReport PDFFileName="File_04.pdf" UniqueIdentifier="File_04" MailPieceStatus="InProgress" />
+    <MailPieceReport PDFFileName="File_05.pdf" UniqueIdentifier="File_05" MailPieceStatus="InProgress" />
+    <MailPieceReport PDFFileName="File_06.pdf" UniqueIdentifier="File_06" MailPieceStatus="InProgress" />
+    <MailPieceReport PDFFileName="File_07.pdf" UniqueIdentifier="File_07" MailPieceStatus="InProgress" />
+    <MailPieceReport PDFFileName="File_08.pdf" UniqueIdentifier="File_08" MailPieceStatus="InProgress" />
+    <MailPieceReport PDFFileName="File_09.pdf" UniqueIdentifier="File_09" MailPieceStatus="InProgress" />
+    <MailPieceReport PDFFileName="File_10.pdf" UniqueIdentifier="File_10" MailPieceStatus="InProgress" />
+    <MailPieceReport PDFFileName="File_11.pdf" UniqueIdentifier="File_11" MailPieceStatus="InProgress" />
+    <MailPieceReport PDFFileName="File_12.pdf" UniqueIdentifier="File_12" MailPieceStatus="InProgress" />
+    <MailPieceReport PDFFileName="File_13.pdf" UniqueIdentifier="File_13" MailPieceStatus="InProgress" />
+    <MailPieceReport PDFFileName="File_14.pdf" UniqueIdentifier="File_14" MailPieceStatus="InProgress" />
+    <MailPieceReport PDFFileName="File_15.pdf" UniqueIdentifier="File_15" MailPieceStatus="InProgress" />
+    <MailPieceReport PDFFileName="File_18.pdf" UniqueIdentifier="File_18" MailPieceStatus="InProgress" />
+    <MailPieceReport PDFFileName="File_19.pdf" UniqueIdentifier="File_19" MailPieceStatus="InProgress" />
+    <MailPieceReport PDFFileName="File_20.pdf" UniqueIdentifier="File_20" MailPieceStatus="InProgress" />
+    <MailPieceReport PDFFileName="File_16.pdf" UniqueIdentifier="File_16" MailPieceStatus="Error" ErrId="1" ErrDesc="iTextSharp.text.exceptions.InvalidPdfException: PDF header signature not found.&#xD;&#xA;   at iTextSharp.text.pdf.PdfReader..ctor(IRandomAccessSource byteSource, Boolean partialRead, Byte[] ownerPassword, X509Certificate certificate, ICipherParameters certificateKey, Boolean closeSourceOnConstructorError)&#xD;&#xA;   at iTextSharp.text.pdf.PdfReader..ctor(String filename, Byte[] ownerPassword, Boolean partial)&#xD;&#xA;   at iTextSharp.text.pdf.PdfReader..ctor(String filename, Byte[] ownerPassword)&#xD;&#xA;   at iTextSharp.text.pdf.PdfReader..ctor(String filename)&#xD;&#xA;   at PCI.Service.PnSCore.ProcessPDFWithBarcodeOnRotatedAndOrientation(String src, String dest, Rectangle targetPageSize, BarcodeLocation barcodeLocation, MRDFRequest mrdf) in d:\PCI Project\Git\PCI\PCI.Service\PnSCoreService\PnSCore.cs:line 569" />
+    <MailPieceReport PDFFileName="File_17.pdf" UniqueIdentifier="File_17" MailPieceStatus="Error" ErrId="1" ErrDesc="iTextSharp.text.exceptions.InvalidPdfException: PDF header signature not found.&#xD;&#xA;   at iTextSharp.text.pdf.PdfReader..ctor(IRandomAccessSource byteSource, Boolean partialRead, Byte[] ownerPassword, X509Certificate certificate, ICipherParameters certificateKey, Boolean closeSourceOnConstructorError)&#xD;&#xA;   at iTextSharp.text.pdf.PdfReader..ctor(String filename, Byte[] ownerPassword, Boolean partial)&#xD;&#xA;   at iTextSharp.text.pdf.PdfReader..ctor(String filename, Byte[] ownerPassword)&#xD;&#xA;   at iTextSharp.text.pdf.PdfReader..ctor(String filename)&#xD;&#xA;   at PCI.Service.PnSCore.ProcessPDFWithBarcodeOnRotatedAndOrientation(String src, String dest, Rectangle targetPageSize, BarcodeLocation barcodeLocation, MRDFRequest mrdf) in d:\PCI Project\Git\PCI\PCI.Service\PnSCoreService\PnSCore.cs:line 569" />
+  </MailPackageReport>
+</PnSResponse>

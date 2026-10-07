@@ -1,0 +1,231 @@
+﻿@if (!ViewBag.IsModelEmpty)
+{
+    <style>
+        #alertContainer {
+            z-index: 1101;
+        }
+    </style>
+    <h2 id="myModalLabel">Add Cover Letter for @ViewBag.ClientName</h2>
+
+    <hr />
+    <form id="coverletterform" action="#">
+        <input type="hidden" name="Id" id="Id" value="@ViewBag.ClientId" />
+        <input type="hidden" name="AppCode" id="AppCode" value="@ViewBag.AppCode" />
+        <div class="form-group">
+            <label for="Description">Document Type</label>
+            <div class="input-group">
+                @Html.DropDownList("DocTypeId", ViewBag.DocType as SelectList, "Select Document Type", new { @class = " form-control selectpicker col-md-12", @data_live_search = "true", @data_live_search_placeholder = "Search Document Type" })
+            </div>
+            <span for="DocTypeId" class="error" style="display:none;">This field is required.</span>
+        </div>
+        <div class="row" style="margin-bottom:10px;">
+            <div class="col-md-12">
+                <h3>Uploaded Cover Letter Files</h3>
+                <table class="table table-responsive">
+                    <thead>
+                        <tr>
+                            <th width="70%">File Name</th>
+                            <th width="20%">Sequence</th>
+                            <th width="10%">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fileList">
+                        <tr>
+                            <td colspan="3">No cover letter found for this doctype.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <hr />
+
+
+            <div class="col-md-12">
+                <div class="from-group">
+                    <label for="Description">Select Files(pdf only)</label>
+                    <div class="input-group">
+                        <input type="file" @*multiple="multiple"*@ id="file" class="uploadInput" style="display:none;" accept="application/pdf">
+                        <button type="button" id="uploadBtn" class="btn btn-default"><i class="fa fa-upload"> </i> Upload File</button>
+                    </div>
+                </div>
+
+                <h3>Cover Letter Files</h3>
+                <table class="table table-responsive">
+                    <thead>
+                        <tr>
+                            <th width="70%">File Name</th>
+                            <th width="20%">Sequence</th>
+                            <th width="10%">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="newfileList">
+                        <tr>
+                            <td colspan="3">No cover letter found for this doctype.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <hr />
+        <button type="submit" class="btn btn-primary" id="Save"><i class="fa fa-save"></i> Save</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Cancel</button>
+    </form>
+
+
+}
+else
+{
+    <div class="alert alert-danger">Client does not contains any doctype.</div>
+}
+<script>
+
+    var coverletterList = [];
+    var CoverLetter = function (fileName, seqId, file) {
+        this.fileName = fileName;
+        this.seqId = seqId;
+        this.file = file;
+    };
+    var fileArray = new Array();
+    function RemoveFile(name) {
+        $.each(coverletterList, function (i) {
+            if (coverletterList[i].fileName === name) {
+                coverletterList.splice(i, 1);
+                $("#file").val("");
+                $("#Save").attr("disabled", "disabled");
+                return false;
+            }
+        });
+        MadeFileList();
+    }
+    function DownloadCoverLetter(obj) {
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "Admin/DownloadCoverLetter",
+            data: JSON.stringify({
+                fileName: $(obj).data("filename"),
+                appCode: $(obj).data("appcode")
+            }),
+            contentType: "application/json; charset=utf-8",
+            success: function (response) {
+                //console.log(response);
+                if (response.Success) {
+                    if (response.Object != null) {
+                        alertMessage("green", "File downloaded successfully.");
+                        window.location = baseUrl + 'Admin/_DownloadCoverLetter?fileGuid=' + response.Object.model.FileGuid
+                      + '&filename=' + response.Object.model.FileName;
+                    }
+                    else {
+                        alertMessage("red", "File not found.");
+                    }
+                } else {
+                    alertMessage("red", response.ErrorMessage);
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                window.clui.globalAlert({
+                    message: "@AM.Services.Config.Web_Msg_Ajax_CommonError",
+                    alertType: 'red',
+                    timeout: 5000
+                });
+
+            }
+
+        });
+        return false;
+    }
+
+    function MadeFileList() {
+        var fileList = $("#fileList");
+        //fileList.empty();
+        var tr = "";
+        if (coverletterList.length == 0) {
+            tr = '<tr><td colspan="3">No cover letter found for this doctype.</td></tr>';
+        } else {
+            for (var i = 0; i < coverletterList.length; i++) {
+
+                if (coverletterList[i].file == null) {
+                    tr = tr + "<tr><td>" + coverletterList[i].fileName + "</td><td>" + coverletterList[i].seqId + "</td><td><span style='cursor: pointer;' data-filename='" + coverletterList[i].fileName + "' data-appcode='" + $("#AppCode").val() + "' onclick='DownloadCoverLetter(this)'>  <i class='fa fa-download'></i></span></td></tr>";
+                } else {
+
+                    tr = tr + "<tr><td><input class='form-control' type='text' id='FileName' name='FileName' value='" + coverletterList[i].fileName + "'/></td><td><input type='number' min='" + coverletterList[i].seqId + "' class='form-control' id='SeqId' name='SeqId' value='" + coverletterList[i].seqId + "'/></td><td><span style='cursor: pointer;' onclick='RemoveFile(\"" + coverletterList[i].fileName + "\")'>  <i class='fa fa-times'></i></span></td></tr>";
+                }
+                //\'' + this.TrackingNo + '\'
+            }
+        }
+        fileList.html(tr);
+
+    }
+    $('#uploadBtn').click(function () {
+
+        $('.uploadInput').click();
+
+    });
+    $('.uploadInput').on('change', function (e) {
+        //isPdf = e.target.files
+        e.preventDefault();
+        var cnt = 0;
+        //console.log(e.target.files);
+        var files = e.target.files;
+        if (files[0].name.split('.').pop().toLowerCase() != "pdf") {
+            window.clui.globalAlert({
+                message: "Please select pdf files.",
+                alertType: 'red',
+                timeout: 5000
+            });
+            return false;
+        }
+        var fileList = $("#newfileList");
+        //fileList.empty();
+        var seqId = coverletterList.length != 0 ? parseInt(coverletterList[coverletterList.length - 1].seqId + 1) : 1;
+        var tr = "";
+        tr = tr + "<tr><td><input class='form-control' type='text' id='FileName' name='FileName' value='" + files[0].name + "'/></td><td><input type='number' min='" + seqId + "' class='form-control' id='SeqId' name='SeqId' value='" + seqId + "'/></td><td><span style='cursor: pointer;' onclick='RemoveFile(\"" + files[0].name + "\")'>  <i class='fa fa-times'></i></span></td></tr>";
+        fileList.html(tr);
+        $("#Save").removeAttr("disabled");
+        //for (var i = 0; i < files.length; i++) {
+        //    if (files[i].name.split('.').pop().toLowerCase() == "pdf") {
+        //        var seqId =coverletterList.length!=0? parseInt(coverletterList[coverletterList.length - 1].seqId + 1):1;
+        //        coverletterList.push(new CoverLetter(files[i].name, seqId, files[i]));
+        //        //fileArray.push(files[i]);
+        //        $("#Save").removeAttr("disabled");
+        //    }
+        //    else {
+        //        cnt++;
+        //    }
+        //}
+        //if (seqId > 0) {
+        //    //   fileArray = new Array();
+        //    window.clui.globalAlert({
+        //        message: "Please select pdf files.",
+        //        alertType: 'red',
+        //        timeout: 5000
+        //    });
+        //}
+        //files.split('.').pop().toLowerCase()=="pdf"
+        // MadeFileList();
+    });
+    $("#DocTypeId").change(function () {
+        var Id = parseInt($(this).val());
+        $.ajax({
+            type: "GET",
+            url: baseUrl + "Admin/GetCoverLetterByDocTypeId",
+            data: { id: Id },
+            success: function (response) {
+                coverletterList = [];
+                for (var i = 0; i < response.length; i++) {
+                    coverletterList.push(new CoverLetter(response[i].CoverLetterTemplatePath, response[i].SeqId, null));
+
+                }
+
+                MadeFileList();
+                //  ValidateForm();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+
+                //Spinners(".spinnericon", "faspinner");
+                var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                //el.html("<div class='alert alert-red'><span>" + msg + "</span></div>");
+                // $("#AddEditModal").modal("show");
+            }
+        });
+    });
+</script>

@@ -1,0 +1,117 @@
+﻿@model AM.Entities.MailPiece
+<div class="panel-group">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="panel-title">
+                <h3>Return Info</h3>
+            </div>
+        </div>
+        <div class="panel-body">
+            @*<div class="col-md-1">
+            <div class="form-group form-group-sm">
+                @Html.LabelFor(model => model.ReturnInfo.Recipient.Prefix, htmlAttributes: new { @class = "control-label" })
+                @Html.EditorFor(model => model.ReturnInfo.Recipient.Prefix, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.ReturnInfo.Recipient.Prefix, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+            <div class="col-md-3">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.ReturnInfo.Recipient.Organization, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.ReturnInfo.Recipient.Organization, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.ReturnInfo.Recipient.Organization, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-sm-1">
+                <div class="form-group form-group-sm" style="margin-top: 29px;">
+                    <text>OR</text>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.ReturnInfo.Recipient.FirstName, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.ReturnInfo.Recipient.FirstName, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.ReturnInfo.Recipient.FirstName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.ReturnInfo.Recipient.MiddleName, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.ReturnInfo.Recipient.MiddleName, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.ReturnInfo.Recipient.MiddleName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.ReturnInfo.Recipient.LastName, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.ReturnInfo.Recipient.LastName, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.ReturnInfo.Recipient.LastName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="col-md-3">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.ReturnInfo.Address.Street, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.ReturnInfo.Address.Street, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.ReturnInfo.Address.Street, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.ReturnInfo.Address.AptOrSuiteOrOther, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.ReturnInfo.Address.AptOrSuiteOrOther, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.ReturnInfo.Address.AptOrSuiteOrOther, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.ReturnInfo.Address.City, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.ReturnInfo.Address.City, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.ReturnInfo.Address.City, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-1">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.ReturnInfo.Address.State, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.ReturnInfo.Address.State, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.ReturnInfo.Address.State, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.ReturnInfo.Address.Zip, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.ReturnInfo.Address.Zip, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.ReturnInfo.Address.Zip, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            @*<div class="col-md-1">
+            <div class="form-group form-group-sm">
+                @Html.LabelFor(model => model.ReturnInfo.Recipient.Suffix, htmlAttributes: new { @class = "control-label" })
+                @Html.EditorFor(model => model.ReturnInfo.Recipient.Suffix, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.ReturnInfo.Recipient.Suffix, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group form-group-sm">
+                @Html.LabelFor(model => model.ReturnInfo.Recipient.Phone, htmlAttributes: new { @class = "control-label" })
+                @Html.EditorFor(model => model.ReturnInfo.Recipient.Phone, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.ReturnInfo.Recipient.Phone, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+            @*<div class="col-md-4">
+            <div class="form-group form-group-sm">
+                @Html.LabelFor(model => model.ReturnInfo.Recipient.EmailAddress, htmlAttributes: new { @class = "control-label" })
+                @Html.EditorFor(model => model.ReturnInfo.Recipient.EmailAddress, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.ReturnInfo.Recipient.EmailAddress, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+            @*<div class="col-md-4">
+            <div class="form-group form-group-sm">
+                @Html.LabelFor(model => model.ReturnInfo.Recipient.Organization, htmlAttributes: new { @class = "control-label" })
+                @Html.EditorFor(model => model.ReturnInfo.Recipient.Organization, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.ReturnInfo.Recipient.Organization, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+        </div>
+    </div>
+</div>

@@ -1,0 +1,76 @@
+AMC With Multiple Client Algorithm :
+
+- Challange : How to handle multiple clients from AMC in AuthoMail?
+
+Sagar's Thought Process - 1 :
+1) Create AMC as a client in AuthoMail
+2) Maintain ClientCode and ClientId Mapping table for AMC
+3) In Console Process
+	- Download batch as AMC Batch
+	- In Separation Stage
+		- Check for Received ClientCode and Mapped ClientCode
+		- Separate other client codes and generate new XML for mapped clients
+	- In Validation Stage
+		- Save each mail piece with mapped client
+			- Challange : Need to maintain Validation conditions client wise
+			- Challange : What to do with Mail Piece which does not contains ClientCode attribute?
+	- In Acknowledgement Stage		
+		- Generate Immediate Error Report as per AMC standard but need to generate client wise
+		- Generate and sent Acknowledgement client wise for particular batch
+			- Challange :  What to do with Mail Piece which does not contains ClientCode attribute? To whome need to send that mail piece as an error?
+4) In Core Process
+	- In Prepped Stage
+		- Need to process each and every mail piece using MailPiece client id
+		- If any Error in Mail Pieces then Generate Immediate Error Report client wise (Need to do in AMC client only)
+	- In Submitted To Shipping Stage
+		- We don't need to go in this stage because we are going to create separate application to generate sweep time wise batch
+		- So Flow did not change in this stage for other clients
+	- In Submitted Response Received Stage 
+		- Create one folder where every response will be copied because we are grouping all same doctype's mail pieces of multiple mail batches. So we cannot identify batches from it.
+			- Challange : How we will manage single response for multiple batches?
+	- In Process Received Response
+		- Take each response by PrintBatchId and update value according to response of particular mail piece
+		- After receiving whole response we can update batch status.
+	- In Report Prepped Stage
+		- Generate client wise report of batches but with same format of AMC
+			- Challange : May need to add client code in each report to identify for which client it is.
+5) In Reported Back Process
+	- While looking for reports in folder we have generated, we can notify and generate production summary for each client.
+		- Challange : While uploading to AMC SFT site, we may need to change its name because of required naming convention as per AMC.
+		
+		
+
+Sagar's Thought Process - 2 :
+1) Create AMC as a client in AuthoMail
+2) Maintain ClientCode and ClientId Mapping table for AMC
+3) Create a Table for AMC batches
+3) In Console Process
+	- Download batch as AMC Batch and make an entry in amc table
+	- Extract Zip in that folder
+	- Extract XML and separate it clientcode wise and move that batch to particular client folder with the help of ClientCode Mapping table of AMC
+	- Make an entry while separting batches in MailBatches table as Received and Downloaded
+	- No need to change further flow. (But For Processing Response need to change logic as mentioned in 1st Thought Process)
+		- Challange : What to do if we have invalid batch xml? Solution - treate as separate batch and leave it as NULL in ClientId
+		- Challange : What to do if Package does not contain ClientCode? Solution - treate as separate batch and leave it as NULL in ClientId
+		
+Flow :
+1) Download in separate AMC folder - Monitor AMRoot/ChannelCode/AMC/
+2) Extract Zip - Monitor
+3) Valid XML is there or not, if not valid then directly reported back - Monitor
+3) Separate with ClientCode using AMC mapping table (Consider clientcode is not provided in xml as invalid) - Monitor
+4) Drop rewrited xml and related pdfs into particular client with folder structure - Monitor
+5) 
+
+Flow
+1) AMC Folder Clean
+2) Note Trigger Time 
+3) Download AMC Folder, Extract if xml invalid then reportback directly (DELETE from SFTP)(ClientId - AMCInvalid)
+4) Separate Xmls clientwise & Invalid client xmls (AMCInvalid)(ClientWiseFolder then xml and pdfs)
+5) Make an entry in AM.Batches table with ReceivedOn(Maintained Value) IMP : ReceivedOn entry must be in single transaction 
+6) BEGIN TRANSACTION 
+7) INSERT BATCH RECEIVED RECORDS
+8) File Move Operation (Xmls and PDFs) 
+9) Move AMC batches into Archive
+10) Delete from SFTP
+11) UPDATE DOWNLOADED UTCNOW
+12) END TRANSACTION

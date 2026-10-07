@@ -1,0 +1,8 @@
+is_global = true
+build_property.RootNamespace = AM.HealthAPI
+build_property.ProjectDir = C:\New Repo AuthoMail\AuthoMail\source\AuthoMail\AM.HealthAPI\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.CsWinRTUseWindowsUIXamlProjections = false
+build_property.EffectiveAnalysisLevelStyle = 
+build_property.EnableCodeStyleSeverity = 

@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="RespaControl" type="RespaControl"/>
+  <xs:complexType name="RespaControl">
+    <xs:all>
+      <xs:element name="Address" type="nonEmptyString" minOccurs="1" maxOccurs="1" />
+      <xs:element name="Address2" type="xs:string" minOccurs="0" maxOccurs="1" />
+      <xs:element name="BorrowerFirstName" type="nonEmptyString" minOccurs="1" maxOccurs="1" />
+      <xs:element name="BorrowerLastName" type="nonEmptyString" minOccurs="1" maxOccurs="1" />
+      <xs:element name="City" type="nonEmptyString" minOccurs="1" maxOccurs="1" />
+      <xs:element name="LoanNbr" type="nonEmptyString" minOccurs="1" maxOccurs="1" />
+      <xs:element name="State" type="nonEmptyString" minOccurs="1" maxOccurs="1" />
+      <xs:element name="StatusID" type="xs:string" minOccurs="1" maxOccurs="1" />
+      <xs:element name="Zip" type="uszipcode" minOccurs="1" maxOccurs="1" />
+      <xs:element name="ReturnInfo" type="ReturnInfo" minOccurs="1" maxOccurs="1" />
+      <xs:element name="File" type="nonEmptyString" minOccurs="1" maxOccurs="1" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="ReturnInfo">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="Address" type="Address" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Address">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Line1" type="nonEmptyString" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Line2" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Line3" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="City" type="nonEmptyString" />
+      <xs:element minOccurs="1" maxOccurs="1" name="State" type="nonEmptyString" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Zip" type="uszipcode" />
+    </xs:all>
+  </xs:complexType>
+  <xs:simpleType name="uszipcode">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="^(\d{5})(-\d{4})?$"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="nonEmptyString">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(\s*[^\s]\s*)+"></xs:pattern>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

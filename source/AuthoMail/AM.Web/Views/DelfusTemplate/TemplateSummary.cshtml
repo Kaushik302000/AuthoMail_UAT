@@ -1,0 +1,169 @@
+﻿
+@{
+    ViewBag.Title = "Delfus Template Summary";
+}
+<link rel="stylesheet" href="~/Content/ag/ag-grid.css">
+<link href="~/Content/ag/ag-theme-alpine.css" rel="stylesheet" />
+<style>
+    .ag-header-cell-label {
+        justify-content: left !important;
+        font-size: 17px !important;
+    }
+
+    .ag-theme-alpine .ag-ltr .ag-cell {
+        text-align: left !important;
+    }
+    .panel .panel-body:last-child {
+        padding-bottom: 15px !important;
+    }
+    .searchbox {
+        width: 230px;
+        height: auto;
+        margin-top: 5px;
+    }
+
+    .label {
+        font-size: 14px !important;
+    }
+    .cell-copy-text {
+        user-select: all !important;
+    }
+   
+</style>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="panel-title">
+            <h3>
+                DELFUS Template Upload Summary -
+                @if (AM.Services.Config.Common_Environment == AM.Services.Env.Prod)
+                {
+                    <b class="text-danger">
+                        PRODUCTION
+                    </b>
+                }
+                else
+                {
+                    <b>
+                        UAT
+                    </b>
+                }
+            </h3>
+        </div>
+    </div>
+    <div class="panel-body">
+        <input type="text" class="form-control pull-right searchbox" id="quickFilter" placeholder="Search" />
+        <div class="row" id="accReqTableBody" style="height: calc(100% - 25px); ">
+            <div id="requestGrid" style="width:100%;margin-top:3.8%;" class="ag-theme-alpine"></div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts{
+    @Styles.Render("~/bundles/datatablescss")
+    @Scripts.Render("~/bundles/datatables")
+    <script src="~/Content/ag/ag-grid-community.min.noStyle.js"></script>
+    <script>var __basePath = '';</script>
+
+    <script type="text/javascript">
+        function ApplyAGGrid() {
+            $("#requestGrid").empty();
+            var columnDefs = [
+                { headerName: 'Name', field: 'FilePath', sortable: true, maxWidth: 180},
+                {
+                    headerName: 'Modified On', field: 'ModifiedOn', maxWidth: 180, sortable: true, sort: 'desc', cellRenderer: function (params) {
+                        return moment(params.value).format("MM/DD/YY HH:mm:ss");
+                    },getQuickFilterText: function(params) {
+                        return moment(params.value).format("MM/DD/YY HH:mm:ss");
+                    }
+                },
+                {
+                    headerName: 'Status', field: 'Status', sortable: true, maxWidth: 150, cellRenderer: function (params) {
+                        if (params.value == "Modified") {
+                            return '<span class="label label-success"> Modified </span>';
+                        }
+                        else if (params.value == "Deleted" || params.value == "Invalid") {
+                            return '<span class="label label-danger"> ' + params.value + ' </span>';
+                        }
+                        else if (params.value == "Added") {
+                            return '<span class="label label-info"> Added </span>';
+                        }
+                        else {
+                            return '--';
+                        }
+                    }
+                },
+                {
+                    headerName: 'Reason', field: 'Reason', sortable: true, cellStyle: { 'white-space': 'normal' }, cellRenderer: function (params) {
+                        return params.value == null  ? "--" : params.value;
+                    }
+                },
+                
+                
+            ];
+
+            fetch(baseUrl + "DelfusTemplate/DelfusTemplatesSummary")
+                .then(response => response.json())
+                .then((data) => {
+                    $("#totalcounts").text(data.data.length);
+                    gridOptions = {
+                        defaultColDef: {
+                            sortable: true,
+                            filter: false,
+                            resizable: true,
+                            autoHeight: true,
+                            cellClass: 'cell-copy-text',
+                        },
+                        columnDefs: columnDefs,
+                        //rowSelection: 'single',
+                        //rowDeselection: true,
+                        suppressCellSelection: true,
+                        rowData: data.data,
+                        //floatingFilter: true,
+                        //onCellClicked: (e) => {
+                        //    if (e.column.colId !== 'bookingRefNo') { // cell is from non-select column
+                        //        e.node.setSelected(true);
+                        //    }
+                        //},
+                        //onSelectionChanged: onSelectionChanged,
+                        //onGridSizeChanged: onGridSizeChanged,
+                        onGridReady: function (params) {
+                            params.api.sizeColumnsToFit();
+                            params.api.resetRowHeights();
+                            window.addEventListener('resize', function () {
+                                setTimeout(function () {
+                                    params.api.sizeColumnsToFit();
+                                    params.api.resetRowHeights();
+                                });
+                            });
+                        },
+                    };
+                    // gridOptions.api.setRowData(data);
+                    var gridDiv = document.querySelector('#requestGrid');
+                    new agGrid.Grid(gridDiv, gridOptions);
+                    gridOptions.api.sizeColumnsToFit();
+                    gridOptions.api.resetRowHeights();
+                    onQuickFilterChanged(gridOptions);
+                    $("#requestGrid").height(calcDataTableHeight());
+
+                });
+        }
+        var calcDataTableHeight = function () {
+            var decreaseHeight = (($(window).innerHeight() * 190) / 657);
+            return ($(window).innerHeight() - decreaseHeight);
+        };
+        function onQuickFilterChanged(gridOptions) {
+            $("#quickFilter").on("input", function (e) {
+                if (e.which == 13) {
+                    return false;
+                }
+                gridOptions.api.setQuickFilter(document.getElementById('quickFilter').value);
+            });
+        }
+        $(document).ready(function () {
+            ApplyAGGrid();
+        });
+    </script>
+}
+
+

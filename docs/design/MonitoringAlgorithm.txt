@@ -1,0 +1,17 @@
+If batch is not submitted to PCI within 20 mins:
+
+- IF Channel != 'AMC' then Check AM.MailBatches "receivedon" time and PnS.BatchSummary "submittedon" time. If AM.MailBatches "receivedon" date is SUNDAY then check "downloadedon" time. AM.MailBatch 'SFTChannelId' != SystemSettings 'Core_BundleSweepClientChannelIds'
+	-If batch is not submitted to PCI within 20 mins then send an alert to AuthoMail team.
+- IF Channel == 'AMC' then Check AM.MailBatches "SubmittedOn" and PnS.BatchSummary "SubmittedOn" and Bundle sweep time.
+	-If batch is not submitted to PCI within 20 mins then send an alert to AuthoMail team. 
+	(Bundle sweep wise logic change for AMC). AM.MailBatch 'SFTChannelId' == SystemSettings 'Core_BundleSweepClientChannelIds'
+- After sending an alert insert entry of timestamp in Common.MonitorBatches table.
+- Check Common.MonitorBatches table and if batch is still not submitted to PCI then send alert again to AuthoMail team after 6 hrs.
+
+
+If batch is not ReportedBack to AuthoMail:
+
+- Check PnS.BatchSummary "ReportedBackOn" and AM.MailBatches "ReportedBackOn".
+- If batch is not reportedback within 10 hrs. then send an alert to print vendor based on "Print Location". 
+- After sending an alert insert entry of timestamp in Common.MonitorBatches table.
+- Check Common.MonitorBatches table and if batch is still not ReportedBack to AuthoMail then send alert again to PCI team after 6 hrs.

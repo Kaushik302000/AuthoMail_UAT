@@ -1,0 +1,45 @@
+﻿
+<h2 id="myModalLabel">Transfer Envelope Quantity   </h2>
+<hr />
+
+<form id="envelopeTransferQtyform" action="#">
+    <div class="form-group">
+        <label for="EnvelopeId">Envelop</label>
+        <div class="input-group">
+            <input hidden id="EnvelopeId" name="EnvelopeId" value="@ViewBag.EnvelopeId" />
+            <input type="text" disabled class="form-control" value="@ViewBag.EnvelopeName" />
+        </div>
+        <span for="EnvelopeId" class="error" style="display:none;">This field is required.</span>
+    </div>
+    <div class="form-group">
+        <label for="FromShipperId">From Shipper</label>
+        <div class="input-group">
+            @Html.DropDownList("FromShipperId", ViewBag.Shippers as SelectList, "", new { @class = " form-control selectpicker", @data_live_search = "true", @data_live_search_placeholder = "Search Shipper" })
+        </div>
+        <span for="FromShipperId" class="error" style="display:none;">This field is required.</span>
+    </div>
+    <div class="form-group">
+        <label for="TransferQuantity">Transfer Quantity <span class="text-info">(Current Quantity:<span id="currentQty">0</span>)</span></label>
+        <div class="input-group">
+            <input type="number" id="TransferQuantity" min="1" class="form-control" name="TransferQuantity" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="ToShipperId">To Shipper</label>
+        <div class="input-group">
+            @Html.DropDownList("ToShipperId", ViewBag.Shippers as SelectList, "", new { @class = " form-control selectpicker", @data_live_search = "true", @data_live_search_placeholder = "Search Shipper" })
+        </div>
+        <span for="ToShipperId" class="error" style="display:none;">This field is required.</span>
+    </div>
+    <div class="form-group">
+        <label for="Description">Description</label>
+        <div class="input-group">
+            <textarea id="Description" name="Description" class="form-control"></textarea>
+        </div>
+    </div>
+
+    <hr />
+    <button type="submit" class="btn btn-primary" id="UpdateQty"><i class="fa fa-exchange"></i> Transfer</button>
+    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Cancel</button>
+</form>
+

@@ -1,0 +1,37 @@
+﻿@model AM.Services.Envelopes
+
+<h2 id="myModalLabel">@((Model.Id == 0) ? Html.Raw("Add Envelope Details") : Html.Raw("Edit Envelope Details"))</h2>
+<hr />
+<form id="envelopeform" action="#">
+    <input type="hidden" id="Id" name="Id" value="@Model.Id" />
+    <div class="form-group">
+        <label for="Name">Name</label>
+        <div class="input-group">
+            <input type="text" id="EnvelopeName" class="form-control" name="EnvelopeName" value="@Model.EnvelopeName" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="EnvelopeDesc">Description</label>
+        <div class="input-group">
+            <input type="text" id="EnvelopeDesc" class="form-control" name="EnvelopeDesc" value="@Model.EnvelopeDesc" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="IsBREEnvelope">Is BRE Envelope?</label>
+        <div class="input-group">
+            <div class="toggle-container">
+                <input id="IsBREEnvelope" class="cl-toggle toggle-orange" type="checkbox" @(Model.IsBREEnvelope ? "checked" : "") name="toggle-demo" /><label for="IsBREEnvelope">IsBREEnvelope</label>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="PartNumber">Part Number</label>
+        <div class="input-group">
+            <input type="text" id="PartNumber" class="form-control" name="PartNumber" value="@Model.PartNumber" />
+        </div>
+    </div>
+    <hr />
+    <button type="submit" class="btn btn-primary" id="Save"><i class="fa fa-save"></i> Save</button>
+    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Cancel</button>
+</form>
+

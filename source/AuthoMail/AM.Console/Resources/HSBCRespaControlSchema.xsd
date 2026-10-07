@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="RespaControl" type="RespaControl"/>
+  <xs:complexType name="RespaControl">
+    <xs:sequence>
+      <xs:element name="Address" type="nonEmptyString" maxOccurs="1" />
+      <xs:element name="Address2" type="xs:string" minOccurs="0"  maxOccurs="1" />
+      <xs:element name="BorrowerFirstName" type="nonEmptyString" maxOccurs="1" />
+      <xs:element name="BorrowerLastName" type="nonEmptyString" maxOccurs="1" />
+      <xs:element name="BorrowerMiddleName" type="xs:string" maxOccurs="1" />
+      <xs:element name="BorrowerSuffix" type="xs:string" maxOccurs="1" />
+      <xs:element name="City" type="nonEmptyString" maxOccurs="1" />
+      <xs:element name="LoanNbr" type="nonEmptyString" maxOccurs="1" />
+      <xs:element name="PackageName" type="nonEmptyString" maxOccurs="1"/>
+      <xs:element name="State" type="States" maxOccurs="1" />
+      <xs:element name="StatusID" type="xs:string" maxOccurs="1" />
+      <xs:element name="Zip" type="uszipcode" maxOccurs="1" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="States">
+    <xs:restriction base="nonEmptyString">
+      <xs:enumeration value="AE"/>
+      <xs:enumeration value="AK"/>
+      <xs:enumeration value="AL"/>
+      <xs:enumeration value="AP"/>
+      <xs:enumeration value="AR"/>
+      <xs:enumeration value="AS"/>
+      <xs:enumeration value="AZ"/>
+      <xs:enumeration value="CA"/>
+      <xs:enumeration value="CO"/>
+      <xs:enumeration value="CT"/>
+      <xs:enumeration value="DE"/>
+      <xs:enumeration value="DC"/>
+      <xs:enumeration value="FL"/>
+      <xs:enumeration value="FM"/>
+      <xs:enumeration value="FP"/>
+      <xs:enumeration value="GA"/>
+      <xs:enumeration value="GU"/>
+      <xs:enumeration value="HI"/>
+      <xs:enumeration value="IA"/>
+      <xs:enumeration value="ID"/>
+      <xs:enumeration value="IL"/>
+      <xs:enumeration value="IN"/>
+      <xs:enumeration value="KS"/>
+      <xs:enumeration value="KY"/>
+      <xs:enumeration value="LA"/>
+      <xs:enumeration value="MA"/>
+      <xs:enumeration value="MD"/>
+      <xs:enumeration value="ME"/>
+      <xs:enumeration value="MH"/>
+      <xs:enumeration value="MI"/>
+      <xs:enumeration value="MN"/>
+      <xs:enumeration value="MO"/>
+      <xs:enumeration value="MP"/>
+      <xs:enumeration value="MS"/>
+      <xs:enumeration value="MT"/>
+      <xs:enumeration value="NC"/>
+      <xs:enumeration value="ND"/>
+      <xs:enumeration value="NE"/>
+      <xs:enumeration value="NH"/>
+      <xs:enumeration value="NJ"/>
+      <xs:enumeration value="NM"/>
+      <xs:enumeration value="NV"/>
+      <xs:enumeration value="NY"/>
+      <xs:enumeration value="OH"/>
+      <xs:enumeration value="OK"/>
+      <xs:enumeration value="OR"/>
+      <xs:enumeration value="PA"/>
+      <xs:enumeration value="PR"/>
+      <xs:enumeration value="RI"/>
+      <xs:enumeration value="SC"/>
+      <xs:enumeration value="SD"/>
+      <xs:enumeration value="TN"/>
+      <xs:enumeration value="TX"/>
+      <xs:enumeration value="UT"/>
+      <xs:enumeration value="VA"/>
+      <xs:enumeration value="VI"/>
+      <xs:enumeration value="VT"/>
+      <xs:enumeration value="WA"/>
+      <xs:enumeration value="WI"/>
+      <xs:enumeration value="WV"/>
+      <xs:enumeration value="WY"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+
+  <xs:simpleType name="uszipcode">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="^(\d{5})(-\d{4})?$"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="nonEmptyString">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(\s*[^\s]\s*)+"></xs:pattern>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

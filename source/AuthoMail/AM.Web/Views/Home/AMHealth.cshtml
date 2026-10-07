@@ -1,0 +1,233 @@
+﻿@{
+    Layout = null;
+}
+<!doctype html>
+<html class="no-js" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" href="~/clui/dist/img/favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AuthoMail Health</title>
+    @Styles.Render("~/Content/clcss")
+    @Styles.Render("~/bundles/datatablescss")
+
+    <style>
+        #mainlink:hover {
+            color: lightgray;
+        }
+    </style>
+
+</head>
+
+<body>
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="mobile-overlay"></div>
+        <div class="container-fluid">
+            <div class="navbar-collapse-btn">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#example-navbar-collapse-3">
+                    <span class="sr-only">Toggle navigation</span>
+                </button>
+            </div>
+            <div class="navbar-header">
+                <div class="navbar-logo"></div>
+                <div class="application-name">
+                    <h1 style="line-height:50px;">
+                        @Html.ActionLink("AuthoMail", "Index", "Home", new { area = "" }, new { @class = "text-white ", @id = "mainlink" })<span id="statustitle" style="margin-left:5px;"></span>
+                    </h1>
+                </div>
+            </div>
+
+        </div>
+    </nav>
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div class="panel-title">
+                    <span>Delayed Packages</span>
+                    <span class="pull-right">
+                        <button type="button" id="RefreshAMAlertBtn" class="btn btn-primary"><i class="fa fa-refresh"></i> Refresh </button>
+                    </span>
+                </div>
+
+            </div>
+            <div class="panel-body">
+                <div class="alert alert-blue text-center" id="messagebody">Please wait...</div>
+                <table id="tabledata" class="table table-responsive table-bordered" style="display:none;">
+                    <tbody>
+                        <tr class="row-small">
+                            <th colspan="2">{TATTitle}</th>
+                        </tr>
+                        <tr class="row-small">
+                            <th colspan="2">
+                                {Download}
+                                {Process}
+                                {Printer}
+                                {Reporting}
+                                {Pickedup}
+                            </th>
+                        </tr>
+                        <tr class="row-small">
+                            <th>Last Batch ReceivedOn</th>
+                            <th>{LastBatchReceivedOn}</th>
+                        </tr>
+                        <tr class="row-small">
+                            <th>Delayed Process Batches</th>
+                            <th>{DelayedProcessBatches}</th>
+                        </tr>
+                        <tr class="row-small">
+                            <th>Delayed Process MailPieces</th>
+                            <th>{DelayedProcessMailPieces}</th>
+                        </tr>
+                        <tr class="row-small">
+                            <th>Delayed Printer Batches</th>
+                            <th>{DelayedPrinterBatches}</th>
+                        </tr>
+                        <tr class="row-small">
+                            <th>Delayed Printer MailPieces</th>
+                            <th>{DelayedPrinterMailPieces}</th>
+                        </tr>
+                        <tr class="row-small">
+                            <th>Delayed AM ReportBack Batches</th>
+                            <th>{DelayedAMReportBackBatches}</th>
+                        </tr>
+                        <tr class="row-small">
+                            <th>Delayed AM ReportBack MailPieces</th>
+                            <th>{DelayedAMReportBackMailPieces}</th>
+                        </tr>
+                        <tr class="row-small">
+                            <th>Delayed PickUp MailPieces</th>
+                            <th>{DelayedPickUpMailPieces}</th>
+                        </tr>
+                        <tr class="row-small">
+                            <th>Last UpdatedOn</th>
+                            <th>{LastUpdatedOn}</th>
+                        </tr>
+                        <tr>
+                            <th colspan="2" class="text-center"><a href="/Support/DelayedBatches" class="btn btn-transparent">View Detail</a></th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="panel-footer"></div>
+        </div>
+    </div>
+    <footer>
+        <div>
+            2018 Copyright CoreLogic. All Rights Reserved.
+        </div>
+        <div>
+            <ol>
+                <li><a href="http://www.corelogic.com/about-us/our-company.aspx" target="_blank">About Our Company</a></li>
+                <li><a href="http://www.corelogic.com/about-us/contact-us.aspx" target="_blank">Contact Us</a></li>
+                <li><a href="http://www.corelogic.com/privacy.aspx" target="_blank">Policies</a></li>
+            </ol>
+        </div>
+    </footer>
+    @Scripts.Render("~/bundles/jquery")
+    <script src="~/clui/dist/js/vendor/moment.js"></script>
+    <!--Reference the SignalR library. -->
+    <script src="~/Scripts/jquery.signalR-2.3.0.min.js"></script>
+    <!--Reference the autogenerated SignalR hub script. -->
+    <script src="~/signalr/hubs"></script>
+    <!--SignalR script to update the chat page and send messages.-->
+
+    <script type="text/javascript">
+        var baseUrl = '@Url.Content("~/")';
+        if (!String.prototype.supplant) {
+            String.prototype.supplant = function (o) {
+                return this.replace(/{([^{}]*)}/g,
+                    function (a, b) {
+                        var r = o[b];
+                        return typeof r === 'string' || typeof r === 'number' ? r : a;
+                    }
+                );
+            };
+        }
+        $(document).ready(function () {
+            var rHub;
+            var GetAMStatusData = function () {
+                var amhub = $.connection.aMAlertHub;
+                rHub = amhub;
+                var data = $('#tabledata').html();
+                amhub.client.getAMDetailStatus = function (response) {
+                    //console.log("res:" + JSON.stringify(response));
+                    SpreadData(response, data);
+                };
+                $.connection.hub.start().done(function () {
+                    amhub.server.getConnection($.connection.hub.id);
+                });
+                $.connection.hub.error(function (error) {
+                    console.log('communication error: ' + error);
+                });
+                $.connection.aMAlertHub.client.exceptionHandler = function (error) {
+                    console.log('Server Error: ' + error);
+                };
+
+            }
+            var RefreshAMAlert = function () {
+                $('#RefreshAMAlertBtn').click(function (e) {
+                    e.preventDefault();
+                    rHub.server.refreshAMAlert();
+                });
+                }
+
+                RefreshAMAlert();
+            var SpreadData = function (response, data) {
+                if (response != null) {
+                    $('#tabledata').html(data.supplant(formatData(response)));
+                    var color = response.AlertLevel == "Critical" ? "red" : response.AlertLevel == "Warning" ? "yellow" : "white";
+                    var pulse = response.IsAMDelay ? "blink" : "";
+                    $('#statustitle').html('<i class="fa fa-heartbeat fa-2 ' + pulse + '" style="color:' + color + ';"></i>');
+
+                    $('#messagebody').hide();
+                    $('#tabledata').show();
+                } else {
+                    $('#tabledata').html('<tr class="row-small"><th><div class="alert alert-blue">No delayed batches.</div></th></tr>');
+                }
+            }
+            function formatData(data) {
+                return $.extend(data, {
+                    DelayedProcessBatches: data.DelayedProcessBatches,
+                    DelayedProcessMailPieces: data.DelayedProcessMailPieces,
+                    DelayedAMReportBackBatches: data.DelayedAMReportBackBatches,
+                    DelayedAMReportBackMailPieces: data.DelayedAMReportBackMailPieces,
+                    DelayedPrinterBatches: data.DelayedPrinterBatches,
+                    DelayedPrinterMailPieces: data.DelayedPrinterMailPieces,
+                    DelayedPickUpMailPieces: data.DelayedPickUpMailPieces,
+                    TATTitle: data.MinHour < 1 ? 'Few SLA are already missed.' : data.MinHour == data.MaxHour ? 'Turnaround time  {0} hours.'.replace('{0}', data.MinHour) : 'Turnaround time {0} to {1} hours.'.replace('{0}', data.MinHour).replace('{1}', data.MaxHour),
+                    LastBatchReceivedOn: data.LastBatchReceivedOn != null ? moment(data.LastBatchReceivedOn).format("MM/DD/YY HH:mm:ss") : '--',
+                    LastUpdatedOn: data.LastUpdatedOn != null ? moment(data.LastUpdatedOn).format("MM/DD/YY HH:mm:ss") : '--',
+                    IsReportBackDelay: data.IsReportBackDelay,
+                    Reporting: data.IsReportBackDelay ? '<label class="label label-red medium">Reporting</label>' : '<label class="label label-green medium">Reporting</label>',
+                    IsPrinterDelay: data.IsPrinterDelay,
+                    Printer: data.IsPrinterDelay ? '<label class="label label-red medium">Printer</label>' : '<label class="label label-green medium">Printer</label>',
+                    IsReceivedDelay: data.IsReceivedDelay,
+                    Download: data.IsReceivedDelay ? '<label class="label label-red medium">Download</label>' : '<label class="label label-green medium">Download</label>',
+                    IsProcessDelay: data.IsProcessDelay,
+                    Process: data.IsProcessDelay ? '<label class="label label-red medium">Process</label>' : '<label class="label label-green medium">Process</label>',
+                    Pickedup: data.DelayedPickUpMailPieces > 0 ? '<label class="label label-red medium">Pickup</label>' : '<label class="label label-green medium">Pickup</label>',
+                    Status: data.Status,
+                    IsAMDelay: data.IsAMDelay
+                });
+            }
+            //var tabData = $('#tabledata').html();
+            //var AMHealthDetail = function () {
+            //    $.ajax({
+            //        type: "GET",
+            //        url: baseUrl + "AuthoMailHealth/getamstatusdetail",
+            //        dataType: "json",
+            //        success: function (response) {
+            //            //console.log(Date() + " : " + response);
+            //            SpreadData(response, tabData);
+            //        }, error: function (err) {
+            //            console.log(JSON.stringify(err));
+            //        }
+            //    });
+            //}
+            //AMHealthDetail();
+            //setInterval(function () { AMHealthDetail(); }, (1000 * 60 * 5));
+            GetAMStatusData();
+        });
+    </script>
+</body>
+</html>

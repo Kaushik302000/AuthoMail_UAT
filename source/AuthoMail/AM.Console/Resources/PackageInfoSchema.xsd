@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="PackageInfo" type="PackageInfo" />
+  <xs:complexType name="PackageInfo">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="Id" type="guid" />
+      <xs:element minOccurs="1" maxOccurs="1" name="LoanNbr" type="nonEmptyString" />
+      <xs:element minOccurs="1" maxOccurs="1" name="RecipientInfo" type="RecipientInfo" />
+      <xs:element minOccurs="1" maxOccurs="1" name="ReceivedDate" type="xs:dateTime" />
+      <xs:element minOccurs="1" maxOccurs="1" name="File" type="nonEmptyString" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ReturnInfo" type="ReturnInfo" />
+      <xs:element minOccurs="0" maxOccurs="1" name="eDelivery" type="eDelivery" />
+      <xs:element minOccurs="1" maxOccurs="1" name="ShippingMethod" type="ShippingMethod" />
+      <xs:element minOccurs="1" maxOccurs="1" name="ShippingCredentials" type="ShippingCredential" />
+      <xs:element minOccurs="1" maxOccurs="1" name="CustomerIdentifier" type="nonEmptyString" />
+      <xs:element minOccurs="1" maxOccurs="1" name="RequestId" type="nonEmptyString" />
+      <xs:element minOccurs="1" maxOccurs="1" name="PackageName" type="nonEmptyString" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="eDelivery">
+    <xs:attribute name="ExpiryDate" type="xs:date" use="optional" />
+    <xs:attribute name="PrintAndShipOnExpiry" type="xs:boolean" use="required" />
+  </xs:complexType>
+  <xs:complexType name="RecipientInfo">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="unbounded" name="Recipient" type="Recipient" />
+      <xs:element minOccurs="0" maxOccurs="1" name="RecipientPhoneNo" type="usphoneno"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="RecipientEmailId" type="xs:string"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="Address" type="Address" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Recipient">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="FirstName" type="nonEmptyString" />
+      <xs:element minOccurs="1" maxOccurs="1" name="LastName" type="nonEmptyString" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Address">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="Line1" type="nonEmptyStringAddress" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Line2"  type="emptyStringAddress" />
+      <xs:element minOccurs="1" maxOccurs="1" name="City" type="nonEmptyStringAddress" />
+      <xs:element minOccurs="1" maxOccurs="1" name="State" type="nonEmptyString" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Zip" type="uszipcode" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ReturnInfo">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="FirstName" type="nonEmptyString" />
+      <xs:element minOccurs="0" maxOccurs="1" name="LastName" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ReturnPhoneNo" type="usphoneno"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="Address" type="Address" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ShippingCredential">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="ClientCode" type="nonEmptyString"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="ShippingMethod">
+    <xs:restriction base="nonEmptyString">
+      <xs:enumeration value="USPS" />
+      <xs:enumeration value="FEDEX_2_DAY" />
+      <xs:enumeration value="FEDEX_EXPRESS_SAVER" />
+      <xs:enumeration value="FEDEX_GROUND" />
+      <xs:enumeration value="FIRST_OVERNIGHT" />
+      <xs:enumeration value="GROUND_HOME_DELIVERY" />
+      <xs:enumeration value="PRIORITY_OVERNIGHT" />
+      <xs:enumeration value="STANDARD_OVERNIGHT" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="guid">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="uszipcode">
+    <xs:restriction base="xs:string">
+      <!--<xs:pattern value="^(\d{5})(-\d{4})?(-\d{2})?$"/>-->
+      <xs:pattern value="^(\d{5})(-\d{4})?$"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="usphoneno">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="nonEmptyString">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(\s*[^\s]\s*)+"></xs:pattern>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="nonEmptyStringAddress">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="^\s*[^\s]\s*[^!@%\^\*\$]*$"></xs:pattern>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="emptyStringAddress">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="^[^!@%\^\*\$]*$"></xs:pattern>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

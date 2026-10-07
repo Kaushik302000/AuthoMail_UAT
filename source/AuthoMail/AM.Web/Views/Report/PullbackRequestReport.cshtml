@@ -1,0 +1,262 @@
+﻿@{
+    ViewBag.Title = "PullbackRequestReport";
+}
+
+<link href="~/clui/dist/css/datatablecustom.css" rel="stylesheet" />
+<style>
+    .col-md-1, .col-md-2, .col-md-3 {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+
+    .show-calendar {
+        width: 484px !important;
+    }
+</style>
+<div class="panel-group">
+    <div class="panel panel-default">
+        <div class="panel-heading" id="headingOne">
+            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
+                <div class="panel-title">
+
+                    Pullback Request Report
+                    <div class="collapsed-icon pull-right">
+                        <i class="fa fa-caret-left"></i>
+                    </div>
+                    <div class="expanded-icon pull-right">
+                        <i class="fa fa-caret-down"></i>
+                    </div>
+
+                </div>
+            </a>
+
+        </div>
+        <div id="collapseThree" class="panel-collapse collapse in">
+            <div class="panel-body">
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="receivedOn">Requested  On (EST)</label>
+                        <div class="input-group daterange" id="datepicker4">
+                            <input type="text" class="form-control" id="requestedOn">
+                            <span class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-md-1">
+                    <div class="form-group " style="margin-top: 27px;">
+                        <label for="filterData"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                        <button type="button" id="filterData" class="btn btn-primary" style=" padding-top: 6%;">
+                            <span class="sr-only">Filter</span>
+                            <i class="fa fa-arrow-right fa-2x"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="panel panel-default" id="mailPieceList">
+    <div class='alert alert-blue text-center' id="loading" style="display:none"><span> Loading... </span></div>
+    <div class="panel-heading" id="pullbackHeader">
+        <div class="panel-title">
+            Pullback Request Details: <span class="normaltext" id="headerdate"></span>
+        </div>
+    </div>
+    <div class="panel-body" id="pullbackList" style="margin-top: 10px;">
+
+
+    </div>
+</div>
+<!-- table html template code -->
+<div id="pullTableContent" style="display:none">
+    <table class="table table-responsive" style="overflow-x:scroll">
+        <thead>
+            <tr>
+                <th>Piece Id</th>
+                <th>Batch Id</th>
+                <th>@Html.Action("GetHeadingForBusinessId", "Common")</th>
+                <th>Status</th>
+                <th>Requested On <span class="fontcapitalize">(Local)</span></th>
+                <th>Requested By</th>
+                <th>PullBack Reason</th>
+            </tr>
+        </thead>
+        <tbody id="pullbodyContent"></tbody>
+    </table>
+</div>
+<div style="display:none">
+    <table>
+        <tbody id="pullBody">
+            <tr>
+                <td><span>{MailPieces.Id}</span></td>
+                <td><span>{MailPieces.MailBatches.ClientBatchId}</span></td>
+                <td><span>{MailPieces.BusinessFriendlyIdValue}</span></td>
+                <td><span>{Status}</span></td>
+                <td><span>{RequestedOnFormatted}</span></td>
+                <td><span>{Users.DisplayName}</span></td>
+                <td><span>{PBReasons}</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<!-- end table template code -->
+@section Scripts{
+    @Styles.Render("~/bundles/datatablescss")
+    @Scripts.Render("~/bundles/datatables")
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var dateTemplate = '<div class="daterangepicker dropdown-menu">' + '<div class="calendar left">' + '<div class="calendar-table"></div>' + '</div>' + '<div class="calendar right">' + '<div class="calendar-table"></div>' + '</div>' + '<div class="ranges">' + '<div class="range_inputs">' + '<button class="applyBtn" disabled="disabled" type="button"></button> ' + '<button class="cancelBtn" type="button"></button>' + '</div>' + '</div>' + '</div>';
+            $("#requestedOn").daterangepicker({
+                autoApply: true,
+                template: dateTemplate,
+                showCustomRangeLabel: false,
+                startDate: moment("@ViewBag.startDate").format("MM/DD/YYYY"),
+                endDate: moment("@ViewBag.endDate").format("MM/DD/YYYY"),
+
+            });
+            FilterData();
+            // JSON.useDateParser(false);
+        });
+        function applyDataTable() {
+            var table = $('#sample_2');
+            var selectedData = $("#requestedOn").val().split('-');
+
+            var startDate = selectedData[0].trim();
+            var endDate = selectedData[1].trim();
+
+            var filename = "PullbackRequestReport_" + moment(startDate).format("MMDDYYYY") + "_To_" + moment(endDate).format("MMDDYYYY") +"_"+$("#ClientName").text();
+            var title = "Pullback Request Report";
+            var oTable = table.dataTable({
+
+                "language": {
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    },
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "No entries found",
+                    "infoFiltered": "(filtered1 from _MAX_ total entries)",
+                    "lengthMenu": "_MENU_ entries",
+                    "search": "<b>Search:</b>",
+                    "zeroRecords": "No matching records found"
+                },
+
+                buttons: [
+                    //{
+                    //    extend: 'colvis',
+                    //    text: 'Select Fields',
+                    //    className: 'btn purple pull-left',
+                    //    columns: ':not(.noVis)'
+                    //},
+                {
+                    extend: 'csv',
+                    text: '<i class="fa fa-file-excel-o fa-2x"></i>',
+                    className: 'btn btn-primary',
+                    filename: filename,
+                    title: title,
+                    //exportOptions: {
+                    //    columns: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+                    //}
+
+                }
+
+
+
+                ],
+
+                "order": [
+                    [3, 'desc']
+                ],
+                "lengthMenu": [
+                    [5, 10, 25, 50, 100, -1],
+                    [5, 10, 25, 50, 100, "All"] // change per page values here
+                ],
+                // set the initial value
+                "pageLength": 5,
+
+                "dom": "<'row' <'col-md-12'B>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
+
+
+            });
+
+        }
+        function FilterData() {
+
+            $("#pullbackHeader").hide();
+            $("#pullbackList").hide();
+            var el = $('#errorList');
+            $("#loading").show();
+            var selectedData = $("#requestedOn").val().split('-');
+
+            var startDate = selectedData[0].trim();
+            var endDate = selectedData[1].trim();
+
+            $("#headerdate").html(startDate + " to " + endDate + " EST");
+            el.html("<div class='alert alert-blue text-center'><span> Loading... </span></div>");
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "Report/_GetPullbackRequestReport",
+                data: JSON.stringify({
+                    startDate: startDate,
+                    endDate: endDate
+
+                }),
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    if (response.Success) {
+                        if (response.Object != null) {
+                            $("#loading").hide();
+                            $("#pullbackHeader").show();
+                            $("#pullbackList").show();
+                            if (response.Object.model.length > 0) {
+                                if (response.Object.model.length > 0) {
+                                    var data = FormatObject(response.Object.model);
+                                    $("#pullbackList").html("");
+                                    BindTemplate(data, "#pullBody", "#pullbodyContent", "#pullTableContent", "#pullbackList");
+                                }
+                                else {
+                                    $("#pullbackList").html(" <div style='margin-bottom:10px;' class='alert alert-yellow'><span class='sbold'>@AM.Services.Config.Web_Msg_NoRecordFound</span></div>")
+                                }
+                            }
+                            else {
+                                $("#pullbackList").html(" <div style='margin-bottom:10px;' class='alert alert-yellow'><span class='sbold'>@AM.Services.Config.Web_Msg_NoRecordFound</span></div>")
+                            }
+                        }
+
+
+                        //$("#")
+                    }
+
+                    //el.html(res);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    $("#loading").hide();
+                    $("#pullbackHeader").show();
+                    $("#pullbackList").show();
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    $("#pullbackList").html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + msg + "</span></div>");
+                }
+
+            });
+        }
+        function FormatObject(Model) {
+            $(Model).each(function () {
+                this.RequestedOnFormatted = moment(this.RequestedOn).format("MM/DD/YY HH:mm:ss");
+            });
+            return Model;
+        }
+        $("#filterData").click(function () {
+            FilterData();
+        });
+
+    </script>
+}

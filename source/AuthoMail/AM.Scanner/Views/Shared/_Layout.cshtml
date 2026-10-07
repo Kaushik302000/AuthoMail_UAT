@@ -1,0 +1,134 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Barcode Scanner</title>
+    @Styles.Render("~/Content/css")
+
+
+</head>
+<body>
+    @if (Request.IsAuthenticated)
+    {
+
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+                <div class="navbar-collapse collapse">
+                    @{
+                        string[] ClientListWithName = System.Web.Configuration.WebConfigurationManager.AppSettings["ClientList"].Split(',');
+                        List<AM.Scanner.Models.ClientDetails> clientdetailsList = new List<AM.Scanner.Models.ClientDetails>();
+                        for (int i = 0; i < ClientListWithName.Length; i++)
+                        {
+                            AM.Scanner.Models.ClientDetails clientdetail = new AM.Scanner.Models.ClientDetails();
+                            clientdetail.ClientName = ClientListWithName[i].ToString();
+                            clientdetail.ClientCode = ClientListWithName[i].ToString();
+                            clientdetailsList.Add(clientdetail);
+                        }
+                    }
+                    <ul class="nav navbar-nav">
+                        <li>@Html.ActionLink("Home", "Index", "Home")</li>                       
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Reports <b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                @foreach (var client in clientdetailsList)
+                                {
+                                    <li><a href="~/Reports/ScanedDocuments?clientCode=@client.ClientCode">@client.ClientName</a></li>
+                                }
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Pending Scan <b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                @foreach (var client in clientdetailsList)
+                                {
+                                    <li><a href="~/Reports/PendingScanning?clientCode=@client.ClientCode">@client.ClientName</a></li>
+                                }
+                            </ul>
+                        </li>
+                    </ul>
+                    @Html.Partial("_LoginPartial")
+                </div>
+            </div>
+        </div>
+    }
+    <div class="body-content">
+        @RenderBody()
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+    <script>
+       var baseUrl = '@Url.Content("~/")';
+        function getParameterByName(name) {
+            name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                results = regex.exec(location.search);
+
+            return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+        }
+
+        if (!String.prototype.supplant) {
+            String.prototype.supplant = function (o) {
+                return this.replace(/{([^{}]*)}/g,
+                    function (a, b) {
+                        var lst = b.split('.');
+                        $obj = o;
+                        for (var i = 0; i < (lst.length) ; i++) {
+                            var r = $obj[lst[i]];
+                            if (r === null || typeof r === "undefined") return "--";
+                            if (typeof r === 'object') {
+                                $obj = r;
+                            }
+                            else {
+                                return typeof r === 'string' || typeof r === 'number' ? r : a;
+                            }
+                        }
+                    }
+                );
+            };
+        }
+
+        function BindTemplate(model, bodyId, bodyContentId, mainTableId, mainDivId) {
+
+            var bodyHtml = $(bodyId).html();
+            var tableHtml = "";
+            $(model).each(function () {
+                tableHtml = tableHtml + bodyHtml.supplant(this);
+            });
+
+            $(bodyContentId).html(tableHtml);
+            $(mainDivId).html($(mainTableId).html());
+            $(mainDivId).find("table").attr("id", "sample_2");
+            applyDataTable();
+        }
+
+        $(document).ajaxSuccess(function (event, xhr, settings) {
+            //console.log("Server Result:" + cnt++);
+            //console.log(xhr.responseText);
+            if (xhr.responseText == "") {
+                window.location.reload();
+            }
+        });
+
+
+        $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
+            //console.log("error:" + JSON.stringify(thrownError));
+            //console.log("Status:" + jqxhr.status);
+            if (jqxhr.status == 200) {
+                window.location.reload();
+            }
+
+        });
+    </script>
+</body>
+</html>

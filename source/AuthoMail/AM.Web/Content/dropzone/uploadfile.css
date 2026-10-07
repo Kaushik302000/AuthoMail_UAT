@@ -1,0 +1,85 @@
+﻿.upload-container {
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    /*border: 2px dashed #d2d2d2;
+    border-radius: 3px;*/
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    min-height: 130px;
+    padding: 27px 5px;
+    text-align: center;
+}
+
+    .upload-container input[type='file'] {
+        display: none;
+    }
+
+    .upload-container .upload-components .drag-message, .upload-container .upload-components .upload-progress {
+        display: none;
+    }
+
+    .upload-container.dragover {
+        background-color: #f5fbfe;
+        border: 1px solid #007faa;
+        border-radius: 3px;
+        color: #3c444c;
+        font-size: 1.3125rem;
+        font-weight: bold;
+        padding: 88px 0;
+    }
+
+        .upload-container.dragover .upload-components .fa-cloud-upload, .upload-container.dragover .upload-components .upload-message, .upload-container.dragover .upload-components .btn, .upload-container.dragover .upload-components .upload-progress {
+            display: none;
+        }
+
+        .upload-container.dragover .upload-components .dragbox, .upload-container.dragover .upload-components .drag-message {
+            display: block;
+        }
+
+    .upload-container.uploading .upload-components .fa-cloud-upload, .upload-container.uploading .upload-components .upload-message, .upload-container.uploading .upload-components .btn {
+        display: none;
+    }
+
+    .upload-container.uploading .upload-components .dragbox, .upload-container.uploading .upload-components .drag-message {
+        display: none;
+    }
+
+    .upload-container.uploading .upload-components .upload-progress {
+        display: block;
+    }
+
+        .upload-container.uploading .upload-components .upload-progress .filename {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .upload-container.uploading .upload-components .upload-progress .uploading-message {
+            margin-top: 2px;
+        }
+
+        .upload-container.uploading .upload-components .upload-progress .progress {
+            margin: 15px auto 10px;
+            width: 180px;
+        }
+
+    .upload-container h2 {
+        clear: both;
+        display: block;
+        font-size: 1.3125rem;
+        line-height: 21px;
+        margin: 0 auto;
+    }
+
+    .upload-container .btn {
+        margin-top: 15px;
+    }
+
+    .upload-container .fa-cloud-upload {
+        color: #d2d2d2;
+        font-size: 45px;
+    }

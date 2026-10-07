@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="ad1c707c-131d-49c2-a374-bd5a62dba6ed" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://localhost:11721/USPSIM.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="USPSIM.disco" MetadataType="Disco" ID="3ad2cf19-3088-48f7-8e17-172dee961574" SourceId="1" SourceUrl="http://localhost:11721/USPSIM.svc?disco" />
+    <MetadataFile FileName="USPSIM.wsdl" MetadataType="Wsdl" ID="59e7c16b-6508-42fc-b94b-123cd8a85096" SourceId="1" SourceUrl="http://localhost:11721/USPSIM.svc?wsdl" />
+    <MetadataFile FileName="USPSIM.xsd" MetadataType="Schema" ID="c8874b5f-aca0-449e-9a4c-8973b7751627" SourceId="1" SourceUrl="http://localhost:11721/USPSIM.svc?xsd=xsd2" />
+    <MetadataFile FileName="USPSIM1.xsd" MetadataType="Schema" ID="c2d1f16d-9d0b-4114-95c6-497db25b3fe6" SourceId="1" SourceUrl="http://localhost:11721/USPSIM.svc?xsd=xsd1" />
+    <MetadataFile FileName="USPSIM2.xsd" MetadataType="Schema" ID="110e3b71-b38d-46e5-8287-7664da20b137" SourceId="1" SourceUrl="http://localhost:11721/USPSIM.svc?xsd=xsd0" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

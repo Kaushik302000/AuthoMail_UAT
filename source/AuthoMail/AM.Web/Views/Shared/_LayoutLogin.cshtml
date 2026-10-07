@@ -1,0 +1,274 @@
+﻿<!doctype html>
+<html class="no-js" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" href="~/clui/dist/img/favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AuthoMail Login</title>
+    @Styles.Render("~/Content/clcss")
+    @Scripts.Render("~/bundles/modernizr")
+    <style>
+        body {
+            position: relative;
+            margin: 0 auto;
+            max-width: 1090px;
+        }
+
+        .cl-row {
+            margin: 0 auto;
+            max-width: 100%;
+            width: 100%;
+        }
+
+            .cl-row:before, .cl-row:after {
+                content: " ";
+                display: table;
+            }
+
+            .cl-row:after {
+                clear: both;
+            }
+
+            .cl-row .cl-row {
+                margin: 0 -0.9375em;
+                max-width: none;
+                width: auto;
+            }
+
+        .cl-column,
+        .cl-columns {
+            position: relative;
+            padding-left: 10px;
+            padding-right: 10px;
+            width: 100%;
+            float: left;
+        }
+
+            .cl-column + .cl-column:last-child,
+            .cl-columns + .cl-columns:last-child {
+                float: right;
+            }
+
+            .cl-column + .cl-column.end,
+            .cl-columns + .cl-columns.end {
+                float: left;
+            }
+
+        .offset-1 {
+            padding-left: 8.33333% !important;
+        }
+
+        @@media (min-width: 500px) and (max-width: 1151px) {
+            .left-block {
+                width: 100%;
+            }
+
+            .hide-small {
+                display: none;
+            }
+        }
+
+        @@media (min-width: 1152px) {
+            .cl-column,
+            .left-block {
+                width: 41.66667%;
+            }
+
+            .right-block {
+                width: 58.33333%;
+            }
+
+            .single-column .hide-small {
+                display: none;
+            }
+
+            .single-column .inner-block {
+                max-width: 500px;
+                margin: 0 auto 45px auto;
+                padding: 30px 60px !important;
+            }
+
+                .single-column .inner-block .app-logo {
+                    text-align: center;
+                }
+
+            .single-column .left-block {
+                width: 100%;
+            }
+        }
+
+        #cl-header {
+            padding: 41px 0 41px;
+            text-align: center;
+        }
+
+            #cl-header #cl-logo {
+                margin: 0 auto;
+                display: block;
+                width: 234px;
+                height: 67px;
+            }
+
+        .inner-block {
+            background: #fff;
+            max-width: 1050px;
+            padding: 30px 60px;
+            margin-bottom: 45px;
+            overflow: auto;
+            -webkit-border-radius: 3px;
+            -moz-border-radius: 3px;
+            -ms-border-radius: 3px;
+            border-radius: 3px;
+            -webkit-box-shadow: 0px 0px 11px 2px rgba(0, 0, 0, 0.07);
+            -moz-box-shadow: 0px 0px 11px 2px rgba(0, 0, 0, 0.07);
+            box-shadow: 0px 0px 11px 2px rgba(0, 0, 0, 0.07);
+        }
+
+            .inner-block .app-logo {
+                margin: 15px 0 30px 0;
+                font-size: 30px;
+                line-height: 36px;
+            }
+
+        @@media (max-width: 499px) {
+            .inner-block {
+                padding: 15px;
+                margin-bottom: 30px;
+            }
+
+                .inner-block .app-logo {
+                    text-align: center;
+                }
+        }
+
+        @@media (min-width: 500px) and (max-width: 1151px) {
+            .inner-block {
+                max-width: 500px;
+                margin: 0 auto 45px auto;
+                padding: 30px 60px !important;
+            }
+        }
+
+        .inner-block .left-block {
+            max-width: 400px;
+        }
+
+        .cl-image {
+            position: absolute;
+            top: 5%;
+            right: 5%;
+            background: transparent !important;
+            -webkit-border-radius: 3px;
+            -moz-border-radius: 3px;
+            -ms-border-radius: 3px;
+            border-radius: 3px;
+            overflow: hidden;
+            -webkit-box-shadow: 0 6px 21px 5px rgba(0, 0, 0, 0.15);
+            -moz-box-shadow: 0 6px 21px 5px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 6px 21px 5px rgba(0, 0, 0, 0.15);
+        }
+
+            .cl-image img {
+                background: transparent !important;
+            }
+
+        @@media (max-width: 499px) {
+            .hide-mobile, .hide-small {
+                display: none;
+            }
+
+        {
+            display: none;
+        }
+
+        #cl-header {
+            padding: 30px 0;
+        }
+
+            #cl-header #cl-logo {
+                width: auto;
+                height: auto;
+            }
+
+        #cl-logo img {
+            width: 180px;
+        }
+
+        }
+
+        .link {
+            margin-left: 15px;
+            font-size: 13px;
+            text-transform: uppercase;
+            color: #127eaf;
+        }
+
+        .forgot {
+            font-size: 15px;
+        }
+
+        #login-container {
+            margin-left: 20px;
+        }
+
+        .cl-form-login label {
+            margin-bottom: 9px;
+        }
+
+            .cl-form-login label span {
+                float: right;
+            }
+
+        .cl-learnmore {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+            .cl-learnmore span {
+                margin-right: 15px;
+            }
+    </style>
+</head>
+
+<body>
+
+    <header class="cl-row" id="cl-header">
+        <div class="cl-columns text-center">
+            <a href="#" id="cl-logo"><img src="~/clui/images/corelogic.png" /></a>
+        </div>
+    </header>
+    @RenderBody()
+    <footer>
+        <div>
+            2021 Copyright CoreLogic. All Rights Reserved.
+        </div>
+        <div>
+            <ol>
+                <li><a href="http://www.corelogic.com/about-us/our-company.aspx" target="_blank">About Our Company</a></li>
+                <li><a href="http://www.corelogic.com/about-us/contact-us.aspx" target="_blank">Contact Us</a></li>
+                @*<li><a href="#">FAQs</a></li>
+                    <li><a href="#">Sitemap</a></li>
+                    <li><a href="#">Terms of Use</a></li>*@
+                <li><a href="http://www.corelogic.com/privacy.aspx" target="_blank">Policies</a></li>
+            </ol>
+        </div>
+    </footer>
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/cljs")
+    @Scripts.Render("~/bundles/clcomponetjs")
+    @RenderSection("scripts", required: false)
+    <script>
+        var baseUrl = '@Url.Content("~/")';
+        $(document).ready(function () {
+            init();
+        });
+        function alertMessage(alertType, message) {
+            window.clui.globalAlert({
+                message: message,
+                alertType: alertType,
+                timeout: 3000
+            });
+        }
+    </script>
+</body>
+</html>

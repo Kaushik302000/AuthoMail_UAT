@@ -1,0 +1,465 @@
+﻿@{
+    ViewBag.Title = "Not Reported Back Of MailBatches";
+}
+
+<link href="~/clui/dist/css/datatablecustom.css" rel="stylesheet" />
+<style>
+    #dateFilter .bootstrap-select {
+        width: 100% !important;
+    }
+
+    .bootstrap-select {
+        width: 205px !important;
+    }
+
+    .popover-content {
+        word-wrap: break-word;
+        color: red;
+    }
+</style>
+<div class="panel-group">
+    <div class="panel panel-default">
+        <div class="panel-heading" id="headingOne">
+            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#metaItem1">
+                <div class="panel-title">
+                    Not Reported Back Of MailBatches
+                    <div class="collapsed-icon pull-right">
+                        <i class="fa fa-caret-left"></i>
+                    </div>
+                    <div class="expanded-icon pull-right">
+                        <i class="fa fa-caret-down"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div id="metaItem1" class="panel-collapse collapse in">
+            <div class="panel-body">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="date">Select Date (EST)</label>
+                        <div class="input-group date" id="datepicker4">
+                            <input type="text" class="form-control" id="date">
+                            <span class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-md-1">
+                    <div class="form-group ">
+                        <label for="filterData"> &nbsp;&nbsp;&nbsp;&nbsp;</label>
+                        <button type="button" id="filterData" class="btn btn-primary" style=" padding-top: 6%;">
+                            <span class="sr-only">Filter</span>
+                            <i class="fa fa-arrow-right fa-2x"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="modal fade" id="TrackingInfo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg col-md-10" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header">
+                <h1 id="myModalLabel">Tracking Details</h1>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                @*<button type="button" class="btn btn-primary">View All</button>*@
+            </div>
+        </div>
+    </div>
+</div>
+<div class="panel panel-default">
+    <div class='alert alert-blue text-center' id="loading" style="display:none"><span> Loading... </span></div>
+    <div class="panel-heading" id="supportHeader">
+        <div class="panel-title">
+            Not Reported Back Of MailBatches : <span class="normaltext" id="headerdate"></span>
+
+        </div>
+    </div>
+    <div class="panel-body" id="supportMailPieceList"></div>
+</div>
+
+<!-- table html template code -->
+<div id="supportTableContent" style="display:none">
+    <table class="table table-responsive" style="overflow-x:scroll">
+        <thead>
+            <tr>
+
+                <th>Batch Id</th>
+                <th>Batch Name</th>
+                <th>Client</th>
+                <th>Pipeline Status</th>
+                <th>Batch Status</th>
+                <th>Validation Status</th>
+                <th>Validation Errors</th>
+                <th>Client Code</th>
+                <th>Received Date <span class="fontcapitalize">(Local)</span></th>
+                <th>Downloaded Date</th>
+            </tr>
+        </thead>
+        <tbody id="supportbodyContent"></tbody>
+    </table>
+</div>
+<div style="display:none">
+    <table>
+        <tbody id="supportBody">
+            <tr class="row-small">
+                <td><span>{MailBatchId}</span></td>
+                <td><span data-toggle="tooltip" data-container="body" data-placement="top" title="{MailBatchName}">{ShortMailBatchName}</span></td>
+                <td><span>{Client}</span></td>
+                <td><span>{PipelineStatus}</span></td>
+                <td><span>{BatchStatus}</span></td>
+                <td><span>{ValidationStatus}</span></td>
+                <td><span>{ValidationErrors}</span></td>
+                <td><span>{AppCode}</span></td>
+                <td><span>{ReceivedOn}</span></td>
+                <td><span>{DownloadedOn}</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div id="printBatchTableContent" style="display:none">
+    <table class="table table-responsive" style="overflow-x:scroll">
+        <thead>
+            <tr>
+                <th>MailPiece Id</th>
+                <th>Loan Number</th>
+                <th>Document Type</th>
+                <th>Effective Received Date<span class="fontcapitalize">(Local)</span></th>
+                <th>Shipping Carrier</th>
+                <th>Shipping Service Type </th>
+                <th>Shipping Status</th>
+                <th>Print Batch</th>
+                <th>Pipeline Status</th>
+                <th>Error Code</th>
+                <th>Errror Desc</th>
+                <th>Printed Date<span class="fontcapitalize">(Local)</span></th>
+                <th>Shipped Date<span class="fontcapitalize">(Local)</span></th>
+                <th>Total Pages</th>
+                <th>Print Location</th>
+            </tr>
+        </thead>
+        <tbody id="printBatchbodyContent"></tbody>
+    </table>
+</div>
+<div style="display:none">
+    <table>
+        <tbody id="printBatchBody">
+            <tr class="row-small">
+                <td><span>{MailPieceId}</span></td>
+                <td><span>{LoanNumber}</span></td>
+                <td><span>{DocumentOrPackageType}</span></td>
+                <td><span>{EffectiveReceivedOnEst}</span></td>
+                <td><span>{ShippingCarrier}</span></td>
+                <td><span>{ShippingServiceType}</span></td>
+                <td><span>{ShippingStatus}</span></td>
+                <td><span>{PrintBatchId}</span></td>
+                <td><span>{PipelineStatus}</span></td>
+                <td><span>{ErrorCode}</span></td>
+                <td><span>{ErrorDescPopover}</span></td>
+                <td><span>{PrintedOn}</span></td>
+                <td><span>{ShippedOn}</span></td>
+                <td><span>{TotalPages}</span></td>
+                <td><span>{PrintLocation}</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="modal fade" id="ViewInfo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg col-md-12" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header">
+                <h1 id="myModalLabel">MailPiece Details</h1>
+                <hr />
+            </div>
+            <div class="modal-body">
+                <div id="showerror" style="display:none"></div>
+                <div class='alert alert-blue text-center' id="loadingModal" style="display:none"><span> Loading... </span></div>
+                <div class="row" id="databind" >
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <hr />
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end table template code -->
+@section Scripts{
+    @Styles.Render("~/bundles/datatablescss")
+    @Scripts.Render("~/bundles/datatables")
+    <script>
+    $(document).ready(function () {
+        window.clui.dateTimePickerInit();
+        //console.log(baseUrl);
+        FilterData();
+
+    });
+    function applyDataTable() {
+        $('[data-toggle="popover"]').popover({
+            'trigger': 'hover',
+            'placement': 'auto left',
+            'container': 'body'
+        });
+        var table = $('#sample_2');
+        var filename = "NotReportedBackOfMailBatches";
+        var title = "Not Reported Back Of MailBatches";
+        var oTable = table.dataTable({
+
+            "language": {
+                "aria": {
+                    "sortAscending": ": activate to sort column ascending",
+                    "sortDescending": ": activate to sort column descending"
+                },
+                "emptyTable": "No data available in table",
+                "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                "infoEmpty": "No entries found",
+                "infoFiltered": "(filtered1 from _MAX_ total entries)",
+                "lengthMenu": "_MENU_ entries",
+                "search": "<b>Search:</b>",
+                "zeroRecords": "No matching records found"
+            },
+            "columnDefs": [
+                    {
+                        "targets": ["BatchId"],
+                        "visible": false,
+                        "searchable": true
+                    },
+            ],
+            "scrollX": true,
+            buttons: [
+                //{
+                //    extend: 'colvis',
+                //    text: 'Select Fields',
+                //    className: 'btn purple pull-left',
+                //    columns: ':not(.noVis)'
+                //},
+            {
+                extend: 'csv',
+                text: '<i class="fa fa-file-excel-o fa-2x"></i>',
+                className: 'btn btn-primary',
+                filename: filename,
+                title: title,
+                exportOptions: {
+                    columns: "thead th:not(.BatchId)",//[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+                }
+
+            }
+
+
+            ],
+
+            "order": [
+                [8, 'desc']
+            ],
+            "lengthMenu": [
+                [5, 10, 25, 50, 100, -1],
+                [5, 10, 25, 50, 100, "All"] // change per page values here
+            ],
+            // set the initial value
+            "pageLength": 5,
+
+            "dom": "<'row' <'col-md-12'B>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
+
+
+        });
+        $('.selectpicker').selectpicker('refresh');
+        $('#BatchList').on('change', function () {
+            var oTable = $('#sample_2').dataTable();
+            var filterColumn = oTable.api().column(".BatchId").index();
+            var selected = $(this).find("option:selected").val();
+            if (!selected) {
+
+                oTable.fnFilter('', filterColumn, true);
+            } else {
+                oTable.fnFilter("^" + parseInt(selected) + "$", filterColumn, true); //Exact value, column, reg
+            }
+        });
+    }
+    function FormatObject(Model) {
+        $(Model).each(function () {
+            this.ShortMailBatchName = shortName(this.MailBatchName);
+            this.MailBatchId = '<a  data-batchid="' + this.MailBatchId + '" onclick="ViewDetails(this)" class="btn btn-transparent-blue btn-sm" >' + this.MailBatchId + '</a>';
+            // this.TotalPages = this.Status == "Shipped" ? this.TotalPages : 0;
+            this.ReceivedOn = this.ReceivedOn == null ? "--" : moment(this.ReceivedOn).format("MM/DD/YY HH:mm:ss");
+            this.DownloadedOn = this.DownloadedOn == null ? "--" : moment(this.DownloadedOn).format("MM/DD/YY HH:mm:ss");
+            var eddDesc = '<span id="popoverError" data-toggle="popover" data-original-title="Error Code: <ErrorCode>" data-html="true" data-content="<dataContent>" data-placement="left"><a> <ErrorCode> </a></span>'.replace(/<ErrorCode>/g, this.ValidationStatus).replace("<dataContent>", this.ValidationErrors == null ? "--" : this.ValidationErrors);
+            this.ValidationErrors = this.ValidationErrors == null ? '--' : eddDesc;
+
+        });
+
+        return Model;
+    }
+    function FormatMailPieceObject(Model) {
+        $(Model).each(function () {
+            this.ShippedOn = this.ShippedOn == null ? "--" : moment(this.ShippedOn).format("MM/DD/YY HH:mm:ss");
+            this.EffectiveReceivedOnEst = this.EffectiveReceivedOnEst == null ? "--" : moment(this.EffectiveReceivedOnEst).format("MM/DD/YY HH:mm:ss");
+            this.PrintedOn = this.PrintedOn == null ? "--" : moment(this.PrintedOn).format("MM/DD/YY HH:mm:ss");
+            var eddDesc = '<span id="popoverError" data-toggle="popover" data-original-title="Error Code: <ErrorCode>" data-html="true" data-content="<dataContent>" data-placement="left"><a> <ErrorCode> </a></span>'.replace(/<ErrorCode>/g, this.ErrorCode).replace("<dataContent>", this.ErrorDesc == null ? "--" : this.ErrorDesc);
+            this.ErrorDescPopover = this.ErrorCode == "No_Error" ? '<span>' + this.ErrorCode + '</span>' : eddDesc;
+
+            switch (this.ShippingStatus) {
+
+                case "PulledBack":
+                    status = '<span class="label medium label-yellow">' + this.ShippingStatus + '</span>';
+
+                    break;
+                case "Error":
+                    status = '<span class="label medium label-red">' + this.ShippingStatus + '</span>';
+                    //status = '<span class="label medium label-red" data-toggle="popover" data-original-title="Error Code: ' + this.ErrorCode + '" data-html="true" data-content="' + this.ErrorDesc + '" data-placement="left">' + this.Status + '</span>';
+                    break;
+                case "Shipped":
+                    status = '<span class="label medium label-success">' + this.ShippingStatus + '</span>';
+                    break;
+                case "InProgress":
+                    status = '<span class="label medium label-blue">' + this.ShippingStatus + '</span>';
+                    break;
+
+            }
+            this.ShippingStatus = status;
+        });
+        return Model;
+    }
+    function shortName(str) {
+        //console.log(str);
+        if (typeof str != 'undefined' && str != null && str != "")
+            return str.length > 31 ? str.substring(0, 31) + '...' : str;
+    }
+    function ViewDetails(obj) {
+        //alert("call");
+        var batchId = $(obj).data("batchid");
+        //console.log(mailPieceId);
+        $("#databind").html("");
+        $("#ViewInfo").modal("show");
+        $("#loadingModal").show();
+        $.ajax({
+            type: "GET",
+            url: baseUrl + "Support/GetMailPieceByBatchId",
+            data: {
+                batchId: parseInt(batchId)
+            },
+            //contentType: "application/json; charset=utf-8",
+            success: function (response) {
+                //console.log(response);
+                if (response.Success) {
+                    if (response.Object != null) {
+                        if (response.Object.model != null && response.Object.model.length > 0) {
+                            $("#loadingModal").hide();
+                            $("#showerror").hide();
+                            var data = FormatMailPieceObject(response.Object.model);
+                            BindTemplateWithOutDatatable(data, "#printBatchBody", "#printBatchbodyContent", "#printBatchTableContent", "#databind");
+                            $('[data-toggle="popover"]').popover({
+                                'trigger': 'hover',
+                                'placement': 'auto left',
+                                'container': 'body'
+                            });
+                            window.clui.tooltipInit();
+                            $("#ViewInfo").modal("show");
+                            setModalHeight("ViewInfo");
+                        }
+                        else {
+                            $("#loadingModal").hide();
+                            $("#databind").html("");
+                            $("#showerror").show();
+                            $("#showerror").html(" <div style='margin-bottom:10px;' class='alert alert-yellow'><span class='sbold'>@AM.Services.Config.Web_Msg_NoRecordFound</span></div>");
+
+                        }
+                    }
+                } else {
+                    $("#loadingModal").hide();
+                    $("#databind").html("");
+                    $("#showerror").show();
+                    $("#searchMailPieceList").show();
+                    $("#showerror").html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + response.ErrorMessage + "</span></div>");
+                    // $("#ViewInfo").modal("show");
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $("#showerror").show();
+                $("#loadingModal").hide();
+                var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                $("#showerror").html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + msg + "</span></div>");
+                $("#ViewInfo").modal("show");
+            }
+
+        });
+        //$("#ViewInfo").find(".modal-body").text(mailPieceId);
+
+    }
+    function setModalHeight(id) {
+        var count = $("#" + id).find("tr").length;//.find(".modal-body").height();
+        if (count > 5) {
+            $("#" + id).find(".modal-body").height(window.screen.height - 450);
+            $("#" + id).find(".modal-body").css("overflow-y", "scroll");
+        }
+        else {
+            $("#" + id).find(".modal-body").height('auto');
+
+        }
+
+    }
+    function FilterData() {
+
+        $("#supportHeader").hide();
+        $("#supportMailPieceList").hide();
+        var date = $("#date").val();
+        var el = $('#supportMailPieceList');
+        $("#headerdate").html(date + " EST");
+        $("#loading").show();
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "Support/_GetNotReportedBackOfMailBatches",
+            data: JSON.stringify({ date: date }),
+            contentType: "application/json; charset=utf-8",
+            success: function (response) {
+                //console.log(response);
+                if (response.Success) {
+                    if (response.Object != null) {
+                        $("#loading").hide();
+                        $("#supportHeader").show();
+                        $("#supportMailPieceList").show();
+                        //console.log(response.Object.model.length);
+                        if (response.Object.model.length > 0) {
+                            $("#supportMailPieceList").html("");
+                            var data = FormatObject(response.Object.model);
+                            BindTemplate(data, "#supportBody", "#supportbodyContent", "#supportTableContent", "#supportMailPieceList");
+                            window.clui.tooltipInit();
+                        }
+                        else {
+                            $("#supportMailPieceList").html(" <div style='margin-bottom:10px;' class='alert alert-yellow'><span class='sbold'>@AM.Services.Config.Web_Msg_NoRecordFound</span></div>")
+                        }
+                    }
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $("#loading").hide();
+                $("#supportHeader").show();
+                $("#supportMailPieceList").show();
+                var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                $("#supportMailPieceList").html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + msg + "</span></div>");
+            }
+
+        });
+    }
+    $("#filterData").click(function () {
+        FilterData();
+    });
+
+    </script>
+}

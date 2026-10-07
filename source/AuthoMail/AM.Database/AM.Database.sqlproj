@@ -1,0 +1,262 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Name>AM.Database</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>4.1</ProjectVersion>
+    <ProjectGuid>{18f7fb8d-bda2-4109-a82d-909a2e6569f5}</ProjectGuid>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql130DatabaseSchemaProvider</DSP>
+    <OutputType>Database</OutputType>
+    <RootPath>
+    </RootPath>
+    <RootNamespace>AM.Database</RootNamespace>
+    <AssemblyName>AM.Database</AssemblyName>
+    <ModelCollation>1033,CI</ModelCollation>
+    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
+    <DeployToDatabase>True</DeployToDatabase>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetLanguage>CS</TargetLanguage>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SqlServerVerification>False</SqlServerVerification>
+    <IncludeCompositeObjects>True</IncludeCompositeObjects>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+    <DefaultCollation>SQL_Latin1_General_CP1_CI_AS</DefaultCollation>
+    <DefaultFilegroup>PRIMARY</DefaultFilegroup>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <!-- Default to the v11.0 targets path if the targets file for the current VS version is not found -->
+    <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
+    <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Condition="'$(SQLDBExtensionsRefPath)' != ''" Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <ItemGroup>
+    <Folder Include="Properties" />
+    <Folder Include="Snapshots" />
+    <Folder Include="Profile\" />
+    <Folder Include="Profile\Tables\" />
+    <Folder Include="AM\" />
+    <Folder Include="AM\Tables\" />
+    <Folder Include="Common\" />
+    <Folder Include="Common\Tables\" />
+    <Folder Include="API\" />
+    <Folder Include="API\Tables\" />
+    <Folder Include="dbo\" />
+    <Folder Include="dbo\Tables\" />
+    <Folder Include="PnS\" />
+    <Folder Include="PnS\Tables\" />
+    <Folder Include="dbo\Views\" />
+    <Folder Include="dbo\Functions\" />
+    <Folder Include="dbo\Stored Procedures\" />
+    <Folder Include="dbo\User Defined Types\" />
+    <Folder Include="Security\" />
+    <Folder Include="dbo\Sequences\" />
+    <Folder Include="Scripts" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Snapshots\AMProduction_12_16_2019.dacpac" />
+    <None Include="Snapshots\Release_01DEC20.dacpac" />
+    <None Include="Snapshots\Release_02JAN21.dacpac" />
+    <None Include="Snapshots\Release_10JAN21.dacpac" />
+    <None Include="Scripts\0728_INSERT_FloodNYMACustomTemplates.sql" />
+    <None Include="dbo\Stored Procedures\CheckDuplicateMailPiece.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="Profile\Tables\Info.sql" />
+    <Build Include="Profile\Tables\Roles.sql" />
+    <Build Include="Profile\Tables\UserClaims.sql" />
+    <Build Include="Profile\Tables\UserLogins.sql" />
+    <Build Include="Profile\Tables\UserRoles.sql" />
+    <Build Include="Profile\Tables\Users.sql" />
+    <Build Include="AM\Tables\AlertSubscribers.sql" />
+    <Build Include="AM\Tables\ClientAMCCustIdMap.sql" />
+    <Build Include="AM\Tables\ClientBusinessIdentifiers.sql" />
+    <Build Include="AM\Tables\DocTypes.sql" />
+    <Build Include="Common\Tables\Envelopes.sql" />
+    <Build Include="AM\Tables\EDeliveryMailPieces.sql" />
+    <Build Include="AM\Tables\ErrorNotifications.sql" />
+    <Build Include="AM\Tables\LogBatchTimeLine.sql" />
+    <Build Include="AM\Tables\MailBatchCustomInfo.sql" />
+    <Build Include="AM\Tables\MailBatches.sql" />
+    <Build Include="AM\Tables\MailPieceCustomInfo.sql" />
+    <Build Include="AM\Tables\MailPieces.sql" />
+    <Build Include="AM\Tables\PrintBatches.sql" />
+    <Build Include="Common\Tables\PnSConfig.sql" />
+    <Build Include="AM\Tables\ProjectRequest.sql" />
+    <Build Include="AM\Tables\PullBackRequests.sql" />
+    <Build Include="Common\Tables\PnSConfigDetail.sql" />
+    <Build Include="AM\Tables\ShippingAccounts.sql" />
+    <Build Include="API\Tables\USPS.sql" />
+    <Build Include="API\Tables\USPSeVS.sql" />
+    <Build Include="Common\Tables\PnSConfigDetailCoverLetters.sql" />
+    <Build Include="API\Tables\USPSeVSCancel.sql" />
+    <Build Include="Common\Tables\BusinessUnit.sql" />
+    <Build Include="Common\Tables\ClientDomains.sql" />
+    <Build Include="Common\Tables\Clients.sql" />
+    <Build Include="Common\Tables\ClientSFTChannels.sql" />
+    <Build Include="Common\Tables\Deliverables.sql" />
+    <Build Include="Common\Tables\EmailChannels.sql" />
+    <Build Include="Common\Tables\EnvelopeInventory.sql" />
+    <Build Include="Common\Tables\FederalHolidays.sql" />
+    <Build Include="Common\Tables\Holidays.sql" />
+    <Build Include="Common\Tables\MailPiecePageInfo.sql" />
+    <Build Include="Common\Tables\MonitorBatches.sql" />
+    <Build Include="Common\Tables\PrintTrails.sql" />
+    <Build Include="Common\Tables\PrintVendors.sql" />
+    <Build Include="Common\Tables\SFTChannels.sql" />
+    <Build Include="Common\Tables\SystemSettings.sql" />
+    <Build Include="dbo\Tables\SNAPJobLog.sql" />
+    <Build Include="dbo\Tables\SNAPJobLog_2.sql" />
+    <Build Include="PnS\Tables\BatchSummary.sql" />
+    <Build Include="PnS\Tables\EnvelopeUsage.sql" />
+    <Build Include="PnS\Tables\LogBatchTimeLine.sql" />
+    <Build Include="PnS\Tables\MRDFRequest.sql" />
+    <Build Include="PnS\Tables\MRDFResponse.sql" />
+    <Build Include="PnS\Tables\MRDFResponseHistory.sql" />
+    <Build Include="PnS\Tables\PrintTrailBatches.sql" />
+    <Build Include="PnS\Tables\ReprintBatches.sql" />
+    <Build Include="PnS\Tables\ReprintMRDFRequest.sql" />
+    <Build Include="PnS\Tables\Schema_BatchSummary.sql" />
+    <Build Include="PnS\Tables\Schema_MRDFRequest.sql" />
+    <Build Include="dbo\Tables\ProductionBridge.sql" />
+    <Build Include="PnS\Tables\Schema_MRDFResponse.sql" />
+    <Build Include="dbo\Views\view_MRDFResponseData.sql" />
+    <Build Include="dbo\Views\v_DocTypes.sql" />
+    <Build Include="dbo\Views\view_FedExData.sql" />
+    <Build Include="dbo\Views\vDVExp.sql" />
+    <Build Include="dbo\Functions\ufn_UTCToEST.sql" />
+    <Build Include="dbo\Functions\ufn_GetDallasBatches.sql" />
+    <Build Include="dbo\Functions\ufn_GetDallasBatchTimings.sql" />
+    <Build Include="dbo\Functions\ufn_GetDallasBatchDetails.sql" />
+    <Build Include="dbo\Stored Procedures\usp_MapClientSFTChannels.sql" />
+    <Build Include="dbo\Stored Procedures\usp_RevertPipelineStatus.sql" />
+    <Build Include="dbo\Stored Procedures\usp_UpdateAMMailBatchesStatus.sql" />
+    <Build Include="dbo\Stored Procedures\usp_UpdateEDMailPieceActivityStatus.sql" />
+    <Build Include="dbo\Stored Procedures\uspweb_SummaryControlReport.sql" />
+    <Build Include="dbo\Stored Procedures\uspweb_MonthlyReconReport.sql" />
+    <Build Include="dbo\Stored Procedures\uspweb_MailPieceSearch.sql" />
+    <Build Include="dbo\Stored Procedures\uspweb_GetMailPieceByBatchIdAndStatus.sql" />
+    <Build Include="dbo\Stored Procedures\uspweb_GetMailPieceByBatchId.sql" />
+    <Build Include="dbo\Stored Procedures\uspweb_ErrorReportSLA.sql" />
+    <Build Include="dbo\Stored Procedures\uspweb_ErrorReport.sql" />
+    <Build Include="dbo\Stored Procedures\uspweb_DailyDetailOperationsReport.sql" />
+    <Build Include="dbo\Stored Procedures\SP_GetPendingScanning.sql" />
+    <Build Include="dbo\Stored Procedures\uspalert_GetDelayedBatchesToSubmit.sql" />
+    <Build Include="dbo\Stored Procedures\SP_GetRecentBatchesStats.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetMRDFRequestDataByPrintTrailId.sql" />
+    <Build Include="dbo\Stored Procedures\SP_GetScannedMailPieces.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetMRDFRequestDataByPrintTrailBatchId.sql" />
+    <Build Include="dbo\Stored Procedures\SP_GetScanReportData.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetMRDFReceivedBatches.sql" />
+    <Build Include="dbo\Stored Procedures\SP_GetScanStats.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetDocTypeDetailsByAppId.sql" />
+    <Build Include="dbo\Stored Procedures\SP_RegisterScan.sql" />
+    <Build Include="dbo\Stored Procedures\usp_AMLogBatchTimeLine.sql" />
+    <Build Include="dbo\Stored Procedures\usp_DeleteMailPiecesDetailsByMailBatchId.sql" />
+    <Build Include="dbo\Stored Procedures\usp_DeleteMRDFRequestByJobId.sql" />
+    <Build Include="dbo\Stored Procedures\usp_EnvelopeInventoryStockCalculation.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetAllClientAppDetail.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetBatchSummaryById.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetBatchSummarySchema.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetClientAppDetailsById.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetDallasBatchTimingsPnS.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetDeliverableByReportType.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetEnvelopeInventoryUsage.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetFinalMRDFResponseDataByJobId.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetMailBatchReceivedOnDataBasedFromPrintBatchId.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetMRDFRequestDataByJobId.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetMRDFRequestSchema.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetMRDFResponseDataByJobId.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetMRDFResponseDataByPrintTrailBatchId.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetMRDFResponseDummyDataByPrintTrailBatchId.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetMRDFResponseSchema.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetNextBatchIdByJobName.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetPrintBatchDetailByPrintBatchTrailId.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetPrintTrailDetailByPrintTrailId.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetPrintTrailDetailByPrintTrailName.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetPullBackRequestDataByJobId.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetSubmittedBatches.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetSystemSettingsById.sql" />
+    <Build Include="dbo\Stored Procedures\usp_InsertErrorNotificationData.sql" />
+    <Build Include="dbo\Stored Procedures\usp_InsertPullBackRequestsData.sql" />
+    <Build Include="dbo\Stored Procedures\usp_LogBatchTimeLine.sql" />
+    <Build Include="dbo\User Defined Types\Amount.sql" />
+    <Build Include="Security\AM.sql" />
+    <Build Include="Security\API.sql" />
+    <Build Include="Security\Common.sql" />
+    <Build Include="Security\PnS.sql" />
+    <Build Include="Security\Profile.sql" />
+    <Build Include="dbo\Sequences\ReportingSequence.sql" />
+    <Build Include="dbo\Views\vPrintReadyLegacy.sql" />
+    <Build Include="dbo\Views\view_MailPiecesInformation.sql" />
+    <Build Include="dbo\Views\vAPIs.sql" />
+    <Build Include="dbo\Functions\ufn_ConvertDateTimeFromAnyTimeZoneToAnyTimeZone.sql" />
+    <Build Include="dbo\Functions\IsBusinessDay.sql" />
+    <Build Include="dbo\Functions\GetNextWorkingDay.sql" />
+    <Build Include="AM\Tables\CustomTemplates.sql" />
+    <Build Include="Common\Tables\DallasNotificationMapping.sql" />
+    <Build Include="Common\Tables\ShipperInformation.sql" />
+    <Build Include="dbo\Stored Procedures\usp_GetCoversheetData.sql" />
+    <Build Include="Common\Tables\HolidaysGroups.sql" />
+    <Build Include="Common\Tables\ClientHolidayGroups.sql" />
+    <Build Include="Common\Tables\PnSSweepTimings.sql" />
+    <Build Include="dbo\Functions\ufn_GetSweepTimings.sql" />
+    <Build Include="dbo\Stored Procedures\ConfigureDELFUSClient.sql" />
+    <Build Include="dbo\Functions\ufn_ESTToUTC.sql" />
+    <Build Include="dbo\Stored Procedures\SP_GetScanStats_Temp.sql" />
+    <Build Include="dbo\Stored Procedures\SP_GetRecentBatchesStats_Temp.sql" />
+    <Build Include="Common\Tables\EnvelopeStock.sql" />
+    <Build Include="Common\Tables\ClientUserMapping.sql" />
+    <Build Include="dbo\Stored Procedures\SP_USAAMTDVolumeReport.sql" />
+    <Build Include="API\Tables\AMRequestLogs.sql" />
+    <Build Include="dbo\Views\view_USPSData.sql" />
+    <Build Include="AM\Tables\FloodClientMapping.sql" />
+    <Build Include="Common\Tables\DallasPostages.sql" />
+    <Build Include="Common\Tables\DallasBatchTimings.sql" />
+    <Build Include="dbo\Stored Procedures\SP_BulkRegisterScan.sql" />
+    <Build Include="Common\Tables\UserShipAccMapping.sql" />
+    <Build Include="API\Tables\FedEx.sql" />
+    <Build Include="dbo\Stored Procedures\usp_InsertTrackingDump.sql" />
+    <Build Include="dbo\User Defined Types\udt_TrackingDump.sql" />
+    <Build Include="dbo\Stored Procedures\usp_UpdateTrackingInfo.sql" />
+    <Build Include="AM\Tables\TrackingDump.sql" />
+    <Build Include="dbo\Stored Procedures\usp_ScanDummyDataByPrintTrailBatchIdForDallas.sql" />
+    <Build Include="AM\Tables\PackagesHoldInfo.sql" />
+    <Build Include="AM\Tables\EsignDocConfig.sql" />
+    <Build Include="API\Tables\APICredentials.sql" />
+    <Build Include="dbo\Views\v_IntlDocTypes.sql" />
+    <Build Include="AM\Tables\DocTypeInserts.sql" />
+    <Build Include="API\Tables\USPSLabelCutOffDetails.sql" />
+    <Build Include="AM\Tables\SPELogs.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="AM.Database.refactorlog" />
+  </ItemGroup>
+</Project>

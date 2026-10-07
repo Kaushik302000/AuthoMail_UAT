@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-16"?>
+<MailBatch xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Id="9139e97b-3a83-41f9-bc1f-4c1621d26ba7" Priority="High" DocumentOrPackageType="InitialDisclosure" ClientCode="Northwind" ClientBatchId="1000000251" xmlns="http://schemas.corelogic.com/ade/authomail/v1.18.0">
+  <ReturnInfo>
+    <Recipient Organization="Westand Corporation" Phone="+19156585563" />
+    <Address Street="1st Main Street" City="Anchorage" State="AK" Zip="99503" />
+  </ReturnInfo>
+  <MailPieces>
+    <MailPiece Id="1139e97b-3a83-41f9-bc1f-4c1621d26ba7" BusinessFriendlyIdName="LoanNumber" BusinessFriendlyIdValue="4722222254">
+      <DocumentOrPackage Name="4722222254_InitialDisclosuresPackage.PDF" />
+      <RecipientInfo>
+        <Recipient Prefix="Mr" FirstName="Jungkwan" LastName="Lee" Phone="+19156585523" />
+        <Corecipient Prefix="Mrs" FirstName="Maria" MiddleName="J" LastName="Lee" />
+        <Address Street="1st Main Street" City="Brooklyn" State="NY" Zip="11223" />
+      </RecipientInfo>
+      <ReturnInfo>
+        <Recipient Organization="Westand Corporation" Phone="+19156585663" />
+		<Address Street="1st Main Street" City="Dawson" State="IA" Zip="50066" />
+      </ReturnInfo>
+    </MailPiece>
+    <MailPiece Id="2139e97b-3a83-41f9-bc1f-4c1621d26ba7" BusinessFriendlyIdName="LoanNumber" BusinessFriendlyIdValue="4722895653" DocumentOrPackageType="ManualDisclosure">
+      <DocumentOrPackage Pattern="4722895653" />
+      <RecipientInfo>
+        <Recipient Prefix="Dr" FirstName="Glenn" LastName="Nookathota" />
+        <Address Street="1st Main Street" City="Mendham" State="NJ" Zip="07945" />
+      </RecipientInfo>
+      <CustomInfo>
+        <Metadata Key="LoanAmount" Value="$123,659" />
+      </CustomInfo>
+    </MailPiece>
+    <MailPiece Id="3139e97b-3a83-41f9-bc1f-4c1621d26ba7" BusinessFriendlyIdName="LoanNumber" BusinessFriendlyIdValue="4722895653" DocumentOrPackageType="ManualDisclosure">
+      <DocumentOrPackage Pattern="4722895653" />
+      <RecipientInfo>
+        <Recipient FirstName="Sia" MiddleName="Glenn" LastName="Nookathota" Phone="+19156584456" />
+		<Address Street="1st Main Street" City="Brooklyn" State="NY" Zip="50066" />
+      </RecipientInfo>
+      <CustomInfo>
+        <Metadata Key="LoanAmount" Value="$123,659" />
+      </CustomInfo>
+    </MailPiece>
+  </MailPieces>
+</MailBatch>

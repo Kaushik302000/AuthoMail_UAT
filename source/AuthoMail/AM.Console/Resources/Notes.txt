@@ -1,0 +1,25 @@
+﻿--------------Logic Imformation-------------------
+
+1) Send Batches to Dallas Printing Team :
+	- For USPS Express, Monday to Friday - till 8 PM EST Batch should go to Dallas Team
+	- For FedEx, Monday-Friday(Between 4.30PM EST Till 8 PM EST) Batch should go to Dallas Team
+
+
+-------------- General Information----------------
+1) HSBC via AMC (Mail Subject : HSBC Testing Via Cadence Platform)
+	- Both the Customer Identifier and Client Code for HSBC = 185
+	- the Customer naming convention will be the naming convention conveyed in the XML sent to CL.
+
+2) Upadated Holiday List (Mail : RE: [JBIZ] (ADE-1477) AuthoMail - USAA "Error SLA report" logic change / update)
+	Memorial Day -
+-	Independence Day
+-	Labor Day - 09/03
+-	Thanksgiving Day - 11/22
+-	Christmas Day -12/25
+-	New Year's Day - 01/01/2019
+
+3) Updated CutOff Timings (Mail 08/30 : Correction RE: USAA SLA Report Request - Pre JIRA Request & RE: USAA Client Communication/ Authomail Logic Change)
+	Shipping Type			Monday – Friday Cut-off		Saturday Cut-off
+	USPS_First Class		7 PM CST/ 8 PM EST			7 PM CST/ 8 PM EST
+	FedEx					7 PM CST/ 8 PM EST			1 PM CST/2 PM EST
+	USPS_Express/Priority	5 PM CST/ 6 PM EST			1 PM CST/ 2 PM EST

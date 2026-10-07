@@ -1,0 +1,174 @@
+﻿@model AM.Entities.MailPiece
+<div class="panel-group">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="panel-title">
+                <h3>Recipient Info</h3>
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="col-md-4" id="businessIddiv">
+                @if (ViewBag.BusinessId.Count == 1)
+                {
+                    <label for="BusinessFriendlyIdValue">@ViewBag.BusinessId[0]</label>
+                    <div class="input-group">
+                        <input class="form-control" name="BusinessFriendlyIdValue" value="@ViewBag.BusinessFriendlyIdValue" placeholder="@ViewBag.BusinessId[0]" id="BusinessFriendlyIdValue">
+                        <input type="hidden" value="@ViewBag.BusinessId[0]" name="BusinessFriendlyIdName" id="BusinessFriendlyIdName" />
+                    </div>
+                    <div class="text-red pull-left" style="display:none" id="BusinessFriendlyIdValueError">This field is required.</div>
+                }
+                else if (ViewBag.BusinessId.Count > 1)
+                {
+                    <label for="BusinessFriendlyIdName">Select Business ID</label>
+                    <div class="input-group">
+
+                        <select id="BusinessFriendlyIdName" name="BusinessFriendlyIdName" class="selectpicker" data-live-search="true" data-live-search-placeholder="Search Business ID">
+                            @foreach (var item in ViewBag.BusinessId)
+                            {
+                                <option value="@item.ToString()">@item.ToString()</option>
+                            }
+                        </select>
+                        <input class="form-control" name="BusinessFriendlyIdValue" placeholder="" id="BusinessFriendlyIdValue">
+
+                    </div>
+                }
+                else
+                {
+                    <br />
+                    <div class='alert alert-yellow'><div>No business friendly id found!</div></div>
+                }
+            </div>
+            <div class="col-md-4">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.DocumentOrPackageType, htmlAttributes: new { @class = "control-label" })
+                    @Html.DropDownListFor(model => model.DocumentOrPackageType, ViewBag.docTypes as SelectList, "Select Doc Type", new { @class = "form-control", id = "ddlDocType", onchange = "GetReturnAddressInfo()" })
+                    @Html.ValidationMessageFor(model => model.DocumentOrPackageType, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="col-md-3">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.RecipientInfo.Recipient.FirstName, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.RecipientInfo.Recipient.FirstName, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.RecipientInfo.Recipient.FirstName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.RecipientInfo.Recipient.MiddleName, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.RecipientInfo.Recipient.MiddleName, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.RecipientInfo.Recipient.MiddleName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.RecipientInfo.Recipient.LastName, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.RecipientInfo.Recipient.LastName, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.RecipientInfo.Recipient.LastName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="col-md-3">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.RecipientInfo.Address.Street, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.RecipientInfo.Address.Street, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.RecipientInfo.Address.Street, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.RecipientInfo.Address.AptOrSuiteOrOther, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.RecipientInfo.Address.AptOrSuiteOrOther, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.RecipientInfo.Address.AptOrSuiteOrOther, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.RecipientInfo.Address.City, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.RecipientInfo.Address.City, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.RecipientInfo.Address.City, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-1">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.RecipientInfo.Address.State, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.RecipientInfo.Address.State, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.RecipientInfo.Address.State, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-1">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.RecipientInfo.Address.Zip, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.RecipientInfo.Address.Zip, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.RecipientInfo.Address.Zip, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.RecipientInfo.Address.Country, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.RecipientInfo.Address.Country, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="col-md-2">
+                <div class="form-group form-group-sm">
+                    <br />
+                    <input id="eDelivery_IsEDelivery" type="checkbox" name="Is EDelivery" value="Is EDelivery" />  <label for="eDelivery_IsEDelivery" class="control-label"> Is E-Delivery</label>
+                </div>
+            </div>
+
+            <div id="ShowHideEmailDate" style="display:none">
+                <div class="col-md-2">
+                    <div class="form-group form-group-sm">
+                        <br />
+                        @*<input id="eDelivery_PrintAndShipOnExpiry" class="cl-check" type="checkbox" name="eDelivery.PrintAndShipOnExpiry" />*@
+                        @Html.LabelFor(model => model.eDelivery.PrintAndShipOnExpiry, htmlAttributes: new { @class = "control-label" })
+                        @Html.CheckBoxFor(model => model.eDelivery.PrintAndShipOnExpiry, new { htmlAttributes = new { @class = "form-check-input" } })
+                        @Html.ValidationMessageFor(model => model.eDelivery.PrintAndShipOnExpiry, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group form-group-sm">
+                        </br>
+                        @*<input id="eDelivery_IsEsign" class="cl-check" type="checkbox" name="eDelivery.IsEsign" />*@
+                        @Html.LabelFor(model => model.eDelivery.IsEsign, htmlAttributes: new { @class = "control-label" })
+                        @Html.CheckBoxFor(model => model.eDelivery.IsEsign, new { htmlAttributes = new { @class = "form-check-input" } })
+                        @Html.ValidationMessageFor(model => model.eDelivery.IsEsign, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group form-group-sm">
+                        @Html.LabelFor(model => model.RecipientInfo.Recipient.EmailAddress, htmlAttributes: new { @class = "control-label" })
+                        @Html.EditorFor(model => model.RecipientInfo.Recipient.EmailAddress, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.RecipientInfo.Recipient.EmailAddress, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <div class="form-group form-group-sm">
+                        @Html.LabelFor(model => model.eDelivery.ExpiryDate, htmlAttributes: new { @class = "control-label" })
+                        @*@Html.EditorFor(model => model.eDelivery.ExpiryDate, new { htmlAttributes = new { @class = "form-control", required = "false" } })*@
+                        @{
+                            string expiryDateVal = null;
+                            if (Model != null && Model.eDelivery != null && Model.eDelivery.PrintAndShipOnExpiry)
+                            {
+                                expiryDateVal = Model.eDelivery.ExpiryDate.ToString("MM-dd-yyyy");
+                            }
+                        }
+                        <input type="text" class="form-control" name="ExpiryDate" id="ExpiryDate" value="@(expiryDateVal)" />
+                        @Html.ValidationMessageFor(model => model.eDelivery.ExpiryDate, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('#eDelivery_IsEDelivery').change(function () {
+            $('#ShowHideEmailDate').toggle($(this).is(':checked'));
+        });
+    });
+</script>

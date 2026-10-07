@@ -1,0 +1,465 @@
+﻿@{
+    ViewBag.Title = "EVault Packages";
+}
+
+<link href="~/clui/dist/css/datatablecustom.css" rel="stylesheet" />
+<style>
+    .show-calendar {
+        width: 484px !important;
+    }
+
+    #bsselectId .bootstrap-select {
+        width: 100% !important;
+    }
+
+    .bootstrap-select {
+        width: 165px !important;
+    }
+
+    .dataTables_wrapper {
+        margin-top: -1.5% !important;
+    }
+
+    .popover-content {
+        word-wrap: break-word;
+        color: red;
+    }
+
+    .label.label-Edelivery {
+        background-color: #20c997;
+    }
+
+    .label.label-Esign {
+        background-color: #6f42c1;
+    }
+</style>
+<div class="panel-group">
+    <div class="panel panel-default">
+        <div class="panel-heading" id="headingOne">
+            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#metaItem1">
+                <div class="panel-title">
+                    E-Vault Packages
+                    <div class="collapsed-icon pull-right">
+                        <i class="fa fa-caret-left"></i>
+                    </div>
+                    <div class="expanded-icon pull-right">
+                        <i class="fa fa-caret-down"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div id="metaItem1" class="panel-collapse collapse in">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-7">
+                        <div class="form-group col-md-@(ViewBag.BusinessId.Count > 1?"7":"6")">
+                            @if (ViewBag.BusinessId.Count == 1)
+                            {
+                                <label for="BusinessFriendlyIdValue">@ViewBag.BusinessId[0]</label>
+                                <div class="input-group">
+                                    <i class="fa fa-search left-icon"></i>
+                                    <input class="form-control" name="BusinessFriendlyIdValue" value="@ViewBag.BusinessFriendlyIdValue" placeholder="@ViewBag.BusinessId[0]" required id="BusinessFriendlyIdValue">
+                                    <input type="hidden" value="@ViewBag.BusinessId[0]" name="BusinessFriendlyIdName" id="BusinessFriendlyIdName" />
+                                </div>
+                                <div class="text-red pull-left" style="display:none" id="BusinessFriendlyIdValueError">This field is required.</div>
+                            }
+                            else if (ViewBag.BusinessId.Count > 1)
+                            {
+                                <label for="BusinessFriendlyIdName">Select Business ID</label>
+                                <div class="input-group">
+
+                                    <select id="BusinessFriendlyIdName" class="selectpicker" data-live-search="true" data-live-search-placeholder="Search Business ID">
+                                        <option value="">Select BusinessId</option>
+                                        @foreach (var item in ViewBag.BusinessId)
+                                        {
+                                            <option value="@item.ToString()">@item.ToString()</option>
+                                        }
+                                    </select>
+                                    <input class="form-control" name="BusinessFriendlyIdValue" placeholder="" required id="BusinessFriendlyIdValue">
+
+                                </div>
+                            }
+                            else
+                            {
+                                <br />
+                                <div class='alert alert-yellow'><div>No business friendly id found!</div></div>
+                            }
+                        </div>
+                        <div class="form-group col-md-@(ViewBag.BusinessId.Count > 1?"5":"6")" id="bsselectId">
+                            <label for="input1">Document Type</label>
+                            @Html.DropDownList("DocType", ViewBag.DocType as SelectList, "Select Document Type", htmlAttributes: new { @class = "selectpicker", @data_live_search = "true", @data_live_search_placeholder = "Search Document Type" })
+
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="receivedOn">Received  On (EST) </label>
+                            <div class="input-group daterange" id="datepicker4">
+                                <input type="text" class="form-control" id="receivedOn">
+                                <span class="input-group-addon viewcalendar">
+                                    <i class="fa fa-calendar"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-md-1">
+                        <div class="form-group ">
+                            <label for="filterData">&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                            <button type="button" id="filterData" class="btn btn-primary" style=" padding-top: 6%;">
+                                <span class="sr-only">Filter</span>
+                                <i class="fa fa-arrow-right fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="panel panel-default">
+    <div class='alert alert-blue text-center' id="loading" style="display:none"><span> Loading... </span></div>
+    <div class="panel-heading" id="pullbackHeader">
+        <div class="panel-title">
+            MailPiece Details: <span class="normaltext" id="headerdate"></span>
+        </div>
+    </div>
+    <div class="panel-body" id="pullbackList"></div>
+</div>
+<!-- table html template code -->
+<div id="pullbackTableContent" style="display:none">
+    <table class="table table-responsive pullbacktable">
+        <thead>
+            <tr>
+                <th>File</th>
+                <th>@Html.Action("GetHeadingForBusinessId", "Common")</th>
+                <th>Activity Logs</th>
+                <th>Borrower Name</th>
+                <th>Email-Id</th>
+                <th>Signing Room Name</th>
+                <th>Received <span class="fontcapitalize">(Local)</span></th>
+                <th>Invited <span class="fontcapitalize">(Local)</span></th>
+                <th>E-Signed <span class="fontcapitalize">(Local)</span></th>
+            </tr>
+        </thead>
+        <tbody id="pullbackContent"></tbody>
+    </table>
+</div>
+<div style="display:none">
+    <table>
+        <tbody id="pullbackBody">
+            <tr class="row-small">
+                <td><span>{FileFormatted}</span></td>
+                <td><span>{LoanNumber}</span></td>
+                <td><span>{ActivityLogs}</span></td>
+                <td><span>{RcptName}</span></td>
+                <td><span>{RcptEmailId}</span></td>
+                <td><span>{SigningRoomName}</span></td>
+                <td><span>{ReceivedOnFormatted}</span></td>
+                <td><span>{InvitationSentOnFormatted}</span></td>
+                <td><span>{ESignedOnFormatted}</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<!-- end table template code -->
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header">
+                <h1 id="myModalLabel">Pullback Response</h1>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header" style="margin-top:2%;margin-bottom:2%;">
+                <h2 id="myModalLabel"> @AM.Services.Config.Web_Msg_PullBackConfirmation</h2>
+                <hr />
+                <button type="button" class="btn btn-default" id="yesPullback"><i class="fa fa-check"></i> Yes</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal"><i class="fa fa-close"></i> No</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    @Styles.Render("~/bundles/datatablescss")
+    @Scripts.Render("~/bundles/datatables")
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var dateTemplate = '<div class="daterangepicker dropdown-menu">' + '<div class="calendar left">' + '<div class="calendar-table"></div>' + '</div>' + '<div class="calendar right">' + '<div class="calendar-table"></div>' + '</div>' + '<div class="ranges">' + '<div class="range_inputs">' + '<button class="applyBtn" disabled="disabled" type="button"></button> ' + '<button class="cancelBtn" type="button"></button>' + '</div>' + '</div>' + '</div>';
+            $("#receivedOn").daterangepicker({
+                autoApply: true,
+                template: dateTemplate,
+                showCustomRangeLabel: false,
+                startDate: moment("@ViewBag.startDate").format("MM/DD/YYYY"),
+                endDate: moment("@ViewBag.endDate").format("MM/DD/YYYY"),
+
+            });
+            FilterData();
+            $(".viewcalendar").click(function () {
+                $("#receivedOn").focus();
+            });
+        });
+
+        function CheckboxCheck() {
+            $(".checkall").unbind("click").bind("click", function () {
+                if ($(this).is(":checked")) {
+                    $(this).next().next().addClass("spinnericon");
+                }
+                else {
+                    $(this).next().next().removeClass("spinnericon");
+                }
+            });
+        }
+        function FilterData() {
+            $("#pullbackHeader").hide();
+            $("#pullbackList").hide();
+            $("#loading").show();
+            var loanNumber = $("#loanNumber").val();
+            var docType = $("#DocType").val();
+
+            var selectedData = $("#receivedOn").val().split('-');
+
+            var startDate = moment(selectedData[0].trim()).format("MM/DD/YY");
+            var endDate = moment(selectedData[1].trim()).format("MM/DD/YY");
+            var el = $('#pullbackList');
+            $("#headerdate").html(startDate + " to " + endDate + " EST");
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "EVault/_GetEVaultMailPieceList",
+                data: JSON.stringify({ startDate: startDate, endDate: endDate }),
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    //console.log(response);
+                    if (response.Success) {
+                        if (response.Object != null) {
+                            $("#loading").hide();
+                            $("#pullbackHeader").show();
+                            $("#pullbackList").show();
+                            if (response.Object.model.length > 0) {
+                                var data = FormatObject(response.Object.model);
+                                $("#pullbackList").html("");
+                                BindTemplate(data, "#pullbackBody", "#pullbackContent", "#pullbackTableContent", "#pullbackList");
+                            }
+                            else {
+                                $("#pullbackList").html(" <div style='margin-bottom:10px;' class='alert alert-yellow'><span class='sbold'>@AM.Services.Config.Web_Msg_NoRecordFound</span></div>")
+                            }
+                        }
+                    } else {
+                        $("#loading").hide();
+                        $("#pullbackHeader").show();
+                        $("#pullbackList").show();
+                        $("#pullbackList").html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + response.ErrorMessage + "</span></div>");
+                    }
+
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    $("#loading").hide();
+                    $("#pullbackHeader").show();
+                    $("#pullbackList").show();
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    $("#pullbackList").html("<div class='alert alert-red' style='margin-bottom:10px;'><span>" + msg + "</span></div>");
+                }
+
+            });
+        }
+        function applyDataTable() {
+            $('[data-toggle="popover"]').popover({
+                'trigger': 'hover',
+                'placement': 'auto right',
+                'container': 'body'
+            });
+            var table = $('#sample_2');
+            var filename = "PullbackReport";
+            var title = "Pullback Report";
+            var oTable = table.dataTable({
+
+                "language": {
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    },
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "No entries found",
+                    "infoFiltered": "(filtered1 from _MAX_ total entries)",
+                    "lengthMenu": "_MENU_ entries",
+                    "search": "<b>Search:</b>",
+                    "zeroRecords": "No matching records found"
+                },
+
+                buttons: [],
+                "scrollX": false,
+                "lengthMenu": [
+                    [5, 10, 25, 50, 100, -1],
+                    [5, 10, 25, 50, 100, "All"] // change per page values here
+                ],
+                // set the initial value
+                "pageLength": 5,
+
+                "dom": "<'row' <'col-md-12'B>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
+
+            });
+        }
+        function FormatObject(Model) {
+            $(Model).each(function () {
+                this.ReceivedOnFormatted = moment(this.ReceivedOn).format("MM/DD/YY HH:mm:ss");
+                this.InvitationSentOnFormatted = moment(this.InvitationSentOn).format("MM/DD/YY HH:mm:ss");
+                this.ESignedOnFormatted = this.ESignedOn == null ? "--" : moment(this.ESignedOn).format("MM/DD/YY HH:mm:ss");
+                this.RcptName = this.RcptName == null || this.RcptName == "" ? "--" : this.RcptName.trim();
+                this.CityFormatted = this.RcptAddressCity + " " + this.RcptAddressState + " " + this.RcptAddressZIP;
+                this.AddressFormatted = this.RcptAddress == null || this.RcptAddress.trim() == "" ? "--" : this.RcptAddress.trim() + (cityStateZip != "" ? ", " + cityStateZip : "");
+                this.FileFormatted = this.IsWithinRetentionPeriod && this.RequestedPdf != null ? '<a href="' + baseUrl + 'EVault/DownloadEVaultPackage?fileName=' + encodeURIComponent(this.FileName) + '&appCode=' + encodeURIComponent(this.ClientCode) + '&id=' + this.MailBatchId + '"  style="cursor: pointer;font-size:1.2em;margin-right:10%;" class="btn btn-transparent-red btn-sm"><i class=" fa fa-file-pdf-o"></i> </a>' : '--';
+                this.ActivityLogs = '<a id="' + this.MailBatchId + '" style="width:185px;" class="btn btn-transparent-blue btn-sm" href="/track?id=' + this.MailBatchId + '&IsEdelivery=true" target="_blank"><i class="fa faspinner"></i> ' + this.MailBatchId + '</a>';
+            });
+            return Model;
+        }
+        $("#filterData").click(function () {
+            FilterData();
+        });
+        $("#pullback").click(function (e) {
+
+            var mailpieceIds = [];
+            var oTable = $('#sample_2').dataTable();
+            $(".checkall:checked", oTable.fnGetNodes()).each(function () {
+                mailpieceIds.push($(this).data("mailpieceid"));
+
+            });
+            if (mailpieceIds.length == 0) {
+                window.clui.globalAlert({
+                    message: 'Please select MailPiece.',
+                    alertType: 'red',
+                    timeout: 5000
+                })
+                return;
+            }
+            else {
+                $("#confirmModal").modal("show");
+            }
+        });
+
+        $("#yesPullback").unbind("click").click(function (e) {
+            $("#confirmModal").modal("hide");
+            Spinners("#pullback", "fa-reply");
+            e.preventDefault();
+            var oTable = $('#sample_2').dataTable();
+            var mailpieceIds = [];
+            var cnts = [];
+            $(".checkall:checked", oTable.fnGetNodes()).each(function () {
+                mailpieceIds.push($(this).data("mailpieceid"));
+                cnts.push($(this).data("cnt"));
+
+            });
+            Spinners(".spinnericon", "faspinner");
+            var el = $("#myModal").find('.modal-body');
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "api/pullback/pullbackold",
+                data: JSON.stringify(mailpieceIds),
+                contentType: "application/json; charset=utf-8",
+                dataType: "JSON",
+                success: function (response) {
+                    Spinners("#pullback", "fa-reply");
+                    Spinners(".spinnericon", "faspinner");
+                    if (response.Success) {
+                        if (response.Object != null) {
+
+                            for (var i = 0; i < response.Object.length; i++) {
+                                if (response.Object[i] != "" || response.Object[i] != "undefined") {
+                                    var msg = response.Object[i].Message;
+
+                                    if (response.Object[i].PullBackRequestedOn != null && response.Object[i].PulledBackRequestedBy != "") {
+
+                                        msg = msg.slice(0, -1) + " by " + response.Object[i].PulledBackRequestedBy + " on " + moment(response.Object[i].PullBackRequestedOn).format("MM/DD/YYYY  HH:mm:ss");
+                                    }
+                                    if (response.Object[i].Success) {
+                                        $("#IsPullBackRequested_" + cnts[i]).html('<span class="label medium label-yellow">Yes</span>');
+                                        if (response.Object[i].MailPieceStatus == "PulledBack") {
+                                            $("#statusid_" + cnts[i]).html('<span class="label medium label-yellow">PulledBack</span>');
+                                        }
+                                        $("#resPullBack_" + cnts[i]).html('<i class="fa fa-check icon-green"></i>');
+                                        $("#resPullBack_" + cnts[i]).css("margin-left", "-31%");
+                                        $('#resPullBack_' + cnts[i]).attr('data-content', "<span class='text-green'>" + msg + "</span>");
+                                        $('#resPullBack_' + cnts[i]).attr('data-original-title', "Success");
+                                        $("#checkbox-demo_" + cnts[i]).attr("disabled", "disabled");
+                                        $("#checkbox-demo_" + cnts[i]).removeClass("checkall");
+                                        $("#checkbox-demo_" + cnts[i]).prop('checked', false);
+                                    }
+                                    else {
+                                        $("#resPullBack_" + cnts[i]).html('<i class="fa fa-close icon-red" style="cursor: pointer;"></i>');
+
+
+                                        $('#resPullBack_' + cnts[i]).attr('data-content', "<span class='text-red'>" + msg + "</span>");
+                                        $('#resPullBack_' + cnts[i]).attr('data-original-title', "Error");
+                                        $("#resPullBack_" + cnts[i]).css("margin-left", "-25%");
+                                        $("#checkbox-demo_" + cnts[i]).prop('checked', false);
+                                    }
+                                    $("#spinner_" + cnts[i]).removeClass("spinnericon");
+
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        for (var i = 0; i < cnts.length; i++) {
+                            $("#resPullBack_" + cnts[i]).html('<i class="fa fa-close icon-red" style="cursor: pointer;"></i>');
+
+
+
+                            $('#resPullBack_' + cnts[i]).attr('data-content', "<span class='text-red'>" + response.ErrorMessage + "</span>");
+                            $('#resPullBack_' + cnts[i]).attr('data-original-title', "Error");
+                            $("#resPullBack_" + cnts[i]).css("margin-left", "-25%");
+                            $("#checkbox-demo_" + cnts[i]).prop('checked', false);
+                            $("#spinner_" + cnts[i]).removeClass("spinnericon");
+                        }
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    Spinners("#pullback", "fa-reply");
+                    Spinners(".spinnericon", "faspinner");
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    el.html("<div class='alert alert-red'><span>" + msg + "</span></div>");
+                    $("#myModal").modal("show");
+                }
+            });
+        });
+
+        function ReshiptTransaction(obj) {
+            var mbId = $(obj).data("mailbatchid");
+            var mpId = $(obj).data("mailpieceid");
+            $.ajax({
+                type: "GET",
+                url: baseUrl + "Common/ReshipMailPiece",
+                data: { mbId: mbId, mpId: mpId },
+                success: function (response) {
+                    if (response.Success) {
+                        alertMessage('green', response.Object);
+                    }
+                    else {
+                        alertMessage('red', response.ErrorMessage);
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    var msg = '@AM.Services.Config.Web_Msg_Ajax_CommonError';
+                    alertMessage('red', msg);
+                }
+            });
+        }
+    </script>
+}

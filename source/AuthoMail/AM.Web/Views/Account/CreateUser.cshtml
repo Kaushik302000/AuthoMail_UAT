@@ -1,0 +1,122 @@
+﻿@model  AM.Services.AccountUser
+@{
+    ViewBag.Title = "CreateUser";
+}
+<form method="post" action="/Account/CreateUser">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="panel-title">
+                User
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="IsAPIUser" class="control-label">User Type</label>
+                        <select name="IsAPIUser" class="form-control input-sm" required>
+                            <option value="">Select User Type</option>
+                            <option value="False">Web</option>
+                            <option value="True">API</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="Email" class="control-label">Email</label>
+                        @Html.TextBoxFor(model => model.Email, new { @class = "form-control input-sm", placeholder = "Email", required = "required" })
+                        <span class="help-block" style="font-size:13px;">For API USER TYPE it should be empty.</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label" for="EmailConfirmed">Email Confirm</label>
+                        <select name="EmailConfirmed" class="form-control input-sm" required>
+                            <option value="">Select Email Confirm</option>
+                            <option value="True">Yes</option>
+                            <option value="False">No</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label" for="FirstName">First Name</label>
+                        @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control input-sm", placeholder = "First Name" })
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label" for="LastName">Last Name</label>
+                        @Html.TextBoxFor(m => m.LastName, new { @class = "form-control input-sm", placeholder = "Last Name" })
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label" for="DisplayName">Display Name</label>
+                        @Html.TextBoxFor(m => m.DisplayName, new { @class = "form-control input-sm", placeholder = "Display Name" })
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label" for="UserName">User Name</label>
+                        @Html.TextBoxFor(m => m.UserName, new { @class = "form-control input-sm", placeholder = "User Name", required = "required" })
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label" for="PasswordHash">Password</label>
+                        <input type="password" name="PasswordHash" class="form-control input-sm" placeholder="Password" required />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label" for="ClientId">Client</label>
+                        <select name="ClientId" class="form-control input-sm">
+                            <option value="">Select Client</option>
+                            @foreach (var item in ViewBag.Clients as SelectList)
+                            {
+                                string sel = item.Value == (Model.ClientId.HasValue ? Model.ClientId.Value.ToString() : null) ? "selected" : "";
+                                <option value="@item.Value" @sel>@item.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label" for="Status">Status</label>
+                        <select name="Status" class="form-control input-sm" required>
+                            <option>Select Status</option>
+                            @foreach (var item in ViewBag.Status as SelectList)
+                            {
+                                string sel = item.Value == Model.Status ? "selected" : "";
+                                <option value="@item.Value" @sel>@item.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label" for="Roles">Roles</label>
+                        <select name="Roles" class="form-control cl-multi-select" data-placeholder="Select Roles" multiple required>
+                            @foreach (var item in ViewBag.Roles as SelectList)
+                            {
+                                string sel = Model.Roles != null && Model.Roles.Any(m => m == item.Value) ? "selected" : "";
+                                <option value="@item.Value" @sel>@item.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+        <div class="panel-footer text-right">
+            <button type="submit" class="btn btn-success">Save</button>
+        </div>
+
+    </div>
+
+</form>

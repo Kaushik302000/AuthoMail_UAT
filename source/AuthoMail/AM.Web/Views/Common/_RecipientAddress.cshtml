@@ -1,0 +1,77 @@
+﻿@model AM.Entities.MailPiece
+<div class="panel-group">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="panel-title">
+                <h3>Recipient Address</h3>
+            </div>
+        </div>
+        <div class="panel-body">
+            @*<div class="col-md-3">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.RecipientInfo.Address.OptionalLine1AboveStreet, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.RecipientInfo.Address.OptionalLine1AboveStreet, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.RecipientInfo.Address.OptionalLine1AboveStreet, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.RecipientInfo.Address.OptionalLine2AboveStreet, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.RecipientInfo.Address.OptionalLine2AboveStreet, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.RecipientInfo.Address.OptionalLine2AboveStreet, "", new { @class = "text-danger" })
+                </div>
+            </div>*@
+            <div class="col-md-3">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.RecipientInfo.Address.Street, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.RecipientInfo.Address.Street, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.RecipientInfo.Address.Street, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            @*<div class="col-md-3">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.RecipientInfo.Address.AptOrSuiteOrOther, htmlAttributes: new { @class = "control-label " })
+                    @Html.EditorFor(model => model.RecipientInfo.Address.AptOrSuiteOrOther, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.RecipientInfo.Address.AptOrSuiteOrOther, "", new { @class = "text-danger" })
+                </div>
+            </div>*@
+            @*<div class="col-md-3">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.RecipientInfo.Address.OptionalLine1BelowStreet, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.RecipientInfo.Address.OptionalLine1BelowStreet, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.RecipientInfo.Address.OptionalLine1BelowStreet, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.RecipientInfo.Address.OptionalLine2BelowStreet, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.RecipientInfo.Address.OptionalLine2BelowStreet, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.RecipientInfo.Address.OptionalLine2BelowStreet, "", new { @class = "text-danger" })
+                </div>
+            </div>*@
+            <div class="col-md-3">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.RecipientInfo.Address.City, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.RecipientInfo.Address.City, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.RecipientInfo.Address.City, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.RecipientInfo.Address.State, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.RecipientInfo.Address.State, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.RecipientInfo.Address.State, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-group form-group-sm">
+                    @Html.LabelFor(model => model.RecipientInfo.Address.Zip, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.RecipientInfo.Address.Zip, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.RecipientInfo.Address.Zip, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

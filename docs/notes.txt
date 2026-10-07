@@ -1,0 +1,99 @@
+﻿જય સ્વામિનારાયણ
+
+- PCI printing
+- 
+
+- No Monthly, Daily (status by doctype)
+
+- Login page and Content pages (https://stage.authocenter.com)
+- Delivery Report and Error Report
+- Consolidated Report
+- Search by Loan, Date, DocType, Status
+- Check remaining reports
+
+- AMC (shipping fields ignore)
+- Client Id, Package Type
+- doc types
+- use custom fields for channel and print location
+- remove duedate from XML and database
+keep it tied to doctype
+- maintain business id name list (table)
+- add channel to XML (optional)
+- external dependencies (prod db, PnS file location)
+- same search screen as previous AuthoMail
+- tracking number as hyperlink
+
+Need:
+- Dashboard
+- doctype
+- Login page and Content pages (https://stage.authocenter.com)
+- 
+
+- channel, print location, tracking code
+
+- Create Dictionary<key,value> at batch and mail piece level, keep date.
+- for batch : keep total count, valid + invalid
+- 
+
+- SLA and due date
+- report extensions : .s<id>, .e<id>
+- PnS (change UniqueId in class, schema, SP, SQL columns AM tables)
+- received date should be read carefully
+- while sending deliverables use batch dictionary : 
+- create triggers in root for immediate delivery
+- AppCode unique key
+- when monitoring channels, group first, take distinct and filter Protocal <> 'Manual'
+- consolidated report group by channel, NOT on the website
+- during XML validation, create dictionary to test if values provided are do not conflict with other fields
+- add schema to resources (AM.Lib)
+- be careful where data is updated shipped or pulled back
+- if shipped is returned then turn qcperformed true
+- review PnS code again (esp validation)
+- report page / sheets issue, will create problems when printing is done in duplex
+- update pagecount by page size from pns.core
+- update view Pns
+- update status of MRDFRequest - it doesn't change from 'In Progress'
+- (Deferred) AM check for immediate error responses from PnS service
+- rewrite entire parsing code in PnS
+- Add ErrId in PnSRequest table and class, update it during validations and response parsing, return PageCountMismatch
+- ShouldSerilizeErrorId (make sure to correct it, if reqd)
+- check page number splitting logic
+- generate guid if not provided
+- move AM schema to resoures file
+- ask for client name for operations and admin logins
+- change report names, consolidated, and SLA miss
+- create common classes for SFTUtil (review and fix)
+- CREATE warning batches on operator dashboard : disposition = 7 or (divertVS3 = 1 and res.disposition not in (4,8))
+- implement logic for priority
+- manage timezone for SLADays and report queries where date is involved (may be treat as EST when querying)
+- common message and settings, should be able to change at runtime
+- Make PCI job to use channels from SFTChannels table
+
+A.A.
+- something about phone # (sherrie, Sapan is going to share)
+- no work on Dashboard
+- get actual document from PCI
+- able cater to multiple channels
+- new fields highlighted
+- check if postage is there in MRDF
+- CHECK ALL REPORT FIELDS WHEN UPDATing DATABASE
+- UNDERSTAND SLA terms for USAA, how to load it in DB
+- how to make other apps use the same database?
+- find PnS production location, FAGOSFTP???
+
+
+
+Sapan's feedback:
+picked up
+enroute
+delivered
+
+label, traking number
+
+show doctype wise chart (milan)
+
+condosafe,
+
+
+BSM alert ( when site down) azeem
+DR

@@ -1,0 +1,13 @@
+﻿
+
+Email subjected:
+"RE: Notes from ADE - PCI/Creel Call: 11/1/2017, Update 11/3 - Agenda for Call today"
+
+2.	Pull-Back – mostly the Fed Ex packages – all clients – who uses this feature the most? 
+	a.	Form with comments 	I removed the “GL Box” but should that be added back if customer provides shipping number or if  you want it for billing confirmation?	Other
+	b.	MRDF.out – disposition code would be “4”
+	c.	Time stamp should be when map is marked as pulled with disposition ‘4’
+
+3.	QC Diverts: 
+	a.	MRDF In: ‘DivertVS3’:  1 for Quality Diverts, otherwise 0 -  Set this flag for the quality diverts
+	b.	MRDF Out:  Should be combination‘DivertVS3’=1 and disposition code “8”.  Diverted, manually repaired

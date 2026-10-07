@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{467D03D9-4A46-4ABF-BB62-FDF46C5E338C}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>AM.EDelivery</RootNamespace>
+    <AssemblyName>AM.EDelivery</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="itextsharp, Version=5.5.13.0, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\iTextSharp.5.5.13\lib\itextsharp.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ChannelFactory.cs" />
+    <Compile Include="Common\MailUtility.cs" />
+    <Compile Include="Common\PdfUtil.cs" />
+    <Compile Include="EDChannel.cs" />
+    <Compile Include="EDGeneralChannel.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="configs\DEV_Config\EDelivery\AM.EDelivery.exe.config" />
+    <None Include="configs\DEV_Config\EDelivery\log4net.config" />
+    <None Include="configs\DRG_Config\EDelivery\AM.EDelivery.exe.config" />
+    <None Include="configs\DRG_Config\EDelivery\log4net.config" />
+    <None Include="configs\REG_Config\EDelivery\AM.EDelivery.exe.config" />
+    <None Include="configs\REG_Config\EDelivery\log4net.config" />
+    <None Include="configs\UAT_Config\EDelivery\AM.EDelivery.exe.config" />
+    <None Include="configs\UAT_Config\EDelivery\log4net.config" />
+    <None Include="log4net.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AM.Entities\AM.Entities.csproj">
+      <Project>{f25362e2-a823-430e-8187-3bca3fd4c891}</Project>
+      <Name>AM.Entities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AM.Lib\AM.Lib.csproj">
+      <Project>{75996573-6449-4675-a5ff-f1c39c84d685}</Project>
+      <Name>AM.Lib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AM.Services\AM.Services.csproj">
+      <Project>{a60d6e77-74fc-419c-bf13-a7684012d0a5}</Project>
+      <Name>AM.Services</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

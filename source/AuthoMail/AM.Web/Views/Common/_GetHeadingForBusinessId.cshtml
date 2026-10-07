@@ -1,0 +1,24 @@
+﻿@model IEnumerable<string>
+
+@if (Model!=null)
+{
+    if (Model.Count()==1)
+    {
+        @Html.Raw(Model.FirstOrDefault().ToString())
+    }
+    if (Model.Count()>1)
+    {
+        var th = "";
+        foreach (var item in Model)
+        {
+            th = th + item.ToString() + "/";
+        }
+        th=th.TrimEnd('/');
+        @Html.Raw(th.Replace("/"," / "));
+    }
+
+}
+else
+{
+    @Html.Raw("Loan Number")
+}
